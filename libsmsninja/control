@@ -1,0 +1,9 @@
+Package: com.naken.libsmsninja
+Name: libsmsninja
+Depends: mobilesubstrate, libstatusbar, libhide
+Version: 1.0
+Architecture: iphoneos-arm
+Description: libsmsninja
+Maintainer: snakeninny
+Author: snakeninny
+Section: Tweaks

@@ -1,0 +1,13 @@
+{
+	Filter = {
+		Bundles = (
+			"com.apple.incomingcallfilter",
+			"com.apple.TelephonyUtilities",
+			"com.apple.facetime",
+			"com.apple.springboard",
+			"com.apple.mobilephone",
+			"com.apple.MobileSMS",
+			"com.apple.imagent",
+		);
+	};
+}

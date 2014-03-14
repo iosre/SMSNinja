@@ -1,0 +1,12 @@
+Package: com.naken.smsninja
+Name: SMSNinja
+Depends: mobilesubstrate, libstatusbar, libhide
+Version: 1.5
+Architecture: iphoneos-arm
+Description: SMSNinja
+Maintainer: snakeninny
+Author: snakeninny
+Section: Applications
+Conflicts: com.sogou.sogouhaomatong, com.qq.qqcontactsbreak, com.iDevBrTeam.iBlacklist, net.qihoo.360safe
+Replaces: com.sogou.sogouhaomatong, com.qq.qqcontactsbreak, com.iDevBrTeam.iBlacklist
+Installed-Size: 1316
