@@ -246,8 +246,8 @@
 	{
 		if ([viewController isKindOfClass:[SNBlacklistViewController class]])
 		{
-			int index = [((SNBlacklistViewController *)viewController)->keywordArray indexOfObject:self.originalKeyword];
-			if ([keyword isEqualToString:self.originalKeyword])
+			NSUInteger index = [((SNBlacklistViewController *)viewController)->keywordArray indexOfObject:self.originalKeyword];
+			if ([keyword isEqualToString:self.originalKeyword] && index != NSNotFound)
 			{
 				[((SNBlacklistViewController *)viewController)->keywordArray replaceObjectAtIndex:index withObject:keyword];
 				[((SNBlacklistViewController *)viewController)->nameArray replaceObjectAtIndex:index withObject:self.nameString];
@@ -276,8 +276,8 @@
 		}
 		else if ([viewController isKindOfClass:[SNWhitelistViewController class]])
 		{
-			int index = [((SNWhitelistViewController *)viewController)->keywordArray indexOfObject:self.originalKeyword];
-			if ([keyword isEqualToString:self.originalKeyword])
+			NSUInteger index = [((SNWhitelistViewController *)viewController)->keywordArray indexOfObject:self.originalKeyword];
+			if ([keyword isEqualToString:self.originalKeyword] && index != NSNotFound)
 			{
 				[((SNWhitelistViewController *)viewController)->keywordArray replaceObjectAtIndex:index withObject:keyword];
 				[((SNWhitelistViewController *)viewController)->nameArray replaceObjectAtIndex:index withObject:self.nameString];
@@ -294,8 +294,8 @@
 		}
 		else if ([viewController isKindOfClass:[SNPrivatelistViewController class]])
 		{
-			int index = [((SNPrivatelistViewController *)viewController)->keywordArray indexOfObject:self.originalKeyword];
-			if ([keyword isEqualToString:self.originalKeyword])
+			NSUInteger index = [((SNPrivatelistViewController *)viewController)->keywordArray indexOfObject:self.originalKeyword];
+			if ([keyword isEqualToString:self.originalKeyword] && index != NSNotFound)
 			{
 				[((SNPrivatelistViewController *)viewController)->keywordArray replaceObjectAtIndex:index withObject:keyword];
 				[((SNPrivatelistViewController *)viewController)->nameArray replaceObjectAtIndex:index withObject:self.nameString];

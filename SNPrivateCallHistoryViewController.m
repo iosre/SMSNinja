@@ -64,8 +64,8 @@ static int amount;
 
 	[self.tableView beginUpdates];
 	[self.tableView deleteRowsAtIndexPaths:[bulkSet allObjects] withRowAnimation:UITableViewRowAnimationFade];
-	int count = [idArray count];
 	[self loadDatabaseSegment];
+	int count = [idArray count];
 	NSMutableArray *insertIndexPaths = [NSMutableArray arrayWithCapacity:50];
 	for (int i = count; i < [idArray count]; i++)
 	{
@@ -73,7 +73,7 @@ static int amount;
 		[insertIndexPaths insertObject:newPath atIndex:(i - count)];
 	}
 	[self.tableView insertRowsAtIndexPaths:insertIndexPaths withRowAnimation:UITableViewRowAnimationFade];
-	[self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
+	if (count != 0) [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
 	self.navigationItem.leftBarButtonItem.title = NSLocalizedString(@"All", @"All");
 	[self.tableView endUpdates];
 }

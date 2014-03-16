@@ -1,7 +1,7 @@
 {
 	Filter = {
 		Bundles = (
-			"com.apple.incomingcallfilter",
+			"com.apple.identityservicesd",
 			"com.apple.TelephonyUtilities",
 			"com.apple.facetime",
 			"com.apple.springboard",

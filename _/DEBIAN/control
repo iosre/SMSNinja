@@ -8,5 +8,5 @@ Author: snakeninny
 Section: Applications
 Conflicts: com.sogou.sogouhaomatong, com.qq.qqcontactsbreak, iblacklist, net.qihoo.360safe
 Replaces: com.sogou.sogouhaomatong, com.qq.qqcontactsbreak, iblacklist, net.qihoo.360safe
-Version: 1.5-230
-Installed-Size: 2788
+Version: 1.5-234
+Installed-Size: 2780
