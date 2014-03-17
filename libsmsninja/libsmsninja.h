@@ -17,103 +17,103 @@
 #define PICTURES @"/var/mobile/Library/SMSNinja/Pictures/"
 #define PRIVATEPICTURES @"/var/mobile/Library/SMSNinja/PrivatePictures/"
 
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSDictionary *settings;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackKeywordArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackTypeArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackNameArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackPhoneArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackSmsArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackReplyArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackMessageArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackForwardArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackNumberArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *blackSoundArray;
 
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whiteKeywordArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whiteTypeArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whiteNameArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whitePhoneArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whiteSmsArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whiteReplyArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whiteMessageArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whiteForwardArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whiteNumberArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *whiteSoundArray;
 
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privateKeywordArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privateTypeArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privateNameArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privatePhoneArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privateSmsArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privateReplyArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privateMessageArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privateForwardArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privateNumberArray;
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern NSMutableArray *privateSoundArray;
 
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" NSString *CurrentTime(void);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void LoadBlacklist(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void LoadWhitelist(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void LoadPrivatelist(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void LoadAllLists(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void LoadSettings(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void UpdateBadge(void);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void ShowIcon(void);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void HideIcon(void);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void ShowPurpleSquare(void);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void HidePurpleSquare(void);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void PlayFilterSound(void);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void PlayBlockSound(void);
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" void ReloadConversation(void); // 5
 
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, NSArray *pictureArray, BOOL isFromMe); // 0 for off, 1 for filter, 2 for block
-__attribute((visibility("hidden")))
+__attribute__((visibility("hidden")))
 extern "C" NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe); // 0 for off, 1 for disconnect, 2 for ignore, 3 for let go
 
 extern "C" CFStringRef UIFormattedPhoneNumberFromStringWithCountry(CFStringRef, CFStringRef);
