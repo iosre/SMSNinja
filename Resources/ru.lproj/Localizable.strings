@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>, Forward</key>
+	<string>, Переслать</string>
+	<key>About</key>
+	<string>О проекте</string>
+	<key>Add</key>
+	<string>Добавить</string>
+	<key>Add to Blacklist</key>
+	<string>Добавить в черный список</string>
+	<key>Add to Privatelist</key>
+	<string>Добавить в приватный список</string>
+	<key>Add to Whitelist</key>
+	<string>Добавить в белый список</string>
+	<key>All</key>
+	<string>Все</string>
+	<key>Are you sure to reset SMSNinja?</key>
+	<string>SMSNinja?
+</string>
+	<key>Beep</key>
+	<string>Звук</string>
+	<key>Black</key>
+	<string>Черный</string>
+	<key>Black &amp; Whitelist</key>
+	<string>Фильтры</string>
+	<key>Blacklist</key>
+	<string>Черный список</string>
+	<key>Block</key>
+	<string>Заблокировать</string>
+	<key>Blocked Info</key>
+	<string>Журнал</string>
+	<key>Call</key>
+	<string>Звонки</string>
+	<key>Call History</key>
+	<string>История звонков</string>
+	<key>Cancel</key>
+	<string>Отмена</string>
+	<key>Clear blocked calls</key>
+	<string>Очистить заблок. звонки</string>
+	<key>Contacts ⊆ Whitelist</key>
+	<string>Контакты=Белый список</string>
+	<key>Copy content</key>
+	<string>Скопировать текст</string>
+	<key>Copy number</key>
+	<string>Скопировать номер</string>
+	<key>Delete</key>
+	<string>Удалить</string>
+	<key>Details</key>
+	<string>Детали</string>
+	<key>Disconnect</key>
+	<string>Сбросить</string>
+	<key>Donate via PayPal. Thank you!</key>
+	<string>Пожертвования</string>
+	<key>Done saving</key>
+	<string>Сохранено</string>
+	<key>Enter keywords</key>
+	<string>Ключевое слово</string>
+	<key>Enter numbers</key>
+	<string>Введите номер</string>
+	<key>Failed to show readme. Please try reinstalling SMSNinja.</key>
+	<string>Не удалось показать "Прочти". Пожалуйста, попробуйте переустановить SMSNinja.</string>
+	<key>FakePW</key>
+	<string>Ложный пароль</string>
+	<key>Forget that!</key>
+	<string>Нет!!! :)</string>
+	<key>Forward</key>
+	<string>Переслать</string>
+	<key>From addressbook</key>
+	<string>Из контактов</string>
+	<key>From call history</key>
+	<string>Из истории вызовов</string>
+	<key>From message history</key>
+	<string>Из истории сообщений</string>
+	<key>From time</key>
+	<string>По времени</string>
+	<key>General</key>
+	<string>Основные</string>
+	<key>Go ahead!</key>
+	<string>Сбросить!</string>
+	<key>Hide Icon</key>
+	<string>Скрыть иконку</string>
+	<key>Hope is a good thing, maybe the best of things. And no good thing ever dies.</key>
+	<string>Надежда умирает последней!</string>
+	<key>Huh?</key>
+	<string>Хм?</string>
+	<key>Icon Badge</key>
+	<string>Счетчик на иконке</string>
+	<key>If "Reveal Privatelist" is on, you can add numbers to Privatelist inside stock MobilePhone and MobileSMS</key>
+	<string>Если задать "Ложный пароль" и при запуске программы его ввести, то меню "Приватная зона" не отобразится.
+
+Если включить "Показать приватный список",то можно непосредственно из стандартного приложения "Телефон" или "Сообщения" добавить номер в "Приватный фильтр".</string>
+	<key>Ignore</key>
+	<string>Игнорировать</string>
+	<key>Incoming</key>
+	<string>Incoming</string>
+	<key>Input fake password</key>
+	<string>Вписать</string>
+	<key>Input here</key>
+	<string>Вписать сюда</string>
+	<key>It seems that you have installed SMSNinja before. To activate version 1.5, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in "/var/mobile/Library/SMSNinja", it's highly recommended that you make a backup of the files first. Are you sure to convert now?</key>
+	<string>It seems that you have installed SMSNinja before. To activate version 1.5, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in "/var/mobile/Library/SMSNinja", it's highly recommended that you make a backup of the files first. Are you sure to convert now?</string>
+	<key>Keyword</key>
+	<string>Ключевое слово</string>
+	<key>Launch Code</key>
+	<string>Код запуска</string>
+	<key>Let go</key>
+	<string>Пропустить</string>
+	<key>Let me in!</key>
+	<string>Запустить!</string>
+	<key>Mark as read</key>
+	<string>Просмотрено</string>
+	<key>Mark as unread</key>
+	<string>Не просмотрено </string>
+	<key>Message</key>
+	<string>Сообщение</string>
+	<key>Message History</key>
+	<string>История сообщений</string>
+	<key>Message here</key>
+	<string>Текст сообщения</string>
+	<key>Name</key>
+	<string>Название</string>
+	<key>Never mind</key>
+	<string>Передумал</string>
+	<key>None</key>
+	<string>None</string>
+	<key>Notice</key>
+	<string>Предупреждение!!!
+Сброс всех настроек</string>
+	<key>Number</key>
+	<string>Номер</string>
+	<key>Number here</key>
+	<string>Указать номер</string>
+	<key>Numbers only</key>
+	<string>Только цифры</string>
+	<key>OK</key>
+	<string>OK</string>
+	<key>One second!</key>
+	<string>Минуточку!</string>
+	<key>Outgoing</key>
+	<string>Исходящие</string>
+	<key>Password</key>
+	<string>Пароль на запуск</string>
+	<key>Password here</key>
+	<string>Впишите пароль запуска приложения</string>
+	<key>Picture %d/%d</key>
+	<string>Picture %1$d/%2$d</string>
+	<key>Private</key>
+	<string>Часное</string>
+	<key>Private Info</key>
+	<string>Приватная информация</string>
+	<key>Private Zone</key>
+	<string>Приватная зона</string>
+	<key>Privatelist</key>
+	<string>Приватный фильтр</string>
+	<key>Purple Square</key>
+	<string>Показывать "молнию"</string>
+	<key>Questions &amp; Suggestions</key>
+	<string>Вопросы и пожелания</string>
+	<key>Readme</key>
+	<string>Прочти</string>
+	<key>Reply</key>
+	<string>Повторить</string>
+	<key>Reset</key>
+	<string>Сброс</string>
+	<key>Reveal Privatelist</key>
+	<string>Показать приватн.список</string>
+	<key>SMS</key>
+	<string>СМС</string>
+	<key>SMSNinja</key>
+	<string>SMSNinja</string>
+	<key>Save</key>
+	<string>Сохранить</string>
+	<key>Settings</key>
+	<string>Настройки</string>
+	<key>Show Semicolon</key>
+	<string>Заменить "," на ";"</string>
+	<key>Statusbar Badge</key>
+	<string>Индикация на статусбаре</string>
+	<key>Time</key>
+	<string>Время</string>
+	<key>To</key>
+	<string>На номер</string>
+	<key>Turn off the beep</key>
+	<string>Выключить звук</string>
+	<key>Turn on the beep</key>
+	<string>Включить звук</string>
+	<key>Uncheck to disable</key>
+	<string>Снимите флажок, чтобы отключить</string>
+	<key>White</key>
+	<string>Белый</string>
+	<key>Whitelist</key>
+	<string>Белый список</string>
+	<key>Whitelist calls only w/ beep</key>
+	<string>Белый список вызовов со звуком</string>
+	<key>Whitelist calls only w/o beep</key>
+	<string>Белый список вызовов без звука</string>
+	<key>Whitelist msgs only w/ beep</key>
+	<string>Белый список СМС со звуком</string>
+	<key>Whitelist msgs only w/o beep</key>
+	<string>Белый список СМС без звука</string>
+	<key>With</key>
+	<string>С</string>
+	<key>Yes</key>
+	<string>Да</string>
+	<key>You idiot!</key>
+	<string>Вы идиот!</string>
+	<key>by snakeninny</key>
+	<string>by snakeninny</string>
+</dict>
+</plist>
