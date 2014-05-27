@@ -1,4 +1,0 @@
-#!/bin/sh
-launchctl unload /System/Library/LaunchDaemons/com.apple.imagent.plist
-launchctl load /System/Library/LaunchDaemons/com.apple.imagent.plist
-exit 0;
