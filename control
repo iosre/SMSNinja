@@ -1,6 +1,6 @@
 Package: com.naken.smsninja
 Name: SMSNinja
-Depends: mobilesubstrate, libstatusbar, libhide, firmware (>= 5.0)
+Depends: mobilesubstrate, firmware (>= 5.0)
 Version: 1.5
 Architecture: iphoneos-arm
 Description: SMSNinja 

@@ -14,7 +14,7 @@
 }
 @property (nonatomic, retain) NSNumber *fake;
 - (void)resetSettings;
-- (void)saveSettings;
+- (void)saveSettingsFromSource:(UIControl *)control;
 - (void)dismissKeyboardWithTap:(UITapGestureRecognizer *)tap;
 - (void)saveTextFieldValues;
 @end

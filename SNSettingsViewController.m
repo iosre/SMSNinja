@@ -159,28 +159,28 @@
 					cell.textLabel.text = NSLocalizedString(@"Hide Icon", @"Hide Icon");
 					cell.accessoryView = hideIconSwitch;
 					hideIconSwitch.on = [[dictionary objectForKey:@"shouldHideIcon"] boolValue];
-					[hideIconSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
+					[hideIconSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
 				case 3:
 					cell.textLabel.text = NSLocalizedString(@"Icon Badge", @"Icon Badge");
 					cell.accessoryView = iconBadgeSwitch;
 					iconBadgeSwitch.on = [[dictionary objectForKey:@"shouldShowIconBadge"] boolValue];
-					[iconBadgeSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
+					[iconBadgeSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
 				case 4:
 					cell.textLabel.text = NSLocalizedString(@"Statusbar Badge", @"Statusbar Badge");
 					cell.accessoryView = statusBarBadgeSwitch;
 					statusBarBadgeSwitch.on = [[dictionary objectForKey:@"shouldShowStatusBarBadge"] boolValue];
-					[statusBarBadgeSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
+					[statusBarBadgeSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
 				case 5:
 					cell.textLabel.text = NSLocalizedString(@"Contacts ⊆ Whitelist", @"Contacts ⊆ Whitelist");
 					cell.accessoryView = addressbookSwitch;
 					addressbookSwitch.on = [[dictionary objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue];
-					[addressbookSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
+					[addressbookSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
 			}
@@ -213,7 +213,7 @@
 			cell.accessoryType = UITableViewCellAccessoryNone;
 			cell.accessoryView = clearSwitch;
 			clearSwitch.on = [[dictionary objectForKey:@"shouldClearSpam"] boolValue];
-			[clearSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
+			[clearSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 			break;
 		case 3:
@@ -295,8 +295,26 @@
 	}
 }
 
-- (void)saveSettings
+- (void)saveSettingsFromSource:(UIControl *)control
 {
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	if (control == statusBarBadgeSwitch && (![fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/libstatusbar.dylib"] || ![fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/libstatusbar.plist"]))
+	{
+		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Notice", @"Notice") message:NSLocalizedString(@"To enable this feature, you need to install libstatusbar, whose potential bugs are not in my charge.", @"To enable this feature, you need to install libstatusbar, whose potential bugs are not in my charge.") delegate:self cancelButtonTitle:NSLocalizedString(@"Never mind", @"Never mind") otherButtonTitles:NSLocalizedString(@"Go to Cydia", @"Go to Cydia") , nil];
+		alertView.tag = 2;
+		[alertView show];
+		[alertView release];
+		statusBarBadgeSwitch.on = NO;
+	}
+	if (control == hideIconSwitch && (![fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/libhide.dylib"] || ![fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/libhide.plist"] || ![fileManager fileExistsAtPath:@"/usr/bin/hidelibconvert"] || ![fileManager fileExistsAtPath:@"/usr/lib/hide.dylib"] || ![fileManager fileExistsAtPath:@"/var/mobile/Library/LibHide"]))
+	{
+		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Notice", @"Notice") message:NSLocalizedString(@"To enable this feature, you need to install libhide, whose potential bugs are not in my charge.", @"To enable this feature, you need to install libhide, whose potential bugs are not in my charge.") delegate:self cancelButtonTitle:NSLocalizedString(@"Never mind", @"Never mind") otherButtonTitles:NSLocalizedString(@"Go to Cydia", @"Go to Cydia") , nil];
+		alertView.tag = 3;
+		[alertView show];
+		[alertView release];
+		hideIconSwitch.on = NO;
+	}
+
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:SETTINGS];
 	[dictionary setObject:[NSNumber numberWithBool:iconBadgeSwitch.on] forKey:@"shouldShowIconBadge"];
 	[dictionary setObject:[NSNumber numberWithBool:statusBarBadgeSwitch.on] forKey:@"shouldShowStatusBarBadge"];
@@ -310,6 +328,7 @@
 - (void)resetSettings
 {
 	UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Notice", @"Notice") message:NSLocalizedString(@"Are you sure to reset SMSNinja?", @"Are you sure to reset SMSNinja?") delegate:self cancelButtonTitle:NSLocalizedString(@"Forget that!", @"Forget that!") otherButtonTitles:NSLocalizedString(@"Go ahead!", @"Go ahead!") , nil];
+	alertView.tag = 1;
 	[alertView show];
 	[alertView release];
 }
@@ -356,10 +375,27 @@ static void (^CreateDatabase)(void) = ^(void)
 {
 	if (buttonIndex == 1)
 	{
-		NSFileManager *fileManager = [NSFileManager defaultManager];
-		[fileManager removeItemAtPath:DOCUMENT error:nil];
-		CreateDatabase();
-		exit(0);
+		switch ((int)alertView.tag)
+		{
+			case 1:
+				{
+					NSFileManager *fileManager = [NSFileManager defaultManager];
+					[fileManager removeItemAtPath:DOCUMENT error:nil];
+					CreateDatabase();
+					exit(0);
+					break;
+				}
+			case 2:
+				{
+					[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"cydia://package/libstatusbar"]];
+					break;
+				}
+			case 3:
+				{
+					[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"cydia://package/libhide"]];
+					break;
+				}
+		}
 	}
 }
 
