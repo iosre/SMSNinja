@@ -1,13 +1,13 @@
 #import "SMSNinja-private.h"
 
-@interface SNPrivateViewController : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UIGestureRecognizerDelegate>
+@interface SNPrivateViewController : UITableViewController <UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UIGestureRecognizerDelegate, UIAlertViewDelegate>
 {
-    UITextField *fakePasswordField;
+	UITextField *fakePasswordField;
 	UISwitch *purpleSwitch;
 	UISwitch *semicolonSwitch;
-    UISwitch *revealSwitch;
-    UITapGestureRecognizer *tapRecognizer;
+	UISwitch *revealSwitch;
+	UITapGestureRecognizer *tapRecognizer;
 }
-- (void)saveSettings;
+- (void)saveSettingsFromSource:(UIControl *)control;
 - (void)dismissKeyboardWithTap:(UITapGestureRecognizer *)tap;
 @end

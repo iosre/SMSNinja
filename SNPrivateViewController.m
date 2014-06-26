@@ -118,7 +118,7 @@
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.accessoryView = purpleSwitch;
 					purpleSwitch.on = [[dictionary objectForKey:@"shouldShowPurpleSquare"] boolValue];
-					[purpleSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
+					[purpleSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
 				case 1:
@@ -126,7 +126,7 @@
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.accessoryView = semicolonSwitch;
 					semicolonSwitch.on = [[dictionary objectForKey:@"shouldShowSemicolon"] boolValue];
-					[semicolonSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
+					[semicolonSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
 				case 2:
@@ -134,7 +134,7 @@
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.accessoryView = revealSwitch;
 					revealSwitch.on = [[dictionary objectForKey:@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue];
-					[revealSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
+					[revealSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
 			}
@@ -170,14 +170,31 @@
 	}
 }
 
-- (void)saveSettings
+- (void)saveSettingsFromSource:(UIControl *)control
 {
+	NSFileManager *fileManager = [NSFileManager defaultManager];
+	if (control == purpleSwitch && (![fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/libstatusbar.dylib"] || ![fileManager fileExistsAtPath:@"/Library/MobileSubstrate/DynamicLibraries/libstatusbar.plist"]))
+	{
+		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Notice", @"Notice") message:NSLocalizedString(@"To enable this feature, you need to install libstatusbar, whose potential bugs are not in my charge.", @"To enable this feature, you need to install libstatusbar, whose potential bugs are not in my charge.") delegate:self cancelButtonTitle:NSLocalizedString(@"Never mind", @"Never mind") otherButtonTitles:NSLocalizedString(@"Go to Cydia", @"Go to Cydia") , nil];
+		[alertView show];
+		[alertView release];
+		purpleSwitch.on = NO;
+	}
+
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:SETTINGS];
 	[dictionary setObject:[NSNumber numberWithBool:purpleSwitch.on] forKey:@"shouldShowPurpleSquare"];
 	[dictionary setObject:[NSNumber numberWithBool:semicolonSwitch.on] forKey:@"shouldShowSemicolon"];
 	[dictionary setObject:[NSNumber numberWithBool:revealSwitch.on] forKey:@"shouldRevealPrivatelistOutsideSMSNinja"];
 	[dictionary writeToFile:SETTINGS atomically:YES];
 	notify_post("com.naken.smsninja.settingschanged");	
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+	if (buttonIndex == 1)
+	{
+		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"cydia://package/libstatusbar"]];
+	}
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField
