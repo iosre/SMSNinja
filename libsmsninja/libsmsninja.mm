@@ -938,10 +938,6 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			CFRelease(addressbook);
 
 			result = record ? YES : NO;
-#ifdef DEBUG
-			if (result) NSLog(@"SMSNinja: %@ as address is in addressbook", self);
-			else NSLog(@"SMSNinja: %@ is NOT in addressbook", self);
-#endif
 	}
 	else
 	{
@@ -949,6 +945,10 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"CheckAddressBook" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self, @"address", nil]];
 		result = [(NSNumber *)[reply objectForKey:@"result"] boolValue];
 	}
+#ifdef DEBUG
+	if (result) NSLog(@"SMSNinja: %@ as address is in addressbook", self);
+	else NSLog(@"SMSNinja: %@ is NOT in addressbook", self);
+#endif
 	return result;
 }
 @end

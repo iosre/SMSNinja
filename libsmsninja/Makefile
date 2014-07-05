@@ -1,5 +1,5 @@
 ARCHS = armv7 armv7s arm64
-TARGET = iphone:7.0:5.0
+TARGET = iphone:latest:5.0
 
 include theos/makefiles/common.mk
 
