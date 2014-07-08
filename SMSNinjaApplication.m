@@ -34,6 +34,11 @@
 	[self showPasswordAlert];
 }
 
+- (void)applicationWillResignActive:(UIApplication *)application
+{
+	exit(0);
+}
+
 - (void)applicationWillTerminate:(UIApplication *)application
 {
 	[self updateBadgeAndSquareAndIcon];

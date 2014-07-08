@@ -2,7 +2,7 @@
 	Filter = {
 		Bundles = (
 			"com.apple.identityservicesd",
-			"com.apple.TelephonyUtilities",
+			"com.apple.Preferences",
 			"com.apple.facetime",
 			"com.apple.springboard",
 			"com.apple.mobilephone",

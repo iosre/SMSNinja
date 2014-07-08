@@ -335,8 +335,8 @@ static NSString *CurrentCountryCode(void)
 	NSString *countryCode = @"";
 	if ([(NSString *)formattedPhoneNumber hasPrefix:@"+"])
 		countryCode = [(NSString *)formattedPhoneNumber substringToIndex:[(NSString *)formattedPhoneNumber rangeOfString:@" "].location];
-	CFRelease(myPhoneNumber);
-	CFRelease(activeCountryCode);
+	if (myPhoneNumber != nil) CFRelease(myPhoneNumber);
+	if (activeCountryCode != nil) CFRelease(activeCountryCode);
 	return countryCode;
 }
 
@@ -556,6 +556,8 @@ static void PersistentSave(const char *actionType, const char *infoType, NSStrin
 				sqlite3_finalize(statement);
 			}
 			else NSLog(@"SMSNinja: Failed to prepare %@, error %d", sql, prepareResult);
+
+			if ([name length] == 0) name = [address nameInAddressBook];
 
 			sql = [NSString stringWithFormat:@"insert into %s%s (id, content, name, number, time, pictures, read) values ('%@', '%@', '%@', '%@', '%@', '%lu', '0')", actionType, infoType, idString, [text stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [name length] == 0 ? [address stringByReplacingOccurrencesOfString:@"'" withString:@"''"] : [name stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [address stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [CurrentTime() stringByAppendingString:isFromMe ? @" ↗" : @" ↙"], (unsigned long)[pictureArray count]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
@@ -935,9 +937,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 				if (!record) record = ABAddressBookFindPersonMatchingPhoneNumber(addressbook, (CFStringRef)self, &unknown, 0);
 			}
 			else record = ABAddressBookFindPersonMatchingEmailAddress(addressbook, (CFStringRef)self, &unknown); // email
-			CFRelease(addressbook);
-
 			result = record ? YES : NO;
+			if (addressbook != nil) CFRelease(addressbook);			
 	}
 	else
 	{
@@ -950,5 +951,63 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 	else NSLog(@"SMSNinja: %@ is NOT in addressbook", self);
 #endif
 	return result;
+}
+
+- (NSString *)nameInAddressBook
+{
+	NSString *name = @"";
+	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
+	{
+		ABAddressBookRef addressbook = ABAddressBookCreate();
+		ABRecordRef record = nil;
+		NSUInteger unknown = NSNotFound;
+		if ([self rangeOfString:@"@"].location == NSNotFound) // number
+		{
+			NSString *countryCode = CurrentCountryCode();
+			if ([countryCode length] != 0)
+			{
+				CFStringRef internationalCode = NULL;
+				void *libHandle = NULL;
+				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+				{		
+					static CFStringRef (*UICountryCodeForInternationalCode)(CFStringRef);
+					libHandle = dlopen("/System/Library/Frameworks/UIKit.framework/UIKit", RTLD_LAZY);
+					UICountryCodeForInternationalCode = (CFStringRef (*)(CFStringRef))dlsym(libHandle, "UICountryCodeForInternationalCode");
+					internationalCode = UICountryCodeForInternationalCode((CFStringRef)countryCode);
+				}
+				else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1)
+				{
+					static CFStringRef (*TUISOCountryCodeForMCC)(CFStringRef);
+					libHandle = dlopen("/System/Library/PrivateFrameworks/TelephonyUtilities.framework/TelephonyUtilities", RTLD_LAZY);
+					TUISOCountryCodeForMCC = (CFStringRef (*)(CFStringRef))dlsym(libHandle, "TUISOCountryCodeForMCC");
+					internationalCode = TUISOCountryCodeForMCC((CFStringRef)countryCode);
+				}
+				record = ABAddressBookFindPersonMatchingPhoneNumberWithCountry(addressbook, (CFStringRef)self, internationalCode, &unknown, 0);
+				dlclose(libHandle);				
+			}
+			if (!record) record = ABAddressBookFindPersonMatchingPhoneNumber(addressbook, (CFStringRef)self, &unknown, 0);
+		}
+		else record = ABAddressBookFindPersonMatchingEmailAddress(addressbook, (CFStringRef)self, &unknown); // email
+		if (record != nil)
+		{
+			CFStringRef firstName = (CFStringRef)ABRecordCopyValue(record, kABPersonFirstNameProperty);
+			CFStringRef lastName = (CFStringRef)ABRecordCopyValue(record, kABPersonLastNameProperty);
+			name = [[firstName ? (NSString *)firstName : @"" stringByAppendingString:@" "] stringByAppendingString:lastName ? (NSString *)lastName : @""];
+			if (firstName != nil) CFRelease(firstName);
+			if (lastName != nil) CFRelease(lastName);
+		}
+		if (addressbook != nil) CFRelease(addressbook);
+	}
+	else
+	{
+		CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
+		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"GetAddressBookName" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self, @"address", nil]];
+		name = (NSString *)[reply objectForKey:@"result"];
+	}
+#ifdef DEBUG
+	if ([name length] != 0) NSLog(@"SMSNinja: Address %@ matches name %@ in addressbook", self, name);
+	else NSLog(@"SMSNinja: Address %@ doesn't match any name in addressbook", self);
+#endif
+	return name;
 }
 @end

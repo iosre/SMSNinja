@@ -140,7 +140,7 @@ static NSString *chosenKeyword;
 				int openResult = sqlite3_open([DATABASE UTF8String], &database);
 				if (openResult == SQLITE_OK)
 				{
-					for (NSString *keyword in [chosenKeyword componentsSeparatedByString:@" "])
+					for (NSString *keyword in [chosenKeyword componentsSeparatedByString:@"  "])
 					{
 						chosenName = [chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"];
 						NSString *sql = [NSString stringWithFormat:@"insert or replace into %@list (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '1')", flag, keyword, chosenName];
@@ -213,7 +213,7 @@ static NSString *chosenKeyword;
 			CKAggregateConversation *conversation = [[list activeConversations] objectAtIndex:chosenRow];
 			NSArray *recipients = [conversation recipients];
 			NSString *tempString = @"";
-			for (CKEntity *recipient in recipients) tempString = [[tempString stringByAppendingString:[[recipient rawAddress] normalizedPhoneNumber]] stringByAppendingString:@" "];
+			for (CKEntity *recipient in recipients) tempString = [[tempString stringByAppendingString:[[recipient rawAddress] normalizedPhoneNumber]] stringByAppendingString:@"  "];
 
 			[chosenName release];
 			chosenName = nil;
@@ -221,7 +221,7 @@ static NSString *chosenKeyword;
 
 			[chosenKeyword release];
 			chosenKeyword = nil;
-			chosenKeyword = [tempString length] != 0 ? [[NSString alloc] initWithString:[tempString substringToIndex:([tempString length] - 1)]] : @"";
+			chosenKeyword = [tempString length] != 0 ? [[NSString alloc] initWithString:[tempString substringToIndex:([tempString length] - 2)]] : @"";
 		}
 		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
 		{
@@ -229,7 +229,7 @@ static NSString *chosenKeyword;
 			CKConversation *conversation = [[list activeConversations] objectAtIndex:chosenRow];
 			NSArray *recipients = [conversation recipientStrings];
 			NSString *tempString = @"";			
-			for (NSString *recipient in recipients) tempString = [[tempString stringByAppendingString:[recipient normalizedPhoneNumber]] stringByAppendingString:@" "];
+			for (NSString *recipient in recipients) tempString = [[tempString stringByAppendingString:[recipient normalizedPhoneNumber]] stringByAppendingString:@"  "];
 
 			[chosenName release];
 			chosenName = nil;
@@ -237,7 +237,7 @@ static NSString *chosenKeyword;
 
 			[chosenKeyword release];
 			chosenKeyword = nil;
-			chosenKeyword = [tempString length] != 0 ? [[NSString alloc] initWithString:[tempString substringToIndex:([tempString length] - 1)]] : @"";
+			chosenKeyword = [tempString length] != 0 ? [[NSString alloc] initWithString:[tempString substringToIndex:([tempString length] - 2)]] : @"";
 		}
 #ifdef DEBUG
 		NSLog(@"SMSNinja: snLongPress:: chosenName = %@, chosenKeyword = %@", chosenName, chosenKeyword);
@@ -303,6 +303,12 @@ static NSString *chosenKeyword;
 	{
 		NSString *address = [userInfo objectForKey:@"address"];
 		NSNumber *result = [NSNumber numberWithBool:[address isInAddressBook]];
+		return [NSDictionary dictionaryWithObjectsAndKeys:result, @"result", nil];
+	}
+	else if ([name isEqualToString:@"GetAddressBookName"])
+	{
+		NSString *address = [userInfo objectForKey:@"address"];
+		NSString *result = [address nameInAddressBook];
 		return [NSDictionary dictionaryWithObjectsAndKeys:result, @"result", nil];
 	}
 	else if ([name isEqualToString:@"SendMessage"])
@@ -376,6 +382,7 @@ static NSString *chosenKeyword;
 	[messagingCenter registerForMessageName:@"PlayFilterSound" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	[messagingCenter registerForMessageName:@"PlayBlockSound" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	[messagingCenter registerForMessageName:@"CheckAddressBook" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
+	[messagingCenter registerForMessageName:@"GetAddressBookName" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	[messagingCenter registerForMessageName:@"SendMessage" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	[messagingCenter registerForMessageName:@"LaunchMobilePhone" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	[messagingCenter registerForMessageName:@"LaunchMobileSMS" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
@@ -876,12 +883,12 @@ static NSString *chosenKeyword;
 			{
 				CTCallRef ctCall = (CTCallRef)[ctCalls objectAtIndex:i];
 				NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, ctCall);
-				if (![[tempString componentsSeparatedByString:@" "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@" "];
+				if (![[tempString componentsSeparatedByString:@"  "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@"  "];
 				[address release];
 			}
 			[chosenKeyword release];
 			chosenKeyword = nil;
-			chosenKeyword = [tempString length] != 0 ? [[NSString alloc] initWithString:[tempString substringToIndex:([tempString length] - 1)]] : @"";
+			chosenKeyword = [tempString length] != 0 ? [[NSString alloc] initWithString:[tempString substringToIndex:([tempString length] - 2)]] : @"";
 		}
 #ifdef DEBUG
 		NSLog(@"SMSNinja: snLongPress:: chosenName = %@, chosenKeyword = %@", chosenName, chosenKeyword);
@@ -1092,12 +1099,12 @@ static NSString *chosenKeyword;
 			{
 				CTCallRef ctCall = (CTCallRef)[ctCalls objectAtIndex:i];
 				NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, ctCall);
-				if (![[tempString componentsSeparatedByString:@" "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@" "];
+				if (![[tempString componentsSeparatedByString:@"  "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@"  "];
 				[address release];
 			}
 			[chosenKeyword release];
 			chosenKeyword = nil;
-			chosenKeyword = [tempString length] != 0 ? [[NSString alloc] initWithString:[tempString substringToIndex:([tempString length] - 1)]] : @"";
+			chosenKeyword = [tempString length] != 0 ? [[NSString alloc] initWithString:[tempString substringToIndex:([tempString length] - 2)]] : @"";
 		}
 #ifdef DEBUG
 		NSLog(@"SMSNinja: snLongPress:: chosenName = %@, chosenKeyword = %@", chosenName, chosenKeyword);

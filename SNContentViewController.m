@@ -218,7 +218,7 @@
 	if ([self.keywordString length] == 0) return;
 
 	[keywordArray removeAllObjects];
-	[keywordArray addObjectsFromArray:[self.keywordString componentsSeparatedByString:@" "]];
+	[keywordArray addObjectsFromArray:[self.keywordString componentsSeparatedByString:@"  "]];
 
 	__block SNContentViewController *weakSelf = self;
 	dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{

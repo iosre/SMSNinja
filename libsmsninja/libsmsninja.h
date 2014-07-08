@@ -139,6 +139,7 @@ extern "C" BOOL IMInsertBoolsToXPCDictionary(void *, const char *, BOOL, const c
 - (NSUInteger)indexInBlackListWithType:(int)type; // number, content, time
 - (NSUInteger)indexInWhiteListWithType:(int)type; // number, content
 - (BOOL)isInAddressBook; // number
+- (NSString *)nameInAddressBook; // number
 @end
 
 @interface LSStatusBarItem : NSObject

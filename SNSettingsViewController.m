@@ -288,10 +288,18 @@
 	}
 	else if (indexPath.section == 3)
 	{
-		NSString *url;
-		if (indexPath.row == 0) url = @"http://ying.lu/smsninja-faq/";
-		else url = @"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X5WXJTUHP7JLJ";
-		[[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+		if (indexPath.row == 0)
+		{
+			UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Notice", @"Notice") message:NSLocalizedString(@"Please please please read the messages at the top of the webpage. If this is a bug/crash/error report, send me an email with syslog attached!", @"Please please please read the messages at the top of the webpage. If this is a bug/crash/error report, send me an email with syslog attached!") delegate:self cancelButtonTitle:NSLocalizedString(@"Never mind", @"Never mind") otherButtonTitles:NSLocalizedString(@"OK", @"OK"), nil];
+			alertView.tag = 4;
+			[alertView show];
+			[alertView release];
+		}
+		else
+		{
+			NSString *url = @"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=X5WXJTUHP7JLJ";
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:url]];
+		}
 	}
 }
 
@@ -393,6 +401,11 @@ static void (^CreateDatabase)(void) = ^(void)
 			case 3:
 				{
 					[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"cydia://package/libhide"]];
+					break;
+				}
+			case 4:
+				{
+					[[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://ying.lu/smsninja-faq/"]];
 					break;
 				}
 		}

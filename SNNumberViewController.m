@@ -254,7 +254,7 @@
 	if ([self.keywordString length] == 0) return;
 
 	[keywordArray removeAllObjects];
-	[keywordArray addObjectsFromArray:[self.keywordString componentsSeparatedByString:@" "]];
+	[keywordArray addObjectsFromArray:[self.keywordString componentsSeparatedByString:@"  "]];
 
 	id viewController = self.navigationController.topViewController;
 	if ([viewController isKindOfClass:[SNCallActionViewController class]] || [viewController isKindOfClass:[SNMessageActionViewController class]]) return;
