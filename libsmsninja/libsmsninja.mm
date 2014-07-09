@@ -558,6 +558,12 @@ static void PersistentSave(const char *actionType, const char *infoType, NSStrin
 			else NSLog(@"SMSNinja: Failed to prepare %@, error %d", sql, prepareResult);
 
 			if ([name length] == 0) name = [address nameInAddressBook];
+			else if ([name hasSuffix:@"*"])
+			{
+				NSString *addressAsName = [name substringToIndex:([name length] - 1)];
+				NSString *newName = [addressAsName nameInAddressBook];
+				if ([newName length] != 0) name = [newName stringByAppendingString:@"*"];
+			}
 
 			sql = [NSString stringWithFormat:@"insert into %s%s (id, content, name, number, time, pictures, read) values ('%@', '%@', '%@', '%@', '%@', '%lu', '0')", actionType, infoType, idString, [text stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [name length] == 0 ? [address stringByReplacingOccurrencesOfString:@"'" withString:@"''"] : [name stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [address stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [CurrentTime() stringByAppendingString:isFromMe ? @" ↗" : @" ↙"], (unsigned long)[pictureArray count]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);

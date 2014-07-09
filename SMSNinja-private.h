@@ -17,3 +17,7 @@
 - (void)runServerOnCurrentThread;
 - (void)registerForMessageName:(id)messageName target:(id)target selector:(SEL)selector;
 @end
+
+@interface UIApplication (private_5_6_7)
+- (BOOL)isLocked;
+@end

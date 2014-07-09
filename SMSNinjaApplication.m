@@ -34,9 +34,13 @@
 	[self showPasswordAlert];
 }
 
-- (void)applicationWillResignActive:(UIApplication *)application
+- (void)applicationDidEnterBackground:(UIApplication *)application
 {
-	exit(0);
+	if ([self isLocked])
+	{
+		[self applicationWillTerminate:application];
+		exit(0);
+	}
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
