@@ -7,6 +7,14 @@
 #define SETTINGS @"/Users/snakeninny/Library/Application Support/iPhone Simulator/7.0.3/Applications/0C9D35FB-B626-42B7-AAE9-45F6F537890B/Documents/var/mobile/Library/SMSNinja/smsninja.plist"
 #endif
 
+static SMSNinjaApplication *currentApplication;
+
+static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
+{
+	[currentApplication applicationWillTerminate:currentApplication];
+	exit(0); // 失效？看看SpringBoard里面有没有关闭一个App的方法
+}
+
 @implementation SMSNinjaApplication
 
 @synthesize window = _window;
@@ -32,8 +40,11 @@
 	navigationController = [[UINavigationController alloc] initWithRootViewController:_viewController];
 	[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationNone];
 	[self showPasswordAlert];
-}
 
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, QuitApp, CFSTR("com.apple.springboard.lockcomplete"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+	currentApplication = self;
+}
+/*
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
 	if ([self isLocked])
@@ -42,7 +53,7 @@
 		exit(0);
 	}
 }
-
+*/
 - (void)applicationWillTerminate:(UIApplication *)application
 {
 	[self updateBadgeAndSquareAndIcon];
