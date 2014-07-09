@@ -136,22 +136,21 @@ static NSString *chosenKeyword;
 		else if ([[snActionSheet buttonTitleAtIndex:buttonIndex] isEqualToString:NSLocalizedStringFromTableInBundle(@"Add to Privatelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)]) flag = @"private";
 
 		dispatch_sync(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				sqlite3 *database;
-				int openResult = sqlite3_open([DATABASE UTF8String], &database);
-				if (openResult == SQLITE_OK)
+			sqlite3 *database;
+			int openResult = sqlite3_open([DATABASE UTF8String], &database);
+			if (openResult == SQLITE_OK)
+			{
+				for (NSString *keyword in [chosenKeyword componentsSeparatedByString:@"  "])
 				{
-					for (NSString *keyword in [chosenKeyword componentsSeparatedByString:@"  "])
-					{
-						chosenName = [chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"];
-						NSString *sql = [NSString stringWithFormat:@"insert or replace into %@list (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '1')", flag, keyword, chosenName];
-						int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
-						if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
-					}
-					sqlite3_close(database);
-
-					notify_post([[NSString stringWithFormat:@"com.naken.smsninja.%@listchanged", flag] UTF8String]);
+					chosenName = [chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"];
+					NSString *sql = [NSString stringWithFormat:@"insert or replace into %@list (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '1')", flag, keyword, chosenName];
+					int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
+					if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 				}
-				else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+				sqlite3_close(database);
+				notify_post([[NSString stringWithFormat:@"com.naken.smsninja.%@listchanged", flag] UTF8String]);
+			}
+			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
 		});
 	}
 	snActionSheet.delegate = nil;
@@ -368,6 +367,12 @@ static NSString *chosenKeyword;
 	NSLog(@"SMSNinja: Hey you! Happy reversing! Follow http://weibo.com/iosre for more c00l shit :) ");	
 }
 
+%new
+- (void)snHandleNSNotification:(NSNotification *)notification
+{
+	notify_post("com.naken.smsninja.willlock");
+}
+
 - (void)applicationDidFinishLaunching:(id)application
 {
 	%orig;
@@ -389,6 +394,9 @@ static NSString *chosenKeyword;
 	[messagingCenter registerForMessageName:@"LaunchSMSNinja" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	[messagingCenter registerForMessageName:@"ClearDeletedChat" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	[messagingCenter registerForMessageName:@"RemoveIconFromSwitcher" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
+
+	NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
+	[notificationCenter addObserver:self selector:@selector(snHandleNSNotification:) name:@"SBAwayViewDimmedNotification" object:nil];
 
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	UpdateBadge();

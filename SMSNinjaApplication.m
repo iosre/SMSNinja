@@ -41,7 +41,8 @@ static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef 
 	[[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationNone];
 	[self showPasswordAlert];
 
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, QuitApp, CFSTR("com.apple.springboard.lockcomplete"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, QuitApp, CFSTR("com.naken.smsninja.willlock"), NULL, CFNotificationSuspensionBehaviorCoalesce); // for iOS 6
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, QuitApp, CFSTR("com.apple.springboard.lockcomplete"), NULL, CFNotificationSuspensionBehaviorCoalesce); // for iOS 5 & 7
 	currentApplication = self;
 }
 
@@ -118,8 +119,8 @@ static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef 
 			self.window.rootViewController = navigationController;
 			[_window makeKeyAndVisible];
 		}
-		else exit(0);
+		else [self terminateWithSuccess];
 	}
-	else exit(0);
+	else [self terminateWithSuccess];
 }
 @end

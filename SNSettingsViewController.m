@@ -390,7 +390,7 @@ static void (^CreateDatabase)(void) = ^(void)
 					NSFileManager *fileManager = [NSFileManager defaultManager];
 					[fileManager removeItemAtPath:DOCUMENT error:nil];
 					CreateDatabase();
-					exit(0);
+					[[UIApplication sharedApplication] terminateWithSuccess];
 					break;
 				}
 			case 2:
