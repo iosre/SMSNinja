@@ -19,5 +19,6 @@
 @end
 
 @interface UIApplication (private_5_6_7)
+- (void)terminateWithSuccess;
 - (BOOL)isLocked;
 @end

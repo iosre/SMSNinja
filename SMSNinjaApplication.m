@@ -12,7 +12,7 @@ static SMSNinjaApplication *currentApplication;
 static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
 	[currentApplication applicationWillTerminate:currentApplication];
-	exit(0); // 失效？看看SpringBoard里面有没有关闭一个App的方法
+	[currentApplication terminateWithSuccess];
 }
 
 @implementation SMSNinjaApplication
@@ -44,16 +44,7 @@ static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef 
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, QuitApp, CFSTR("com.apple.springboard.lockcomplete"), NULL, CFNotificationSuspensionBehaviorCoalesce);
 	currentApplication = self;
 }
-/*
-- (void)applicationDidEnterBackground:(UIApplication *)application
-{
-	if ([self isLocked])
-	{
-		[self applicationWillTerminate:application];
-		exit(0);
-	}
-}
-*/
+
 - (void)applicationWillTerminate:(UIApplication *)application
 {
 	[self updateBadgeAndSquareAndIcon];
