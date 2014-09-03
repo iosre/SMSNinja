@@ -347,7 +347,7 @@ static int amount;
 
 		ABMultiValueRef keywords = ABRecordCopyValue(person, property);
 		if (!keywords) return NO;
-		CFStringRef keyword = (CFStringRef)ABMultiValueCopyValueAtIndex(keywords, identifier);
+		CFStringRef keyword = (CFStringRef)ABMultiValueCopyValueAtIndex(keywords, ABMultiValueGetIndexForIdentifier(keywords, identifier));
 		if (!keyword)
 		{
 			CFRelease(keywords);
