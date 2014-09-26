@@ -1,5 +1,4 @@
 // #define SMSNinjaDebug
-
 #import <UIKit/UIKit.h>
 
 @interface UISwitch (private_5_6)

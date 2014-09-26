@@ -63,7 +63,11 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 		{
 			if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
 		}
+		else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+		{
+		}
 		else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+
 		if (shouldClearSpam)
 		{
 			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) CTCallDeleteFromCallHistory(call);
@@ -812,6 +816,9 @@ static NSString *chosenKeyword;
 			{
 				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
 			}
+			else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+			{
+			}
 			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
 		}
 	}
@@ -849,6 +856,9 @@ static NSString *chosenKeyword;
 			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
 			{
 				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
+			}
+			else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+			{
 			}
 			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
 		}
