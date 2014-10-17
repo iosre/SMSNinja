@@ -466,7 +466,71 @@ static int amount;
 
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
 {
-	return YES;
+	CFIndex emailCounts = 0, phoneCounts = 0;
+	ABPropertyID property = kABPersonEmailProperty;
+	ABMultiValueRef emails = ABRecordCopyValue(person, property);
+	if (emails)
+	{
+		emailCounts = ABMultiValueGetCount(emails);
+		CFRelease(emails);
+	}
+
+	property = kABPersonPhoneProperty;
+	ABMultiValueRef phones = ABRecordCopyValue(person, property);
+	if (phones)
+	{
+		phoneCounts = ABMultiValueGetCount(phones);
+		CFRelease(phones);
+	}
+
+	if (emailCounts + phoneCounts == 1)
+	{
+		if (emailCounts == 1) property = kABPersonEmailProperty;
+		else property = kABPersonPhoneProperty;
+	}
+	else return YES;
+
+	CFMutableStringRef firstName = (CFMutableStringRef)ABRecordCopyValue(person, kABPersonFirstNameProperty);
+	CFMutableStringRef lastName =  (CFMutableStringRef)ABRecordCopyValue(person, kABPersonLastNameProperty);
+	self.chosenName = nil;
+	self.chosenName = [[firstName ? (NSString *)firstName : @"" stringByAppendingString:@" "] stringByAppendingString:lastName ? (NSString *)lastName : @""];
+	if (firstName) CFRelease(firstName);
+	if (lastName) CFRelease(lastName);
+
+	ABMultiValueRef values = ABRecordCopyValue(person, property);
+	if (!values) return NO;
+	CFArrayRef valueArray = ABMultiValueCopyArrayOfAllValues(values);
+	if (!valueArray)
+	{
+		CFRelease(values);
+		return NO;
+	}
+	CFStringRef value = (CFStringRef)CFArrayGetValueAtIndex(valueArray, 0);
+	if (!value)
+	{
+		CFRelease(values);
+		CFRelease(valueArray);
+		return NO;
+	}
+
+	NSString *tempString = (NSString *)value;
+	tempString = [tempString stringByReplacingOccurrencesOfString:@" " withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@"-" withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@"(" withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@")" withString:@""];
+
+	self.chosenKeyword = nil;
+	self.chosenKeyword = tempString;
+
+	CFRelease(values);
+	CFRelease(valueArray);
+
+	UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"Cancel") destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Turn off the beep", @"Turn off the beep"), NSLocalizedString(@"Turn on the beep", @"Turn on the beep"), nil];
+	actionSheet.tag = 2;
+	[actionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
+	[actionSheet release];
+
+	return NO;
 }
 
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier

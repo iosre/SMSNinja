@@ -331,7 +331,92 @@ static int amount;
 
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
 {
-	return YES;
+	CFIndex emailCounts = 0, phoneCounts = 0;
+	ABPropertyID property = kABPersonEmailProperty;
+	ABMultiValueRef emails = ABRecordCopyValue(person, property);
+	if (emails)
+	{
+		emailCounts = ABMultiValueGetCount(emails);
+		CFRelease(emails);
+	}
+
+	property = kABPersonPhoneProperty;
+	ABMultiValueRef phones = ABRecordCopyValue(person, property);
+	if (phones)
+	{
+		phoneCounts = ABMultiValueGetCount(phones);
+		CFRelease(phones);
+	}
+
+	if (emailCounts + phoneCounts == 1)
+	{
+		if (emailCounts == 1) property = kABPersonEmailProperty;
+		else property = kABPersonPhoneProperty;
+	}
+	else return YES;
+
+	CFMutableStringRef firstName = (CFMutableStringRef)ABRecordCopyValue(person, kABPersonFirstNameProperty);
+	CFMutableStringRef lastName =  (CFMutableStringRef)ABRecordCopyValue(person, kABPersonLastNameProperty);
+	self.chosenName = nil;
+	self.chosenName = [[firstName ? (NSString *)firstName : @"" stringByAppendingString:@" "] stringByAppendingString:lastName ? (NSString *)lastName : @""];
+	if (firstName) CFRelease(firstName);
+	if (lastName) CFRelease(lastName);
+
+	ABMultiValueRef values = ABRecordCopyValue(person, property);
+	if (!values) return NO;
+	CFArrayRef valueArray = ABMultiValueCopyArrayOfAllValues(values);
+	if (!valueArray)
+	{
+		CFRelease(values);
+		return NO;
+	}
+	CFStringRef value = (CFStringRef)CFArrayGetValueAtIndex(valueArray, 0);
+	if (!value)
+	{
+		CFRelease(values);
+		CFRelease(valueArray);
+		return NO;
+	}
+
+	NSString *tempString = (NSString *)value;
+	tempString = [tempString stringByReplacingOccurrencesOfString:@" " withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@"-" withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@"(" withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@")" withString:@""];
+
+	self.chosenKeyword = nil;
+	self.chosenKeyword = tempString;
+
+	CFRelease(values);
+	CFRelease(valueArray);
+
+	__block SNWhitelistViewController *weakSelf = self;
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+		sqlite3 *database;
+		int openResult = sqlite3_open([DATABASE UTF8String], &database);
+		if (openResult == SQLITE_OK)
+		{
+			NSString *sql = [NSString stringWithFormat:@"insert or replace into whitelist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '0')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
+			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
+			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
+			sqlite3_close(database);
+
+			notify_post("com.naken.smsninja.whitelistchanged");
+		}
+		else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+	});
+
+	[keywordArray addObject:self.chosenKeyword];
+	[typeArray addObject:@"0"];
+	[nameArray addObject:self.chosenName];
+
+	[self.tableView beginUpdates];
+	[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
+	[self.tableView endUpdates];
+
+	[self dismissModalViewControllerAnimated:YES];
+
+	return NO;
 }
 
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier

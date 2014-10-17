@@ -334,7 +334,7 @@ static NSString *CurrentCountryCode(void)
 	CFStringRef formattedPhoneNumber = UIFormattedPhoneNumberFromStringWithCountry(myPhoneNumber, activeCountryCode);
 	NSString *countryCode = @"";
 	if ([(NSString *)formattedPhoneNumber hasPrefix:@"+"])
-		countryCode = [(NSString *)formattedPhoneNumber substringToIndex:[(NSString *)formattedPhoneNumber rangeOfString:@" "].location];
+		countryCode = [[(NSString *)formattedPhoneNumber substringToIndex:[(NSString *)formattedPhoneNumber rangeOfString:@" "].location] stringByReplacingOccurrencesOfString:@"+" withString:@""];
 	if (myPhoneNumber != nil) CFRelease(myPhoneNumber);
 	if (activeCountryCode != nil) CFRelease(activeCountryCode);
 	return countryCode;
@@ -379,8 +379,8 @@ void ShowPurpleSquare(void)
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"]) AnimatePurpleSquare(NO);
 	else
 	{
-			CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
-			[messagingCenter sendMessageName:@"ShowPurpleSquare" userInfo:nil];
+		CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
+		[messagingCenter sendMessageName:@"ShowPurpleSquare" userInfo:nil];
 	}
 }
 
@@ -389,8 +389,8 @@ void HidePurpleSquare(void)
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"]) AnimatePurpleSquare(YES);
 	else
 	{
-			CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
-			[messagingCenter sendMessageName:@"HidePurpleSquare" userInfo:nil];
+		CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
+		[messagingCenter sendMessageName:@"HidePurpleSquare" userInfo:nil];
 	}
 }
 
@@ -743,7 +743,6 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 - (BOOL)isRegularlyEqualTo:(NSString *)stringInList
 {
 	NSString *pattern = [stringInList stringByReplacingOccurrencesOfString:@"*" withString:@".*" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [stringInList length])];
-	pattern = [pattern stringByReplacingOccurrencesOfString:@"+" withString:@"\\+" options:NSCaseInsensitiveSearch range:NSMakeRange(0, [pattern length])];
 	pattern = [@"^" stringByAppendingString:pattern];
 	pattern = [pattern stringByAppendingString:@"$"];
 
@@ -784,7 +783,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *address in privateKeywordArray)
 		{
 			NSUInteger index = [privateKeywordArray indexOfObject:address];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[privateTypeArray objectAtIndex:index]] && [[self stringByReplacingOccurrencesOfString:countryCode withString:@""] isRegularlyEqualTo:[address stringByReplacingOccurrencesOfString:countryCode withString:@""]])
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[privateTypeArray objectAtIndex:index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
 #ifdef DEBUG
 				NSLog(@"SMSNinja: %@ as address is in privatelist", self);
@@ -821,7 +820,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *address in blackKeywordArray)
 		{
 			NSUInteger index = [blackKeywordArray indexOfObject:address];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[blackTypeArray objectAtIndex:index]] && [[self stringByReplacingOccurrencesOfString:countryCode withString:@""] isRegularlyEqualTo:[address stringByReplacingOccurrencesOfString:countryCode withString:@""]])
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[blackTypeArray objectAtIndex:index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
 #ifdef DEBUG
 				NSLog(@"SMSNinja: %@ as address is in blacklist", self);
@@ -879,7 +878,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *address in whiteKeywordArray)
 		{
 			NSUInteger index = [whiteKeywordArray indexOfObject:address];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[whiteTypeArray objectAtIndex:index]] && [[self stringByReplacingOccurrencesOfString:countryCode withString:@""] isRegularlyEqualTo:[address stringByReplacingOccurrencesOfString:countryCode withString:@""]])
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[whiteTypeArray objectAtIndex:index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
 #ifdef DEBUG
 				NSLog(@"SMSNinja: %@ as address is in whitelist", self);
