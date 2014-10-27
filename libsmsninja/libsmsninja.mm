@@ -235,6 +235,7 @@ void LoadPrivatelist(CFNotificationCenterRef center, void *observer, CFStringRef
 	privateMessageArray = [[NSMutableArray alloc] init];
 
 	[privateForwardArray release];
+	privateForwardArray = nil;
 	privateForwardArray = [[NSMutableArray alloc] init];
 
 	[privateNumberArray release];
