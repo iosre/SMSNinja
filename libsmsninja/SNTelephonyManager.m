@@ -6,8 +6,7 @@ static SNTelephonyManager *sharedManager;
 @implementation SNTelephonyManager
 + (void)initialize
 {
-	if (self == [SNTelephonyManager class])
-		sharedManager = [[self alloc] init];
+	if (self == [SNTelephonyManager class]) sharedManager = [[self alloc] init];
 }
 
 + (id)sharedManager

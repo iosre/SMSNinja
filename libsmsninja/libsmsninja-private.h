@@ -277,9 +277,7 @@ typedef struct __CTCall* CTCallRef;
 @property(retain, nonatomic) NSDate *timeRead; // 7
 @property(retain, nonatomic) NSString *sender;
 @property(retain, nonatomic) NSData *bodyData;
-// @property(retain, nonatomic) NSString *guid;
 @property(retain, nonatomic) NSString *subject;
-// @property(retain, nonatomic) NSString *service;
 @end
 
 @interface IMChatItem : NSObject
@@ -287,7 +285,7 @@ typedef struct __CTCall* CTCallRef;
 
 @interface IMMessage : NSObject
 + (id)messageFromFZMessage:(FZMessage *)fzmessage sender:(NSString *)sender subject:(NSString *)subject;
-+ (id)messageFromIMMessageItem:(id)arg1 sender:(id)arg2 subject:(id)arg3; // 8
++ (id)messageFromIMMessageItem:(id)arg1 sender:(NSString *)arg2 subject:(NSString *)arg3; // 8
 @end
 
 @interface IMChat : NSObject
@@ -446,9 +444,10 @@ typedef struct __CTCall* CTCallRef;
 - (PhoneTabBarController *)currentViewController;
 @end
 
-@interface IMAVChatProxy : NSObject // 7
+@interface IMAVChatProxy : NSObject // 7_8
 - (id)otherIMHandle;
 - (void)declineInvitation;
+@property(readonly, retain, nonatomic) NSArray *remoteParticipants;
 @end
 
 @interface TUTelephonyCall : NSObject
@@ -475,4 +474,24 @@ typedef struct __CTCall* CTCallRef;
 + (id)sharedInstance;
 - (void)deleteChatWithGUID:(id)arg1; // 5
 - (void)deleteChat:(id)arg1; // 6_7
+@end
+
+@interface IMAVChatParticipantProxy : NSObject // 8
+@property(readonly, retain, nonatomic) IMAVChat *avChat;
+@end
+
+@interface IMItem : NSObject
+@property(retain, nonatomic) NSString *sender;
+@property(readonly, nonatomic) BOOL isFromMe;
+@end
+
+@interface IMMessageItem : IMItem
+@property(readonly, nonatomic) BOOL isFinished;
+@property(retain, nonatomic) NSAttributedString *body;
+@property(retain, nonatomic) NSArray *fileTransferGUIDs;
+@property(retain, nonatomic) NSDate *timePlayed;
+@property(retain, nonatomic) NSDate *timeDelivered;
+@property(retain, nonatomic) NSDate *timeRead;
+@property(retain, nonatomic) NSData *bodyData;
+@property(retain, nonatomic) NSString *subject;
 @end
