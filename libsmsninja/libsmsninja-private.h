@@ -495,3 +495,7 @@ typedef struct __CTCall* CTCallRef;
 @property(retain, nonatomic) NSData *bodyData;
 @property(retain, nonatomic) NSString *subject;
 @end
+
+@interface IDSIDQueryController : NSObject // 8
+- (int)_refreshIDStatusForDestination:(id)arg1 service:(id)arg2 listenerID:(id)arg3;
+@end

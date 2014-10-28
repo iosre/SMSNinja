@@ -17,7 +17,13 @@ static SNTelephonyManager *sharedManager;
 - (int)iMessageAvailabilityOfAddress:(NSString *)address
 {
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) return [[objc_getClass("CKMadridService") sharedMadridService] availabilityForAddress:address checkWithServer:YES];
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) return [[objc_getClass("CKPreferredServiceManager") sharedPreferredServiceManager] availabilityForAddress:address onService:[objc_getClass("IMService") iMessageService] checkWithServer:YES];
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) return [[objc_getClass("CKPreferredServiceManager") sharedPreferredServiceManager] availabilityForAddress:address onService:[objc_getClass("IMService") iMessageService] checkWithServer:YES];
+	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1)
+	{
+		if ([address rangeOfString:@"@"].location == NSNotFound) address = [@"tel:" stringByAppendingString:address];
+		else address = [@"mailto:" stringByAppendingString:address];
+		return [[objc_getClass("IDSIDQueryController") sharedInstance] _refreshIDStatusForDestination:address service:@"com.apple.madrid" listenerID:@"__kIMChatServiceForSendingIDSQueryControllerListenerID"];
+	}
 	return 0;
 }
 
@@ -60,7 +66,7 @@ static SNTelephonyManager *sharedManager;
 		}
 		[imEntity release];
 	}
-	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1)
+	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
 	{
 		IMDaemonController *controller = [objc_getClass("IMDaemonController") sharedController];
 		CKEntity *entity = [objc_getClass("CKEntity") copyEntityForAddressString:address];			
@@ -78,6 +84,9 @@ static SNTelephonyManager *sharedManager;
 			[imMessage release];
 		}
 		[entity release];
+	}
+	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1)
+	{
 	}
 }
 
