@@ -409,6 +409,8 @@ static NSString *chosenKeyword;
 }
 %end
 
+%group SNGeneralHook_5_6_7
+
 %hook PhoneApplication
 - (BOOL)dialPhoneNumber:(NSString *)arg1 dialAssist:(BOOL)arg2
 {
@@ -449,6 +451,8 @@ static NSString *chosenKeyword;
 }
 %end
 
+%end // end of SNGeneralHook_5_6_7
+
 %hook CTCallCenter
 - (void)handleNotificationFromConnection:(void *)arg1 ofType:(id)arg2 withInfo:(NSDictionary *)arg3 // outgoing call
 {
@@ -456,8 +460,7 @@ static NSString *chosenKeyword;
 
 	if ([(NSNumber *)[arg3 objectForKey:@"kCTCallStatus"] intValue] == 3 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"])
 	{
-		NSLog(@"SMSNinjaDebug: arg3 = %@", arg3);
-		if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // this is dirty :(
+		if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // this is dirty :(
 
 		CTCallRef call = (CTCallRef)[arg3 objectForKey:@"kCTCall"];
 		NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
@@ -482,8 +485,8 @@ static NSString *chosenKeyword;
 {
 	%orig;
 	IMAVChat *avChat = [arg1 object];
-	NSLog(@"SMSNinjaDebug: arg1 = %@", arg1);
-	if ( (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && [avChat state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 2) ) // 5: 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
+	NSLog(@"SMSNinjaDebug: arg1 = %@", NSStringFromClass(arg1));
+	if ( (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && [avChat state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 2) ) // 5: 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7_8: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
 	{
 		NSMutableArray *otherParticipants = [NSMutableArray arrayWithCapacity:6];
 		[otherParticipants addObjectsFromArray:[avChat participants]];
@@ -510,10 +513,9 @@ static NSString *chosenKeyword;
 %end
 
 %hook IMChatRegistry
-- (void)account:(id)account chat:(NSString *)chatID style:(unsigned char)style chatProperties:(id)properties messageSent:(FZMessage *)message // outgoing iMessage_5/messages_6_7, called in SpringBoard & MobileSMS
+- (void)account:(id)account chat:(NSString *)chatID style:(unsigned char)style chatProperties:(id)properties messageSent:(/* FZMessage or IMMessageItem */id)message // outgoing iMessage_5/messages_6_7_8, called in SpringBoard & MobileSMS
 {
-	%orig;
-	NSLog(@"SMSNinjaDebug: message = %@", message);
+	%orig; // 到此
 	if (![message isFinished]) return;
 	NSArray *transferGUIDArray = [message fileTransferGUIDs];
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [transferGUIDArray count] == 0) // handles text only messages
@@ -1149,6 +1151,37 @@ static NSString *chosenKeyword;
 %end // end of SNGeneralHook_7
 
 %group SNGeneralHook_8
+
+%hook PhoneApplication
+- (BOOL)openURL:(NSURL *)arg1 // should be something like tel://10010?suppressAssist=1&originatingUI=dialer
+{
+	NSString *number = [arg1 absoluteString];
+	if (![numer hasPrefix:@"tel://"]) %orig;
+	else
+	{
+		NSUInteger location = [number rangeOfString:@"?"].location;
+		number = [number substringWithRange:NSMakeRange(6, location - 6)];
+		number = [number normalizedPhoneNumber];
+#ifdef DEBUG
+		NSLog(@"SMSNinja: openURL:: number = %@", number);
+#endif
+		if ( ([[settings objectForKey:@"appIsOn"] boolValue] && [number isEqualToString:[settings objectForKey:@"launchCode"]]) || ([[settings objectForKey:@"shouldHideIcon"] boolValue] && [[settings objectForKey:@"launchCode"] length] == 0 && [number isEqualToString:@"666666"]) )
+		{
+			CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
+			[messagingCenter sendMessageName:@"LaunchSMSNinja" userInfo:nil];
+			return NO;
+		}
+		else return %orig;
+
+		PhoneTabBarController *tabBarController = [self currentViewController];
+		DialerController *dialerController = tabBarController.keypadViewController;
+		PHHandsetDialerView *dialerView = MSHookIvar<PHHandsetDialerView *>(dialerController, "_dialerView");
+		PHHandsetDialerLCDView *lcdView = [dialerView lcdView];
+		UILabel* numberLabel = [lcdView numberLabel];
+		[numberLabel setText:@""];
+	}
+}
+%end
 
 %hook BBLocalDataProviderStore
 - (void)_loadDataProviderPluginBundle:(NSBundle *)bundle
