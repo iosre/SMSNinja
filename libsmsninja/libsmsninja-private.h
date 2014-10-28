@@ -294,7 +294,7 @@ typedef struct __CTCall* CTCallRef;
 @property(readonly, nonatomic) NSArray *participants;
 @property(readonly, assign, nonatomic) IMMessage* lastMessage;
 - (IMChatItem *)chatItemForMessage:(IMMessage *)message;
-- (id)chatItemsForMessages:(id)arg1; // 8
+- (NSArray *)chatItemsForMessages:(id)arg1; // 8
 - (void)leave;
 - (BOOL)deleteChatItem:(id)item;
 - (void)deleteChatItems:(id)arg1; // 8
