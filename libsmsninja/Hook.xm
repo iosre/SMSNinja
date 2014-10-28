@@ -807,7 +807,7 @@ static NSString *chosenKeyword;
 
 %end // end of SNIncomingMessageHook
 
-%hook IMDaemon // 到此
+%hook IMDaemon
 - (void)_loadServices
 {
 	%orig;
@@ -896,6 +896,18 @@ static NSString *chosenKeyword;
 %end
 
 %end // end of SNBulletinHook_7
+
+%group SNBulletinHook_8
+
+%hook MPBBDataProvider
+- (void)_handleCallHistoryDatabaseChangedNotification:(id)arg1
+{
+	NSLog(@"SMSNinjaDebug: arg1 = %@", arg1);
+	%orig;
+}
+%end
+
+%end // end of SNBulletinHook_8
 
 %group SNGeneralHook_5_6
 
@@ -1125,6 +1137,32 @@ static NSString *chosenKeyword;
 
 %group SNGeneralHook_7
 
+%hook BBDataProviderManager
+- (void)_loadDataProviderPluginBundle:(NSBundle *)bundle
+{
+	%orig;
+	NSString *bundleIdentifier = [bundle bundleIdentifier];
+	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_7);
+}
+%end
+
+%end // end of SNGeneralHook_7
+
+%group SNGeneralHook_8
+
+%hook BBLocalDataProviderStore
+- (void)_loadDataProviderPluginBundle:(NSBundle *)bundle
+{
+	%orig;
+	NSString *bundleIdentifier = [bundle bundleIdentifier];
+	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_8);
+}
+%end
+
+%end // end of SNGeneralHook_8
+
+%group SNGeneralHook_7_8
+
 %hook PHRecentsViewController
 %new
 - (void)snLongPress:(UILongPressGestureRecognizer *)gesture
@@ -1201,18 +1239,10 @@ static NSString *chosenKeyword;
 }
 %end
 
-%hook BBDataProviderManager
-- (void)_loadDataProviderPluginBundle:(NSBundle *)bundle
-{
-	%orig;
-	NSString *bundleIdentifier = [bundle bundleIdentifier];
-	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_7);
-}
-%end
-
 %hook IMDaemonController // grant SpringBoard permission to send messages :P
 - (BOOL)addListenerID:(id)arg1 capabilities:(unsigned)arg2
 {
+	NSLog(@"SMSNinjaDebug: arg1 = %@, arg2 = %d", arg1, arg2);
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [arg1 isEqualToString:@"com.apple.MobileSMS"]) return %orig(arg1, 16647);
 	return %orig;
 }
@@ -1239,7 +1269,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 	return NO;
 }
 
-%end // end of SNGeneralHook_7
+%end // end of SNGeneralHook_7_8
 
 %ctor
 {
@@ -1253,7 +1283,9 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 		if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1)
 		{
 			MSHookFunction(&CMFBlockListIsItemBlocked, &new_CMFBlockListIsItemBlocked, &old_CMFBlockListIsItemBlocked);
-			%init(SNGeneralHook_7);
+			%init(SNGeneralHook_7_8);
+			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNGeneralHook_7);
+			else %init(SNGeneralHook_8);
 		}
 		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) %init(SNGeneralHook_5_6);
 
