@@ -53,15 +53,15 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 		NSUInteger index = NSNotFound;
 		if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
 		{
-			if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES;
+			if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
 		}
 		else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
 		{
-			if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+			if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
 		}
 		else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
 		{
-			if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+			if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
 		}
 		else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
 		{
@@ -76,7 +76,7 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 				NSArray *callArray = (NSArray *)_CTCallCopyAllCalls();
 				if ([callArray count] != 0)
 				{
-					CTCallRef historyCall = (CTCallRef)[callArray objectAtIndex:0];
+					CTCallRef historyCall = (CTCallRef)callArray[0];
 					NSLog(@"SMSNinjaDebug0: historyCall = %@, call = %@", historyCall, call);
 					NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
 					NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
@@ -112,7 +112,7 @@ void (*old_CTTelephonyCenterAddObserver)(CFNotificationCenterRef center, const v
 
 void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void *observer, CFNotificationCallback callBack, CFStringRef name, const void *object, CFNotificationSuspensionBehavior suspensionBehavior)  // delete call history
 {
-	NSLog(@"SMSNinjaDebug1: name = %@", (NSString *)name);
+	// TODO: iOS 8没这个通知了？
 	if ([(NSString *)name isEqualToString:@"kCTCallHistoryRecordAddNotification"])
 	{
 		oldCallBack = callBack;
@@ -215,7 +215,7 @@ static NSString *chosenKeyword;
 		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
 		{
 			CKConversationList *list = self.conversationList;
-			CKAggregateConversation *conversation = [[list activeConversations] objectAtIndex:chosenRow];
+			CKAggregateConversation *conversation = [list activeConversations][chosenRow];
 			NSArray *recipients = [conversation recipients];
 			NSString *tempString = @"";
 			for (CKEntity *recipient in recipients) tempString = [[tempString stringByAppendingString:[[recipient rawAddress] normalizedPhoneNumber]] stringByAppendingString:@"  "];
@@ -231,7 +231,7 @@ static NSString *chosenKeyword;
 		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
 		{
 			CKConversationList *list = self.conversationList;
-			CKConversation *conversation = [[list activeConversations] objectAtIndex:chosenRow];
+			CKConversation *conversation = [list activeConversations][chosenRow];
 			NSArray *recipients = [conversation recipientStrings];
 			NSString *tempString = @"";			
 			for (NSString *recipient in recipients) tempString = [[tempString stringByAppendingString:[recipient normalizedPhoneNumber]] stringByAppendingString:@"  "];
@@ -413,9 +413,8 @@ static NSString *chosenKeyword;
 %hook CTCallCenter
 - (void)handleNotificationFromConnection:(void *)arg1 ofType:(id)arg2 withInfo:(NSDictionary *)arg3 // outgoing call
 {
+	// TODO: iOS 8的进程变成了SpringBoard
 	%orig;
-	NSLog(@"SMSNinjaDebug2: userInfo = %@, %@, %@", arg3, [arg3 objectForKey:@"kCTCallStatus"], [[NSProcessInfo processInfo] processName]);
-
 	if ([(NSNumber *)[arg3 objectForKey:@"kCTCallStatus"] intValue] == 3 && ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"]) || (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])))
 	{
 		NSLog(@"SMSNinjaDebug2.5: userInfo = %@, %@, %@", arg3, [arg3 objectForKey:@"kCTCallStatus"], [[NSProcessInfo processInfo] processName]);
@@ -442,8 +441,8 @@ static NSString *chosenKeyword;
 %hook IMAVTelephonyManager
 - (void)_chatStateChanged:(NSConcreteNotification *)arg1 // outgoing FaceTime
 {
+	// TODO: 进出都可以在这里处理？
 	%orig;
-	NSLog(@"SMSNinjaDebug3: arg1 = %@", arg1);
 	IMAVChat *avChat = nil; // 5_6_7
 	IMAVChatProxy *avChatProxy = nil; // 8
 	if ( (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && [avChat state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 2) ) // 5: 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7_8: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
@@ -496,8 +495,8 @@ static NSString *chosenKeyword;
 %hook IMChatRegistry
 - (void)account:(id)account chat:(NSString *)chatID style:(unsigned char)style chatProperties:(id)properties messageSent:(id)message // outgoing iMessage_5/messages_6_7_8, called in SpringBoard & MobileSMS
 {
+	// TODO: Not called in SpringBoard in iOS 8
 	%orig;
-	NSLog(@"SMSNinjaDebug4: message = %@", message);	
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) message = (FZMessage *)message;
 	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1) message = (IMMessageItem *)message;
 	
@@ -608,6 +607,7 @@ static NSString *chosenKeyword;
 %hook MPConferenceManager // 5_6_7
 - (void)_handleInvitation:(NSConcreteNotification *)invitation // incoming FaceTime
 {
+	// TODO: 用IMAVController替换？
 	NSString *address = nil;
 	NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:1];
 	NSString *conferenceID = nil;
@@ -668,7 +668,6 @@ static NSString *chosenKeyword;
 %hook MPTelephonyManager
 - (void)displayAlertForCall:(id)arg1 // incoming call
 {
-	NSLog(@"SMSNinjaDebug5: arg1 = %@", arg1); // facetime in iOS 8?
 	CTCallRef call = nil;
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) call = (CTCallRef)arg1;
 	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1) call = [(TUTelephonyCall *)arg1 call];
@@ -703,7 +702,6 @@ static NSString *chosenKeyword;
 %hook SBPluginManager
 - (Class)loadPluginBundle:(NSBundle *)bundle
 {
-	NSLog(@"SMSNinjaDebug6: bundle = %@", bundle);
 	Class result = %orig;
 	NSString *bundleIdentifier = [bundle bundleIdentifier];
 	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.incomingcall"])
@@ -720,7 +718,6 @@ static NSString *chosenKeyword;
 %hook IMDServiceSession
 - (void)didReceiveMessage:(id)message forChat:(NSString *)arg2 style:(unsigned char)arg3 // incoming iMessage_5/message_6_7_8
 {	
-	NSLog(@"SMSNinjaDebug7: message = %@", message);
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) message = (FZMessage *)message;
 	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1) message = (IMMessageItem *)message;
 
@@ -831,15 +828,15 @@ static NSString *chosenKeyword;
 			NSUInteger index = NSNotFound;
 			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
 			{
-				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) return;
+				if ([privatePhoneArray[index] intValue] != 0) return;
 			}
 			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
 			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
+				if ([blackPhoneArray[index] intValue] != 0) return;
 			}
 			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
 			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
+				if ([blackPhoneArray[index] intValue] != 0) return;
 			}
 			else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
@@ -872,15 +869,15 @@ static NSString *chosenKeyword;
 			NSUInteger index = NSNotFound;
 			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
 			{
-				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) return;
+				if ([privatePhoneArray[index] intValue] != 0) return;
 			}
 			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
 			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
+				if ([blackPhoneArray[index] intValue] != 0) return;
 			}
 			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
 			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
+				if ([blackPhoneArray[index] intValue] != 0) return;
 			}
 			else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
@@ -899,8 +896,36 @@ static NSString *chosenKeyword;
 %hook MPBBDataProvider
 - (void)_handleCallHistoryDatabaseChangedNotification:(id)arg1
 {
-	NSLog(@"SMSNinjaDebug8: arg1 = %@", arg1);
-	%orig;
+	CHManager *recentsManager = MSHookIvar<CHManager *>(self, "_recentsManager");
+	CHRecentCall *recentCall = recentsManager.recentCalls[0];
+	if (!recentCall.read)
+	{
+		NSString *address = recentCall.callerId;
+		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+		[address release];
+#ifdef DEBUG
+		NSLog(@"SMSNinja: _handleCallHistoryDatabaseChangedNotification: address = %@", tempAddress);
+#endif
+		NSUInteger index = NSNotFound;
+		if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+		{
+			if ([privatePhoneArray[index] intValue] != 0) return;
+		}
+		else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+		{
+			if ([blackPhoneArray[index] intValue] != 0) return;
+		}
+		else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+		{
+			if ([blackPhoneArray[index] intValue] != 0) return;
+		}
+		else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+		{
+		}
+		else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
+		%orig;
+	}
+	else %orig;
 }
 %end
 
@@ -1043,7 +1068,7 @@ static NSString *chosenKeyword;
 	{
 		NSUInteger chosenRow = [[self table] indexPathForCell:((UITableViewCell *)gesture.view)].row;
 		id call = nil;
-		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) call = [[self calls] objectAtIndex:chosenRow];
+		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) call = [self calls][chosenRow];
 		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) call = [self callAtTableViewIndex:chosenRow];
 		if ([call isKindOfClass:[%c(RecentCall) class]]) // including RecentMultiCall
 		{
@@ -1063,7 +1088,7 @@ static NSString *chosenKeyword;
 			NSArray *ctCalls = [call underlyingCTCalls];
 			for (NSUInteger i = 0; i < [ctCalls count]; i++)
 			{
-				CTCallRef ctCall = (CTCallRef)[ctCalls objectAtIndex:i];
+				CTCallRef ctCall = (CTCallRef)ctCalls[i];
 				NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, ctCall);
 				if (![[tempString componentsSeparatedByString:@"  "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@"  "];
 				[address release];
@@ -1196,7 +1221,7 @@ static NSString *chosenKeyword;
 			NSArray *ctCalls = [call underlyingCTCalls];
 			for (NSUInteger i = 0; i < [ctCalls count]; i++)
 			{
-				CTCallRef ctCall = (CTCallRef)[ctCalls objectAtIndex:i];
+				CTCallRef ctCall = (CTCallRef)ctCalls[i];
 				NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, ctCall);
 				if (![[tempString componentsSeparatedByString:@"  "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@"  "];
 				[address release];

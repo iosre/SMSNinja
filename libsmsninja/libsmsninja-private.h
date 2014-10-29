@@ -505,3 +505,12 @@ typedef struct __CTCall* CTCallRef;
 @interface IDSIDQueryController : NSObject // 8
 - (int)_refreshIDStatusForDestination:(id)arg1 service:(id)arg2 listenerID:(id)arg3;
 @end
+
+@interface CHRecentCall : NSObject
+@property (copy) NSString *callerId;
+@property (nonatomic) BOOL read;
+@end
+
+@interface CHManager : NSObject
+@property (retain, nonatomic) NSArray *recentCalls;
+@end

@@ -607,11 +607,11 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 
 			if ((index = [address indexInPrivateListWithType:0]) != NSNotFound)
 			{
-				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[privateMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[privateNumberArray objectAtIndex:index]];
-				if (!isFromMe && [[privateSoundArray objectAtIndex:index] intValue] == 1) PlayFilterSound();
-				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) PersistentSave("private", "call", text, [privateNameArray objectAtIndex:index], addressArray, isFromMe, pictureArray);
-				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) return [[privatePhoneArray objectAtIndex:index] intValue];
+				if (!isFromMe && [privateReplyArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:privateMessageArray[index]];
+				if (!isFromMe && [privateForwardArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:privateNumberArray[index]];
+				if (!isFromMe && [privateSoundArray[index] intValue] == 1) PlayFilterSound();
+				if ([privatePhoneArray[index] intValue] != 0) PersistentSave("private", "call", text, privateNameArray[index], addressArray, isFromMe, pictureArray);
+				if ([privatePhoneArray[index] intValue] != 0) return [privatePhoneArray[index] intValue];
 			}
 			else if ((index = [address indexInWhiteListWithType:0]) != NSNotFound)
 			{
@@ -623,19 +623,19 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 			}
 			else if ((index = [address indexInBlackListWithType:0]) != NSNotFound)
 			{
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
-				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
-				if (!isFromMe && [[blackPhoneArray objectAtIndex:index] intValue] != 0) PersistentSave("blocked", "call", text, [blackNameArray objectAtIndex:index], addressArray, isFromMe, pictureArray);
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return [[blackPhoneArray objectAtIndex:index] intValue];
+				if (!isFromMe && [blackReplyArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
+				if (!isFromMe && [blackForwardArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [blackSoundArray[index] intValue] == 1) PlayBlockSound();
+				if (!isFromMe && [blackPhoneArray[index] intValue] != 0) PersistentSave("blocked", "call", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
+				if ([blackPhoneArray[index] intValue] != 0) return [blackPhoneArray[index] intValue];
 			}
 			else if ((index = [time indexInBlackListWithType:2]) != NSNotFound)
 			{
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
-				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
-				if (!isFromMe && [[blackPhoneArray objectAtIndex:index] intValue] != 0) PersistentSave("blocked", "call", text, [blackNameArray objectAtIndex:index], addressArray, isFromMe, pictureArray);
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return [[blackPhoneArray objectAtIndex:index] intValue];
+				if (!isFromMe && [blackReplyArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
+				if (!isFromMe && [blackForwardArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [blackSoundArray[index] intValue] == 1) PlayBlockSound();
+				if (!isFromMe && [blackPhoneArray[index] intValue] != 0) PersistentSave("blocked", "call", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
+				if ([blackPhoneArray[index] intValue] != 0) return [blackPhoneArray[index] intValue];
 			}
 			else if ((index = [address indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue]))
 			{
@@ -659,19 +659,19 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 
 			if ((index = [address indexInPrivateListWithType:0]) != NSNotFound)
 			{
-				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[privateMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[privateNumberArray objectAtIndex:index]];
-				if (!isFromMe && [[privateSoundArray objectAtIndex:index] intValue] == 1) PlayFilterSound();
-				if ([[privateSmsArray objectAtIndex:index] intValue] != 0) PersistentSave("private", "sms", text, [privateNameArray objectAtIndex:index], addressArray, isFromMe, pictureArray);
-				if ([[privateSmsArray objectAtIndex:index] intValue] != 0) return [[privateSmsArray objectAtIndex:index] intValue];
+				if (!isFromMe && [privateReplyArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:privateMessageArray[index]];
+				if (!isFromMe && [privateForwardArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:privateNumberArray[index]];
+				if (!isFromMe && [privateSoundArray[index] intValue] == 1) PlayFilterSound();
+				if ([privateSmsArray[index] intValue] != 0) PersistentSave("private", "sms", text, privateNameArray[index], addressArray, isFromMe, pictureArray);
+				if ([privateSmsArray[index] intValue] != 0) return [privateSmsArray[index] intValue];
 			}
 			else if ((index = [text indexInPrivateListWithType:1]) != NSNotFound)
 			{
-				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[privateMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[privateNumberArray objectAtIndex:index]];
-				if (!isFromMe && [[privateSoundArray objectAtIndex:index] intValue] == 1) PlayFilterSound();
-				if ([[privateSmsArray objectAtIndex:index] intValue] != 0) PersistentSave("private", "sms", text, [privateNameArray objectAtIndex:index], addressArray, isFromMe, pictureArray);
-				if ([[privateSmsArray objectAtIndex:index] intValue] != 0) return [[privateSmsArray objectAtIndex:index] intValue];
+				if (!isFromMe && [privateReplyArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:privateMessageArray[index]];
+				if (!isFromMe && [privateForwardArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:privateNumberArray[index]];
+				if (!isFromMe && [privateSoundArray[index] intValue] == 1) PlayFilterSound();
+				if ([privateSmsArray[index] intValue] != 0) PersistentSave("private", "sms", text, privateNameArray[index], addressArray, isFromMe, pictureArray);
+				if ([privateSmsArray[index] intValue] != 0) return [privateSmsArray[index] intValue];
 			}
 			else if ((index = [address indexInWhiteListWithType:0]) != NSNotFound)
 			{
@@ -690,34 +690,34 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 #ifdef DEBUG
 				NSLog(@"SMSNinja: 5s Crash Debug: %lu", (unsigned long)index);
 #endif
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
-				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
-				if (!isFromMe && [[blackSmsArray objectAtIndex:index] intValue] == 1)
+				if (!isFromMe && [blackReplyArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
+				if (!isFromMe && [blackForwardArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [blackSoundArray[index] intValue] == 1) PlayBlockSound();
+				if (!isFromMe && [blackSmsArray[index] intValue] == 1)
 				{
-					PersistentSave("blocked", "sms", text, [blackNameArray objectAtIndex:index], addressArray, isFromMe, pictureArray);
+					PersistentSave("blocked", "sms", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
 					return 2;
 				}
 			}
 			else if ((index = [text indexInBlackListWithType:1]) != NSNotFound)
 			{
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
-				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
-				if (!isFromMe && [[blackSmsArray objectAtIndex:index] intValue] == 1)
+				if (!isFromMe && [blackReplyArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
+				if (!isFromMe && [blackForwardArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [blackSoundArray[index] intValue] == 1) PlayBlockSound();
+				if (!isFromMe && [blackSmsArray[index] intValue] == 1)
 				{
-					PersistentSave("blocked", "sms", text, [blackNameArray objectAtIndex:index], addressArray, isFromMe, pictureArray);
+					PersistentSave("blocked", "sms", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
 					return 2;
 				}
 			}
 			else if ((index = [time indexInBlackListWithType:2]) != NSNotFound)
 			{
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
-				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
-				if (!isFromMe && [[blackSmsArray objectAtIndex:index] intValue] == 1)
+				if (!isFromMe && [blackReplyArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
+				if (!isFromMe && [blackForwardArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [blackSoundArray[index] intValue] == 1) PlayBlockSound();
+				if (!isFromMe && [blackSmsArray[index] intValue] == 1)
 				{
-					PersistentSave("blocked", "sms", text, [blackNameArray objectAtIndex:index], addressArray, isFromMe, pictureArray);
+					PersistentSave("blocked", "sms", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
 					return 2;
 				}
 			}
@@ -772,7 +772,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 - (NSString *)stringByRemovingCharacters
 {
 	NSString *text = self;
-	for (NSString *character in [NSArray arrayWithObjects:@" ", @"~", @"`", @"!", @"@", @"#", @"$", @"%", @"^", @"&", @"*", @"(", @")", @"-", @"=", @"_", @"+", @"{", @"}", @"[", @"]", @"|", @"\\", @":", @";", @"\"", @"'", @"<", @">", @",", @".", @"?", @"/", @"·", @"！", @"￥", @"⋯⋯", @"（", @"）", @"——", @"【", @"】", @"、", @"：", @"；", @"“", @"”", @"‘", @"’", @"《", @"》", @"，", @"。", @"？", nil])
+	for (NSString *character in @[@" ", @"~", @"`", @"!", @"@", @"#", @"$", @"%", @"^", @"&", @"*", @"(", @")", @"-", @"=", @"_", @"+", @"{", @"}", @"[", @"]", @"|", @"\\", @":", @";", @"\"", @"'", @"<", @">", @",", @".", @"?", @"/", @"·", @"！", @"￥", @"⋯⋯", @"（", @"）", @"——", @"【", @"】", @"、", @"：", @"；", @"“", @"”", @"‘", @"’", @"《", @"》", @"，", @"。", @"？"])
 		text = [text stringByReplacingOccurrencesOfString:character withString:@""];
 #ifdef DEBUG
 	NSLog(@"SMSNinja: %@ becomes %@ after unpack", self, text);
@@ -788,7 +788,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *address in privateKeywordArray)
 		{
 			NSUInteger index = [privateKeywordArray indexOfObject:address];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[privateTypeArray objectAtIndex:index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:privateTypeArray[index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
 #ifdef DEBUG
 				NSLog(@"SMSNinja: %@ as address is in privatelist", self);
@@ -802,7 +802,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *keyword in privateKeywordArray)
 		{
 			NSUInteger index = [privateKeywordArray indexOfObject:keyword];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[privateTypeArray objectAtIndex:index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:privateTypeArray[index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
 			{
 #ifdef DEBUG
 				NSLog(@"SMSNinja: %@ contains keyword %@ in privatelist", self, keyword);
@@ -825,7 +825,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *address in blackKeywordArray)
 		{
 			NSUInteger index = [blackKeywordArray indexOfObject:address];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[blackTypeArray objectAtIndex:index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:blackTypeArray[index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
 #ifdef DEBUG
 				NSLog(@"SMSNinja: %@ as address is in blacklist", self);
@@ -839,7 +839,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *keyword in blackKeywordArray)
 		{
 			NSUInteger index = [blackKeywordArray indexOfObject:keyword];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[blackTypeArray objectAtIndex:index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:blackTypeArray[index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
 			{
 #ifdef DEBUG
 				NSLog(@"SMSNinja: %@ contains keyword %@ in blacklist", self, keyword);
@@ -853,7 +853,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *time in blackKeywordArray)
 		{
 			NSUInteger index = [blackKeywordArray indexOfObject:time];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[blackTypeArray objectAtIndex:index]])
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:blackTypeArray[index]])
 			{
 				NSString *startTime = [[time substringToIndex:[time rangeOfString:@"~"].location] stringByReplacingOccurrencesOfString:@":" withString:@""];
 				NSString *endTime = [[time substringFromIndex:([time rangeOfString:@"~"].location + 1)] stringByReplacingOccurrencesOfString:@":" withString:@""];
@@ -883,7 +883,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *address in whiteKeywordArray)
 		{
 			NSUInteger index = [whiteKeywordArray indexOfObject:address];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[whiteTypeArray objectAtIndex:index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:whiteTypeArray[index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
 #ifdef DEBUG
 				NSLog(@"SMSNinja: %@ as address is in whitelist", self);
@@ -897,7 +897,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		for (NSString *keyword in whiteKeywordArray)
 		{
 			NSUInteger index = [whiteKeywordArray indexOfObject:keyword];
-			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:[whiteTypeArray objectAtIndex:index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
+			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:whiteTypeArray[index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
 			{
 #ifdef DEBUG
 				NSLog(@"SMSNinja: %@ contains keyword %@ in whitelist", self, keyword);
@@ -953,7 +953,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 	else
 	{
 		CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
-		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"CheckAddressBook" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self, @"address", nil]];
+		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"CheckAddressBook" userInfo:@{@"address" : self}];
 		result = [(NSNumber *)[reply objectForKey:@"result"] boolValue];
 	}
 #ifdef DEBUG
@@ -1011,7 +1011,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 	else
 	{
 		CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
-		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"GetAddressBookName" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:self, @"address", nil]];
+		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"GetAddressBookName" userInfo:@{@"address" : self}];
 		name = (NSString *)[reply objectForKey:@"result"];
 	}
 #ifdef DEBUG
