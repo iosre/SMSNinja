@@ -307,13 +307,13 @@ static NSString *chosenKeyword;
 	{
 		NSString *address = [userInfo objectForKey:@"address"];
 		NSNumber *result = [NSNumber numberWithBool:[address isInAddressBook]];
-		return [NSDictionary dictionaryWithObjectsAndKeys:result, @"result", nil];
+		return @{@"result" : result};
 	}
 	else if ([name isEqualToString:@"GetAddressBookName"])
 	{
 		NSString *address = [userInfo objectForKey:@"address"];
 		NSString *result = [address nameInAddressBook];
-		return [NSDictionary dictionaryWithObjectsAndKeys:result, @"result", nil];
+		return @{@"result" : result};
 	}
 	else if ([name isEqualToString:@"SendMessage"])
 	{
@@ -421,7 +421,7 @@ static NSString *chosenKeyword;
 		CTCallRef call = (CTCallRef)[arg3 objectForKey:@"kCTCall"];
 		NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
 		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-		NSArray *addressArray = [NSArray arrayWithObject:tempAddress];	
+		NSArray *addressArray = @[tempAddress];	
 		[address release];
 #ifdef DEBUG
 		NSLog(@"SMSNinja: handleNotificationFromConnection:ofType:withInfo:: addressArray = %@", addressArray);
@@ -541,7 +541,7 @@ static NSString *chosenKeyword;
 			{
 				[chat leave];
 				CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.mobilesms"];
-				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:chatID, @"chatID", nil]];
+				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:@{@"chatID" : chatID}];
 			}
 		}
 	}
@@ -592,7 +592,7 @@ static NSString *chosenKeyword;
 			{
 				[chat leave];
 				CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.mobilesms"];
-				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:chatID, @"chatID", nil]];
+				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:@{@"chatID" : chatID}];
 			}
 		}
 	}
@@ -670,7 +670,7 @@ static NSString *chosenKeyword;
 	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1) call = [(TUTelephonyCall *)arg1 call];
 	NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
 	NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-	NSArray *addressArray = [NSArray arrayWithObject:tempAddress];	
+	NSArray *addressArray = @[tempAddress];	
 	[address release];
 #ifdef DEBUG
 	NSLog(@"SMSNinja: displayAlertForCall:: address = %@", tempAddress);
@@ -723,7 +723,7 @@ static NSString *chosenKeyword;
 	{
 		NSArray *transferGUIDArray = [message fileTransferGUIDs];
 		NSString *sender = [(NSString *)[message sender] normalizedPhoneNumber];
-		NSArray *addressArray = [NSArray arrayWithObject:sender];
+		NSArray *addressArray = @[sender];
 
 		NSAttributedString *body = [message body];
 		NSString *text = [[message body] string];
@@ -787,9 +787,9 @@ static NSString *chosenKeyword;
 					else [store deleteChat:chat];
 				}
 				CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.mobilesms"];
-				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:arg2, @"chatID", nil]];
+				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:@{@"chatID" : arg2}];
 				messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
-				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:[NSDictionary dictionaryWithObjectsAndKeys:arg2, @"chatID", nil]];
+				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:@{@"chatID" : arg2}];					
 			}
 		}
 	}
@@ -910,7 +910,7 @@ static NSString *chosenKeyword;
 	if ([sender respondsToSelector:@selector(digits)]) address = [sender digits];
 	else if ([sender respondsToSelector:@selector(address)]) address = [sender address];
 	address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-	NSArray *addressArray = [NSArray arrayWithObject:address];
+	NSArray *addressArray = @[address];
 
 	NSArray *items = message.items;
 	NSString *text = @"";
@@ -1001,7 +1001,7 @@ static NSString *chosenKeyword;
 			}
 			else if ([part type] == 1) // image
 			{
-				CKCompressibleImageMediaObject *mediaObject = (CKCompressibleImageMediaObject *)[part mediaObject];
+				CKCompressibleImageMediaObject *mediaObject = [part mediaObject];
 				CKImageData *imageData = [mediaObject imageData];
 				UIImage *image = [[UIImage alloc] initWithData:imageData.data];
 				[pictureArray addObject:image];
@@ -1337,30 +1337,29 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 
 %ctor
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0)
+	@autoreleasepool
 	{
-		MSHookFunction(&CTTelephonyCenterAddObserver, &new_CTTelephonyCenterAddObserver, &old_CTTelephonyCenterAddObserver);
-		%init;
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) %init(SNGeneralHook_5);
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) %init(SNGeneralHook_5_6);
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNGeneralHook_5_6_7);
-		if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1)
+		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0)
 		{
-			MSHookFunction(&CMFBlockListIsItemBlocked, &new_CMFBlockListIsItemBlocked, &old_CMFBlockListIsItemBlocked);
-			%init(SNGeneralHook_7_8);
-			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNGeneralHook_7);
-			else %init(SNGeneralHook_8);
+			MSHookFunction(&CTTelephonyCenterAddObserver, &new_CTTelephonyCenterAddObserver, &old_CTTelephonyCenterAddObserver);
+			%init;
+			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) %init(SNGeneralHook_5);
+			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) %init(SNGeneralHook_5_6);
+			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNGeneralHook_5_6_7);
+			if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1)
+			{
+				MSHookFunction(&CMFBlockListIsItemBlocked, &new_CMFBlockListIsItemBlocked, &old_CMFBlockListIsItemBlocked);
+				%init(SNGeneralHook_7_8);
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNGeneralHook_7);
+				else %init(SNGeneralHook_8);
+			}
+
+			LoadAllLists(nil, nil, nil, nil, nil);
+			LoadSettings(nil, nil, nil, nil, nil);
+			CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadBlacklist, CFSTR("com.naken.smsninja.blacklistchanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+			CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadWhitelist, CFSTR("com.naken.smsninja.whitelistchanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+			CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadPrivatelist, CFSTR("com.naken.smsninja.privatelistchanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
+			CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadSettings, CFSTR("com.naken.smsninja.settingschanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
 		}
-
-		LoadAllLists(nil, nil, nil, nil, nil);
-		LoadSettings(nil, nil, nil, nil, nil);
-		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadBlacklist, CFSTR("com.naken.smsninja.blacklistchanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
-		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadWhitelist, CFSTR("com.naken.smsninja.whitelistchanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
-		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadPrivatelist, CFSTR("com.naken.smsninja.privatelistchanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
-		CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadSettings, CFSTR("com.naken.smsninja.settingschanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
 	}
-
-	[pool drain];
 }
