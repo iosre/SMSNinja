@@ -476,7 +476,9 @@ void UpdateBadge(void)
 				SBIconModel *iconModel = nil;
 				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) iconModel = [objc_getClass("SBIconModel") sharedInstance];
 				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) iconModel = [(SBIconController *)[objc_getClass("SBIconController") sharedInstance] model];
-				SBIcon *icon = [iconModel applicationIconForDisplayIdentifier:@"com.naken.smsninja"];
+				SBIcon *icon;
+				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) icon = [iconModel applicationIconForDisplayIdentifier:@"com.naken.smsninja"];
+				else icon = [iconModel applicationIconForBundleIdentifier:@"com.naken.smsninja"];
 
 				if ([messageCount intValue] + [callCount intValue] == 0)
 				{
@@ -523,7 +525,9 @@ void UpdateBadge(void)
 		SBIconModel *iconModel = nil;
 		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) iconModel = [objc_getClass("SBIconModel") sharedInstance];
 		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) iconModel = [(SBIconController *)[objc_getClass("SBIconController") sharedInstance] model];
-		SBIcon *icon = [iconModel applicationIconForDisplayIdentifier:@"com.naken.smsninja"];
+		SBIcon *icon;
+		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) icon = [iconModel applicationIconForDisplayIdentifier:@"com.naken.smsninja"];
+		else icon = [iconModel applicationIconForBundleIdentifier:@"com.naken.smsninja"];
 
 		[icon setBadge:nil];
 		[centerItem release];

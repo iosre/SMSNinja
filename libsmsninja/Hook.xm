@@ -77,7 +77,7 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 				if ([callArray count] != 0)
 				{
 					CTCallRef historyCall = (CTCallRef)[callArray objectAtIndex:0];
-					NSLog(@"SMSNinjaDebug1: historyCall = %@, call = %@", historyCall, call);
+					NSLog(@"SMSNinjaDebug0: historyCall = %@, call = %@", historyCall, call);
 					NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
 					NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 					NSString *historyAddress = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, historyCall);
@@ -112,6 +112,7 @@ void (*old_CTTelephonyCenterAddObserver)(CFNotificationCenterRef center, const v
 
 void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void *observer, CFNotificationCallback callBack, CFStringRef name, const void *object, CFNotificationSuspensionBehavior suspensionBehavior)  // delete call history
 {
+	NSLog(@"SMSNinjaDebug1: name = %@", (NSString *)name);
 	if ([(NSString *)name isEqualToString:@"kCTCallHistoryRecordAddNotification"])
 	{
 		oldCallBack = callBack;
@@ -325,7 +326,7 @@ static NSString *chosenKeyword;
 	{
 		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
 		{
-			SBApplication* app = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.apple.mobilephone"];
+			SBApplication *app = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.apple.mobilephone"];
 			[[%c(SBUIController) sharedInstance] activateApplicationFromSwitcher:app];
 		}
 		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
@@ -337,7 +338,7 @@ static NSString *chosenKeyword;
 	{
 		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
 		{
-			SBApplication* app = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.apple.MobileSMS"];
+			SBApplication *app = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.apple.MobileSMS"];
 			[[%c(SBUIController) sharedInstance] activateApplicationFromSwitcher:app];
 		}
 		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
@@ -349,7 +350,7 @@ static NSString *chosenKeyword;
 	{
 		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
 		{
-			SBApplication* app = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.naken.smsninja"];
+			SBApplication *app = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.naken.smsninja"];
 			[[%c(SBUIController) sharedInstance] activateApplicationFromSwitcher:app];
 		}
 		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
@@ -413,10 +414,12 @@ static NSString *chosenKeyword;
 - (void)handleNotificationFromConnection:(void *)arg1 ofType:(id)arg2 withInfo:(NSDictionary *)arg3 // outgoing call
 {
 	%orig;
+	NSLog(@"SMSNinjaDebug2: userInfo = %@, %@, %@", arg3, [arg3 objectForKey:@"kCTCallStatus"], [[NSProcessInfo processInfo] processName]);
 
-	if ([(NSNumber *)[arg3 objectForKey:@"kCTCallStatus"] intValue] == 3 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"])
+	if ([(NSNumber *)[arg3 objectForKey:@"kCTCallStatus"] intValue] == 3 && ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"]) || (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])))
 	{
-		if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // this is dirty :(
+		NSLog(@"SMSNinjaDebug2.5: userInfo = %@, %@, %@", arg3, [arg3 objectForKey:@"kCTCallStatus"], [[NSProcessInfo processInfo] processName]);
+		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // this is dirty on iOS 7 :(
 
 		CTCallRef call = (CTCallRef)[arg3 objectForKey:@"kCTCall"];
 		NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
@@ -440,6 +443,7 @@ static NSString *chosenKeyword;
 - (void)_chatStateChanged:(NSConcreteNotification *)arg1 // outgoing FaceTime
 {
 	%orig;
+	NSLog(@"SMSNinjaDebug3: arg1 = %@", arg1);
 	IMAVChat *avChat = nil; // 5_6_7
 	IMAVChatProxy *avChatProxy = nil; // 8
 	if ( (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && [avChat state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 2) ) // 5: 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7_8: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
@@ -493,7 +497,7 @@ static NSString *chosenKeyword;
 - (void)account:(id)account chat:(NSString *)chatID style:(unsigned char)style chatProperties:(id)properties messageSent:(id)message // outgoing iMessage_5/messages_6_7_8, called in SpringBoard & MobileSMS
 {
 	%orig;
-	
+	NSLog(@"SMSNinjaDebug4: message = %@", message);	
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) message = (FZMessage *)message;
 	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1) message = (IMMessageItem *)message;
 	
@@ -664,7 +668,7 @@ static NSString *chosenKeyword;
 %hook MPTelephonyManager
 - (void)displayAlertForCall:(id)arg1 // incoming call
 {
-	NSLog(@"SMSNinjaDebug3: arg1 = %@", arg1); // facetime in iOS 8?
+	NSLog(@"SMSNinjaDebug5: arg1 = %@", arg1); // facetime in iOS 8?
 	CTCallRef call = nil;
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) call = (CTCallRef)arg1;
 	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1) call = [(TUTelephonyCall *)arg1 call];
@@ -699,6 +703,7 @@ static NSString *chosenKeyword;
 %hook SBPluginManager
 - (Class)loadPluginBundle:(NSBundle *)bundle
 {
+	NSLog(@"SMSNinjaDebug6: bundle = %@", bundle);
 	Class result = %orig;
 	NSString *bundleIdentifier = [bundle bundleIdentifier];
 	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.incomingcall"])
@@ -715,6 +720,7 @@ static NSString *chosenKeyword;
 %hook IMDServiceSession
 - (void)didReceiveMessage:(id)message forChat:(NSString *)arg2 style:(unsigned char)arg3 // incoming iMessage_5/message_6_7_8
 {	
+	NSLog(@"SMSNinjaDebug7: message = %@", message);
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) message = (FZMessage *)message;
 	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1) message = (IMMessageItem *)message;
 
@@ -893,7 +899,7 @@ static NSString *chosenKeyword;
 %hook MPBBDataProvider
 - (void)_handleCallHistoryDatabaseChangedNotification:(id)arg1
 {
-	NSLog(@"SMSNinjaDebug4: arg1 = %@", arg1);
+	NSLog(@"SMSNinjaDebug8: arg1 = %@", arg1);
 	%orig;
 }
 %end
@@ -1251,8 +1257,11 @@ static NSString *chosenKeyword;
 %hook IMDaemonController // grant SpringBoard permission to send messages :P
 - (BOOL)addListenerID:(id)arg1 capabilities:(unsigned)arg2
 {
-	NSLog(@"SMSNinjaDebug5: arg1 = %@, arg2 = %d", arg1, arg2);
-	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [arg1 isEqualToString:@"com.apple.MobileSMS"]) return %orig(arg1, 16647);
+	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [arg1 isEqualToString:@"com.apple.MobileSMS"])
+	{
+		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) return %orig(arg1, 16647);
+		else return %orig(arg1, 393216);
+	}
 	return %orig;
 }
 %end
