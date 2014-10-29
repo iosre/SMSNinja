@@ -389,6 +389,7 @@ typedef struct __CTCall* CTCallRef;
 - (id)otherIMHandle;
 - (void)declineInvitation;
 @property (readonly, retain, nonatomic) NSArray *remoteParticipants;
+@property (readonly, nonatomic) unsigned int state;
 @end
 
 @interface IMAVChatParticipantProxy : NSObject // 8
@@ -509,6 +510,7 @@ typedef struct __CTCall* CTCallRef;
 @interface CHRecentCall : NSObject
 @property (copy) NSString *callerId;
 @property (nonatomic) BOOL read;
+- (NSString *)callerNameForDisplay;
 @end
 
 @interface CHManager : NSObject
