@@ -177,6 +177,8 @@ typedef struct __CTCall* CTCallRef;
 @property (nonatomic) unsigned int state;
 @property (retain, nonatomic) NSArray *participants;
 @property (readonly, nonatomic) IMAVChatParticipant *localParticipant;
+@property (retain, nonatomic) NSString *conferenceID;
+- (void)declineInvitation;
 @end
 
 @interface IMAVInvitationController : NSObject // 5_6
@@ -463,12 +465,22 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 // Others
-@interface TUTelephonyCall : NSObject
+@interface TUCall : NSObject
+@end
+
+@interface TUTelephonyCall : TUCall
 - (CTCallRef)call;
 @end
 
 @interface TUPhoneNumber : NSObject
 - (NSString *)digits;
+@end
+
+@interface TUFaceTimeCall : TUCall // 8
+@property(retain, nonatomic) IMAVChat *chat;
+@end
+
+@interface TUFaceTimeVideoCall : TUFaceTimeCall // 8
 @end
 
 @interface CommunicationFilterItem : NSObject

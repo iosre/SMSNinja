@@ -349,86 +349,6 @@ static NSString *chosenKeyword;
 }
 %end
 
-%hook IMAVTelephonyManager // TODO: 到此，检查5 ~ 8的通用性，看看5和6上有没有conference id
-- (void)_chatStateChanged:(NSConcreteNotification *)arg1 // outgoing FaceTime
-{
-	%orig;
-
-	IMAVChat *avChat;
-	IMAVChatProxy *avChatProxy;
-	int state = 0; // 5: 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7_8: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
-	NSString *conferenceID = nil;
-	IMHandle *handle;
-	NSMutableArray *otherParticipants = [NSMutableArray arrayWithCapacity:6];
-	NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
-
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
-	{
-		avChat = [arg1 object];
-		state = [avChat state];
-
-		[otherParticipants addObjectsFromArray:[avChat participants]];
-		[otherParticipants removeObject:[avChat localParticipant]];
-		for (IMAVChatParticipant *participant in otherParticipants)
-		{
-			handle = [participant imHandle];
-			NSString *address = [handle normalizedID];
-			address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-			[addressArray addObject:address];
-		}
-	}
-	else
-	{
-		avChatProxy = [arg1 object];
-		state = [avChatProxy state];
-
-		for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
-		{
-			avChat = [participantProxy avChat];
-			[otherParticipants addObjectsFromArray:[avChat participants]];
-			[otherParticipants removeObject:[avChat localParticipant]];
-			for (IMAVChatParticipant *participant in otherParticipants)
-			{
-				handle = [participant imHandle];
-				NSString *address = [handle normalizedID];
-				address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-				[addressArray addObject:address];
-			}
-		}
-	}
-
-	NSLog(@"SMSNinja: IMAVTelephonyManager | _chatStateChanged: | addressArray = %@", addressArray);
-
-	if ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && state == 2) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && state == 1)) // incoming
-	{
-		switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
-		{
-			case 0:
-				%orig;
-				break;
-			case 1:
-				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) [%c(IMAVInvitationController) declineInvitationRequestFromBuddy:handle forConference:conferenceID];
-				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0) [avChatProxy declineInvitation];
-				break;
-			case 2:
-				break;
-			case 3:
-				%orig;
-				break;
-		}
-	}
-	else if ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && state == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && state == 2)) // outgoing
-	{
-		switch (ActionOfAudioFunctionWithInfo(addressArray, YES))
-		{
-			default:
-				// take a rest!
-				break;
-		}
-	}
-}
-%end
-
 %hook IMChatRegistry
 - (void)account:(id)account chat:(NSString *)chatID style:(unsigned char)style chatProperties:(id)properties messageSent:(id)message // outgoing iMessage_5/messages_6_7_8, called in SpringBoard & MobileSMS
 {
@@ -539,12 +459,77 @@ static NSString *chosenKeyword;
 }
 %end
 
-%group SNIncomingCallHook_5_6_7
+%hook IMAVTelephonyManager
+- (void)_chatStateChanged:(NSConcreteNotification *)arg1 // outgoing FaceTime, state 5: 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7_8: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
+{
+	%orig;
 
-%hook MPConferenceManager // 5_6_7
+	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
+	{
+		IMAVChat *avChat = [arg1 object];
+		if ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && [avChat state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 2))
+		{		
+			NSMutableArray *otherParticipants = [NSMutableArray arrayWithCapacity:6];
+			[otherParticipants addObjectsFromArray:[avChat participants]];
+			[otherParticipants removeObject:[avChat localParticipant]];
+			NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
+			for (IMAVChatParticipant *participant in otherParticipants)
+			{
+				IMHandle *handle = [participant imHandle];
+				NSString *address = [handle normalizedID];
+				address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+				[addressArray addObject:address];
+			}
+
+			NSLog(@"SMSNinja: IMAVTelephonyManager | _chatStateChanged: | addressArray = %@", addressArray);
+
+			switch (ActionOfAudioFunctionWithInfo(addressArray, YES))
+			{
+				default:
+					// take a rest!
+					break;
+			}
+		}
+	}
+	else
+	{
+		IMAVChatProxy *avChatProxy = [arg1 object];
+		if ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && [avChatProxy state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChatProxy state] == 2))
+		{
+			NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
+			for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
+			{
+				IMAVChat *avChat = [participantProxy avChat];
+				NSMutableArray *otherParticipants = [NSMutableArray arrayWithCapacity:6];
+				[otherParticipants addObjectsFromArray:[avChat participants]];
+				[otherParticipants removeObject:[avChat localParticipant]];
+				for (IMAVChatParticipant *participant in otherParticipants)
+				{
+					IMHandle *handle = [participant imHandle];
+					NSString *address = [handle normalizedID];
+					address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+					[addressArray addObject:address];
+				}
+			}
+
+			NSLog(@"SMSNinja: IMAVTelephonyManager | _chatStateChanged: | addressArray = %@", addressArray);
+
+			switch (ActionOfAudioFunctionWithInfo(addressArray, YES))
+			{
+				default:
+					// take a rest!
+					break;
+			}
+		}
+	}
+}
+%end
+
+%group SNIncomingFaceTimeHook_5_6_7
+
+%hook MPConferenceManager
 - (void)_handleInvitation:(NSConcreteNotification *)invitation // incoming FaceTime
 {
-	// TODO: 用IMAVController替换？
 	NSString *address = nil;
 	NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:1];
 	NSString *conferenceID = nil;
@@ -577,7 +562,7 @@ static NSString *chosenKeyword;
 		[addressArray addObject:address];
 	}
 
-	NSLog(@"SMSNinja: MPConferenceManager | _handleInvitation: | address = %@", address);
+	NSLog(@"SMSNinja: MPConferenceManager | _handleInvitation: | addressArray = %@", addressArray);
 
 	switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
 	{
@@ -598,7 +583,51 @@ static NSString *chosenKeyword;
 }
 %end
 
-%end // end of SNIncomingCallHook_5_6_7
+%end // end of SNIncomingFaceTimeHook_5_6_7
+
+%group SNIncomingFaceTimeHook_8
+
+%hook MPTelephonyManager
+- (void)handleVideoCallStatusChanged:(NSConcreteNotification *)arg1 // incoming FaceTime
+{
+	TUFaceTimeVideoCall *videoCall = [arg1 object];
+	IMAVChat *avChat = [videoCall chat];
+	if ([avChat state] == 1)
+	{
+		NSMutableArray *otherParticipants = [NSMutableArray arrayWithCapacity:6];
+		[otherParticipants addObjectsFromArray:[avChat participants]];
+		[otherParticipants removeObject:[avChat localParticipant]];
+		NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
+		for (IMAVChatParticipant *participant in otherParticipants)
+		{
+			IMHandle *handle = [participant imHandle];
+			NSString *address = [handle normalizedID];
+			address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+			[addressArray addObject:address];
+		}
+
+		NSLog(@"SMSNinja: MPTelephonyManager | handleVideoCallStatusChanged: | addressArray = %@", addressArray);
+
+		switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
+		{
+			case 0:
+				%orig;
+				break;
+			case 1:	
+				[avChat declineInvitation];
+				break;
+			case 2:
+				break;
+			case 3:
+				%orig;
+				break;
+		}
+	}
+	else %orig;
+}
+%end
+
+%end // end of SNIncomingFaceTimeHook_8
 
 %group SNIncomingCallHook_5_6_7_8
 
@@ -643,7 +672,8 @@ static NSString *chosenKeyword;
 	NSString *bundleIdentifier = [bundle bundleIdentifier];
 	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.incomingcall"])
 	{
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNIncomingCallHook_5_6_7);
+		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNIncomingFaceTimeHook_5_6_7);
+		else %init(SNIncomingFaceTimeHook_8);
 		%init(SNIncomingCallHook_5_6_7_8);
 	}
 	return result;
