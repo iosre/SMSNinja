@@ -9,7 +9,7 @@ typedef struct __CTCall* CTCallRef;
 
 @interface RecentsViewController : UIViewController
 - (id)table;
-- (id)calls; // 5
+- (NSArray *)calls; // 5
 - (id)callAtTableViewIndex:(int)tableViewIndex; // 6
 @end
 
@@ -21,14 +21,14 @@ typedef struct __CTCall* CTCallRef;
 @interface RecentCall : NSObject // 5_6
 - (id)initWithCTCall:(CTCallRef)arg1;
 - (void)deleteUnderlyingCTCall;
-- (id)underlyingCTCalls;
+- (NSArray *)underlyingCTCalls;
 @end
 
 @interface PHRecentCall : NSObject // 7
-- (id)callerDisplayName;
+- (NSString *)callerDisplayName;
 - (id)initWithCTCall:(CTCallRef)arg1;
 - (void)deleteUnderlyingCTCall;
-- (id)underlyingCTCalls;
+- (NSArray *)underlyingCTCalls;
 @end
 
 @interface RecentsTableViewCell : UITableViewCell // 5_6
@@ -99,14 +99,14 @@ typedef struct __CTCall* CTCallRef;
 - (PhoneTabBarController *)currentViewController;
 @end
 
-// IMCore && IMDaemonCore
+// IM
 @interface IMFileTransfer : NSObject
 @property (retain, nonatomic) NSString *localPath;
 @end
 
 @interface IMDFileTransferCenter : NSObject
 + (id)sharedInstance;
-- (IMFileTransfer *)transferForGUID:(id)arg1;
+- (IMFileTransfer *)transferForGUID:(NSString *)arg1;
 @end
 
 @interface FZMessage : NSObject
@@ -121,78 +121,6 @@ typedef struct __CTCall* CTCallRef;
 @property (retain, nonatomic) NSString *sender;
 @property (retain, nonatomic) NSData *bodyData;
 @property (retain, nonatomic) NSString *subject;
-@end
-
-@interface IMChatItem : NSObject
-@end
-
-@interface IMMessage : NSObject
-+ (id)messageFromFZMessage:(FZMessage *)fzmessage sender:(NSString *)sender subject:(NSString *)subject;
-+ (id)messageFromIMMessageItem:(id)arg1 sender:(NSString *)arg2 subject:(NSString *)arg3; // 8
-@end
-
-@interface IMChat : NSObject
-@property (readonly, nonatomic) NSArray *participants;
-@property (readonly, assign, nonatomic) IMMessage* lastMessage;
-- (IMChatItem *)chatItemForMessage:(IMMessage *)message;
-- (NSArray *)chatItemsForMessages:(id)arg1; // 8
-- (void)leave;
-- (BOOL)deleteChatItem:(id)item;
-- (void)deleteChatItems:(id)arg1; // 8
-@end
-
-@interface IMChatRegistry : NSObject
-+ (id)sharedInstance;
-- (IMChat *)existingChatWithChatIdentifier:(NSString *)arg1;
-- (id)existingChatForIMHandle:(id)arg1;
-@end
-
-@interface IMHandle : NSObject
-@property (readonly, nonatomic) NSString *ID;
-@property (readonly, assign, nonatomic) NSString* normalizedID;
-@property (readonly, assign, nonatomic) NSString* displayID;
-@end
-
-@interface IMAVChatParticipant : NSObject
-@property (readonly, nonatomic) IMHandle *imHandle;
-@end
-
-@interface IMAVChat : NSObject
-@property (nonatomic) unsigned int state;
-@property (retain, nonatomic) NSArray *participants;
-@property (readonly, nonatomic) IMAVChatParticipant *localParticipant;
-@end
-
-@interface IMDChat : NSObject
-@property (retain) /*FZMessage or IMMessageItem*/ id lastMessage;
-@property (copy) NSString *guid;
-@end
-
-@interface IMDAccount : NSObject
-@end
-
-@interface IMDServiceSession : NSObject
-@property (readonly, nonatomic) IMDAccount *account;
-@property (nonatomic,readonly) NSString * displayName; 
-- (void)leaveChat:(id)arg1 style:(unsigned char)arg2 ;
-- (void)unregisterChat:(id)arg1 style:(unsigned char)arg2;
-@end
-
-@interface IMDChatRegistry : NSObject
-+ (id)sharedInstance;
-- (id)existingChatForID:(NSString *)arg1 account:(IMDAccount *)arg2;
-- (void)removeMessage:(FZMessage *)arg1 fromChat:(IMDChat *)arg2;
-- (void)removeChat:(IMDChat *)arg1;
-@end
-
-@interface IMService : NSObject
-+ (id)smsService; // 6_7
-+ (id)iMessageService;
-@end
-
-@interface IMDaemonController : NSObject
-@property (readonly, nonatomic) BOOL isConnected;
-+ (id)sharedController;
 @end
 
 @interface IMItem : NSObject // 8
@@ -211,59 +139,93 @@ typedef struct __CTCall* CTCallRef;
 @property (retain, nonatomic) NSString *subject;
 @end
 
+@interface IMChatItem : NSObject
+@end
+
+@interface IMMessage : NSObject
++ (id)messageFromFZMessage:(FZMessage *)fzmessage sender:(NSString *)sender subject:(NSString *)subject;
++ (id)messageFromIMMessageItem:(IMMessageItem *)arg1 sender:(NSString *)arg2 subject:(NSString *)arg3; // 8
+@end
+
+@interface IMChat : NSObject
+@property (readonly, nonatomic) NSArray *participants;
+@property (readonly, assign, nonatomic) IMMessage* lastMessage;
+- (IMChatItem *)chatItemForMessage:(IMMessage *)message;
+- (NSArray *)chatItemsForMessages:(NSArray *)arg1; // 8
+- (void)leave;
+- (BOOL)deleteChatItem:(IMChatItem *)item;
+- (void)deleteChatItems:(NSArray *)arg1; // 8
+@end
+
+@interface IMHandle : NSObject
+@property (readonly, nonatomic) NSString *ID;
+@property (readonly, assign, nonatomic) NSString* normalizedID;
+@property (readonly, assign, nonatomic) NSString* displayID;
+@end
+
+@interface IMChatRegistry : NSObject
++ (id)sharedInstance;
+- (IMChat *)existingChatWithChatIdentifier:(NSString *)arg1;
+- (IMChat *)existingChatForIMHandle:(IMHandle *)arg1;
+@end
+
+@interface IMAVChatParticipant : NSObject
+@property (readonly, nonatomic) IMHandle *imHandle;
+@end
+
+@interface IMAVChat : NSObject
+@property (nonatomic) unsigned int state;
+@property (retain, nonatomic) NSArray *participants;
+@property (readonly, nonatomic) IMAVChatParticipant *localParticipant;
+@end
+
+@interface IMAVInvitationController : NSObject // 5_6
++ (void)declineInvitationRequestFromBuddy:(IMHandle *)arg1 forConference:(NSString *)arg2;
+@end
+
+@interface IMDChat : NSObject
+@property (retain) /*FZMessage or IMMessageItem*/ id lastMessage;
+@property (copy) NSString *guid;
+@end
+
+@interface IMDAccount : NSObject
+@end
+
+@interface IMDServiceSession : NSObject
+@property (readonly, nonatomic) IMDAccount *account;
+@property (nonatomic,readonly) NSString * displayName; 
+@end
+
+@interface IMDChatRegistry : NSObject
++ (id)sharedInstance;
+- (IMDChat *)existingChatForID:(NSString *)arg1 account:(IMDAccount *)arg2;
+- (void)removeMessage:(FZMessage *)arg1 fromChat:(IMDChat *)arg2;
+- (void)removeChat:(IMDChat *)arg1;
+@end
+
+@interface IMService : NSObject
++ (id)smsService; // 6_7
++ (id)iMessageService;
+@end
+
+@interface IMDaemonController : NSObject
+@property (readonly, nonatomic) BOOL isConnected;
++ (id)sharedController;
+@end
+
 @interface IMDChatStore : NSObject
 + (id)sharedInstance;
-- (void)deleteChatWithGUID:(id)arg1; // 5
-- (void)deleteChat:(id)arg1; // 6_7
+- (void)deleteChatWithGUID:(NSString *)arg1; // 5
+- (void)deleteChat:(IMDChat *)arg1; // 6_7
 @end
 
 // ChatKit
 @interface CKConversationListCell : UITableViewCell
 @end
 
-@interface CKConversationList : NSObject
-+ (id)sharedConversationList;
-- (id)activeConversations;
-- (id)existingConversationForAddresses:(id)addresses; // 5
-- (void)reloadConversations; // 5
-- (id)conversationForRecipients:(id)recipients create:(BOOL)create service:(id)service; // 5
-- (id)conversationForMessage:(id)arg1 create:(BOOL)arg2 service:(id)arg3; // 5
-- (id)conversationForRecipients:(id)recipients create:(BOOL)create; // 6_7
-- (id)conversationForHandles:(id)arg1 create:(BOOL)arg2; // 8
-- (id)conversationForExistingChat:(id)arg1;
-- (id)conversationForExistingChatWithAddresses:(id)arg1; // 6_7
-@end
-
-@interface CKConversationListController : UIViewController
-@property (nonatomic, assign) CKConversationList *conversationList;
-@end
-
-@interface CKAggregateConversation : NSObject // 5
-- (id)name;
-- (NSArray *)recipients;
-@end
-
-@interface CKEntity : NSObject
-@property (readonly, nonatomic) NSString *name;
-@property (readonly, nonatomic) NSString *rawAddress;
-@property (retain, nonatomic) IMHandle *handle;
-+ (id)copyEntityForAddressString:(id)arg1;
-@end
-
-@interface CKConversation : NSObject // 6_7_8
-@property (readonly, nonatomic) NSString *name;
-@property (readonly, nonatomic) NSArray *recipientStrings;
-- (id)newMessageWithComposition:(id)arg1; // 6_7
-- (id)messageWithComposition:(id)arg1; // 8
-- (void)deleteAllMessagesAndRemoveGroup;
-- (BOOL)_iMessage_canSendToRecipients:(id)recipients withAttachments:(id)attachments alertIfUnable:(BOOL)unable; // 6_7
-- (BOOL)_iMessage_canSendToRecipients:(id)arg1 alertIfUnable:(BOOL)arg2; // 8
-- (void)sendMessage:(id)arg1 onService:(id)arg2 newComposition:(BOOL)arg3;
-@end
-
 @interface _CKConversation : NSObject // 5
 - (NSArray *)messages;
-- (id)recipient;
+- (NSArray *)recipient;
 - (NSArray *)recipients;
 - (unsigned)recipientCount;
 - (BOOL)isEmpty;
@@ -271,24 +233,76 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface CKSubConversation : _CKConversation // 5
-- (void)removeMessage:(id)arg1;
-- (id)latestMessage;
 - (void)deleteAllMessagesAndRemoveGroup;
-- (void)loadAllMessages;
 @end
 
 @interface CKMessage : NSObject
 @property (assign, nonatomic) CKSubConversation* conversation; // 5
 - (BOOL)hasBeenSent;
 - (NSArray *)parts;
-- (id)text;
-- (id)sender;
-- (id)address;
+- (NSString *)text;
+- (NSString *)sender;
+- (NSString *)address;
 - (unsigned)messagePartCount;
+@end
+
+@interface CKService : NSObject // 5
++ (id)availableServices;
+- (void)deleteMessage:(CKMessage *)message fromConversation:(_CKConversation *)conversation;
+@end
+
+@interface CKIMMessage : NSObject
+@end
+
+@interface CKComposition : NSObject // 7_8
+- (id)initWithText:(NSAttributedString *)arg1 subject:(NSAttributedString *)arg2;
+@end
+
+@interface CKConversation : NSObject // 6_7_8
+@property (readonly, nonatomic) NSString *name;
+@property (readonly, nonatomic) NSArray *recipientStrings;
+- (CKIMMessage *)newMessageWithComposition:(id)arg1; // 6_7
+- (IMMessage *)messageWithComposition:(CKComposition *)arg1; // 8
+- (void)deleteAllMessagesAndRemoveGroup;
+- (BOOL)_iMessage_canSendToRecipients:(NSArray *)recipients withAttachments:(NSArray *)attachments alertIfUnable:(BOOL)unable; // 6_7
+- (BOOL)_iMessage_canSendToRecipients:(NSArray *)arg1 alertIfUnable:(BOOL)arg2; // 8
+- (void)sendMessage:(id)arg1 onService:(IMService *)arg2 newComposition:(BOOL)arg3;
+@end
+
+@interface CKConversationList : NSObject
++ (id)sharedConversationList;
+- (NSArray *)activeConversations;
+- (CKSubConversation *)existingConversationForAddresses:(NSArray *)addresses; // 5
+- (void)reloadConversations; // 5
+- (CKSubConversation *)conversationForRecipients:(NSArray *)recipients create:(BOOL)create service:(CKService *)service; // 5
+- (CKSubConversation *)conversationForMessage:(CKMessage *)arg1 create:(BOOL)arg2 service:(CKService *)arg3; // 5
+- (CKConversation *)conversationForRecipients:(NSArray *)recipients create:(BOOL)create; // 6_7
+- (CKConversation *)conversationForHandles:(NSArray *)arg1 create:(BOOL)arg2; // 8
+- (CKConversation *)conversationForExistingChat:(IMChat *)arg1; // 6_7_8
+- (CKConversation *)conversationForExistingChatWithAddresses:(NSArray *)arg1; // 6_7
+@end
+
+@interface CKConversationListController : UIViewController
+@property (nonatomic, assign) CKConversationList *conversationList;
+@end
+
+@interface CKAggregateConversation : _CKConversation // 5
+- (NSString *)name;
+- (NSArray *)recipients;
+@end
+
+@interface CKEntity : NSObject
+@property (readonly, nonatomic) NSString *name;
+@property (readonly, nonatomic) NSString *rawAddress;
+@property (retain, nonatomic) IMHandle *handle;
++ (id)copyEntityForAddressString:(NSString *)arg1;
 @end
 
 @interface CKSMSMessage : CKMessage // 5
 - (id)initWithRowID:(int)arg1;
+@end
+
+@interface CKMadridMessage : CKMessage // 5
 @end
 
 @interface CKSMSMessageDelivery : NSObject // 5
@@ -296,7 +310,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface CKSMSEntity : CKEntity // 5
-- (id)rawAddress;
+- (NSString *)rawAddress;
 @end
 
 @interface CKMadridEntity : CKEntity // 5
@@ -316,69 +330,51 @@ typedef struct __CTCall* CTCallRef;
 - (CKCompressibleImageMediaObject *)mediaObject;
 @end
 
-@interface CKService : NSObject // 5
-+ (id)availableServices;
-- (void)deleteMessage:(id)message fromConversation:(id)conversation;
-@end
-
 @interface CKSMSService : CKService // 5
 @property (readonly, assign, nonatomic) CKConversationList* conversationList;
 + (id)sharedSMSService;
-- (id)copyEntityForAddressString:(id)addressString;
-- (void)sendMessage:(id)message;
-- (id)_newSMSMessageWithText:(id)text forConversation:(id)conversation;
-- (id)newMessageWithMessage:(id)message forConversation:(id)conversation isForward:(BOOL)forward;
-- (void)markAllMessagesInConversationAsRead:(id)conversationAsRead;
-- (void)deleteMessage:(id)arg1 fromConversation:(id)arg2;
+- (id)copyEntityForAddressString:(NSString *)addressString;
+- (void)sendMessage:(CKMessage *)message;
+- (CKSMSMessage *)_newSMSMessageWithText:(NSString *)text forConversation:(_CKConversation *)conversation;
 - (void)beginBulkDeleteMode;
 - (void)endBulkDeleteMode;
 @end
 
+@interface CKMessageComposition : NSObject // 5_6
++ (id)newCompositionForText:(NSString *)text;
+@end
+
 @interface CKMadridService : CKService // 5
-- (int)availabilityForAddress:(id)address checkWithServer:(BOOL)server;
+- (int)availabilityForAddress:(NSString *)address checkWithServer:(BOOL)server;
 + (id)sharedMadridService;
-- (id)copyEntityForAddressString:(id)addressString;
+- (id)copyEntityForAddressString:(NSString *)addressString;
 + (BOOL)isConnectedToDaemon;
 + (BOOL)isMadridEnabled;
 + (BOOL)isMadridSupported;
 - (BOOL)ensureMadridConnection;
-- (BOOL)canSendToRecipients:(id)recipients withAttachments:(id)attachments alertIfUnable:(BOOL)unable;
+- (BOOL)canSendToRecipients:(NSArray *)recipients withAttachments:(NSArray *)attachments alertIfUnable:(BOOL)unable;
 - (BOOL)isAvailable;
-- (void)sendMessage:(id)message;
-- (BOOL)isValidAddress:(id)address;
-- (id)newMessageWithComposition:(id)composition forConversation:(id)conversation;
+- (void)sendMessage:(CKMessage *)message;
+- (BOOL)isValidAddress:(NSString *)address;
+- (CKMadridMessage *)newMessageWithComposition:(CKMessageComposition *)composition forConversation:(_CKConversation *)conversation;
 @end
 
 @interface CKIMEntity : NSObject // 6
-+ (id)copyEntityForAddressString:(id)addressString;
++ (id)copyEntityForAddressString:(NSString *)addressString;
 @end
 
 @interface CKPreferredServiceManager : NSObject // 7
 + (id)sharedPreferredServiceManager;
-- (int)availabilityForAddress:(id)address onService:(id)service checkWithServer:(BOOL)server;
-@end
-
-@interface CKMessageComposition : NSObject // 5_6
-+ (id)newCompositionForText:(id)text;
+- (int)availabilityForAddress:(NSString *)address onService:(IMService *)service checkWithServer:(BOOL)server;
 @end
 
 @interface CKMessageStandaloneComposition : CKMessageComposition // 5_6
 @end
 
-@interface CKComposition : NSObject // 7_8
-- (id)initWithText:(NSAttributedString *)arg1 subject:(NSAttributedString *)arg2;
-@end
-
-@interface CKIMMessage : NSObject
-@end
-
-@interface CKMadridMessage : CKMessage // 5
-@end
-
 // FaceTime
 @interface CNFConferenceController : NSObject
-- (void)rejectFaceTimeInvitationFrom:(id)arg1 conferenceID:(id)arg2; // 5
-- (void)declineFaceTimeInvitationForConferenceID:(id)arg1 fromHandle:(id)arg2; // 6
+- (void)rejectFaceTimeInvitationFrom:(NSURL *)arg1 conferenceID:(NSString *)arg2; // 5
+- (void)declineFaceTimeInvitationForConferenceID:(NSString *)arg1 fromHandle:(IMHandle *)arg2; // 6
 @end
 
 @interface MPConferenceManager : NSObject
@@ -386,7 +382,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface IMAVChatProxy : NSObject // 7_8
-- (id)otherIMHandle;
+- (IMHandle *)otherIMHandle;
 - (void)declineInvitation;
 @property (readonly, retain, nonatomic) NSArray *remoteParticipants;
 @property (readonly, nonatomic) unsigned int state;
@@ -427,7 +423,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface SpringBoard : UIApplication
-- (BOOL)launchApplicationWithIdentifier:(id)arg1 suspended:(BOOL)arg2;
+- (BOOL)launchApplicationWithIdentifier:(NSString *)arg1 suspended:(BOOL)arg2;
 - (NSArray *)_accessibilityRunningApplications;
 @end
 
@@ -438,7 +434,7 @@ typedef struct __CTCall* CTCallRef;
 @interface SBIconModel : NSObject
 + (id)sharedInstance; // 5
 - (SBIcon *)applicationIconForDisplayIdentifier:(NSString *)displayIdentifier;
-- (id)applicationIconForBundleIdentifier:(id)arg1; // 8
+- (SBIcon *)applicationIconForBundleIdentifier:(NSString *)arg1; // 8
 @end
 
 @interface SBIconController : NSObject
@@ -448,8 +444,8 @@ typedef struct __CTCall* CTCallRef;
 
 @interface SBApplicationController : NSObject
 + (id)sharedInstance;
-- (SBApplication *)applicationWithDisplayIdentifier:(id)arg1;
-- (id)applicationWithBundleIdentifier:(id)arg1; // 8
+- (SBApplication *)applicationWithDisplayIdentifier:(NSString *)arg1;
+- (SBApplication *)applicationWithBundleIdentifier:(NSString *)arg1; // 8
 @end
 
 @interface SBUIController : NSObject
@@ -482,11 +478,11 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface CPDistributedMessagingCenter : NSObject
-+ (id)centerNamed:(id)named;
-- (NSDictionary *)sendMessageAndReceiveReplyName:(id)name userInfo:(id)info;
-- (BOOL)sendMessageName:(id)name userInfo:(id)info;
++ (id)centerNamed:(NSString *)named;
+- (NSDictionary *)sendMessageAndReceiveReplyName:(NSString *)name userInfo:(NSDictionary *)info;
+- (BOOL)sendMessageName:(NSString *)name userInfo:(NSDictionary *)info;
 - (void)runServerOnCurrentThread;
-- (void)registerForMessageName:(id)messageName target:(id)target selector:(SEL)selector;
+- (void)registerForMessageName:(NSString *)messageName target:(id)target selector:(SEL)selector;
 - (void)stopServer;
 @end
 
@@ -504,7 +500,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface IDSIDQueryController : NSObject // 8
-- (int)_refreshIDStatusForDestination:(id)arg1 service:(id)arg2 listenerID:(id)arg3;
+- (int)_refreshIDStatusForDestination:(NSString*)arg1 service:(NSString*)arg2 listenerID:(NSString*)arg3;
 @end
 
 @interface CHRecentCall : NSObject

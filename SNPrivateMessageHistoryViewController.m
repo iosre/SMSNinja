@@ -220,7 +220,7 @@ static int amount;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 
 	cell.accessoryType = [[picturesArray objectAtIndex:indexPath.row] intValue] == 0 ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryDetailDisclosureButton;
-	if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1 && cell.accessoryType == UITableViewCellAccessoryDetailDisclosureButton) cell.accessoryType = UITableViewCellAccessoryDetailButton;
+	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && cell.accessoryType == UITableViewCellAccessoryDetailDisclosureButton) cell.accessoryType = UITableViewCellAccessoryDetailButton;
 
 	UITableViewCell *defaultCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"default-cell"];
 	int defaultCellHeight = defaultCell.bounds.size.height;

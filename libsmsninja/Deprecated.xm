@@ -111,7 +111,7 @@
 			// TODO: analyze messages
 		}
 	}
-	else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_5_1 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
 	{
 		IMChatRegistry *registry = [IMChatRegistry sharedInstance];
 		NSArray *chats = [registry allExistingChats];
@@ -129,7 +129,7 @@
 				[formatter setDateFormat:@"yyyy-MM-dd HH:mm"];
 				NSString *dateString = [formatter stringFromDate:date];
 				[formatter release];
-				NSLog(@"ZYLDebug: date = %@, participants = %@, address = %@, text = %@", dateString, [[conversation chat] participants], [[imMessage subject] ID], [[imMessage text] string]);
+				NSLog(@"SMSNinjaDebug: date = %@, participants = %@, address = %@, text = %@", dateString, [[conversation chat] participants], [[imMessage subject] ID], [[imMessage text] string]);
 			}
 		}
 	}
@@ -164,9 +164,9 @@
 	NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, notification);
 	NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 	[address release];
-#ifdef DEBUG
-	NSLog(@"SMSNinja: callHistoryRecordAddedNotification:: address = %@", tempAddress);
-#endif
+
+	NSLog(@"SMSNinja: PARecentsManager | callHistoryRecordAddedNotification: | address = %@", tempAddress);
+
 	if ([[settings objectForKey:@"appIsOn"] boolValue])
 	{
 		BOOL shouldClearSpam = NO;
@@ -189,7 +189,7 @@
 }
 %end
 
-%hook PHRecentsManager
+%hook PARecentsManager
 - (void)callHistoryRecordAddedNotification:(CTCallRef)notification // delete call history on iOS 7
 {
 	%orig;
@@ -197,9 +197,9 @@
 	NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, notification);
 	NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 	[address release];
-#ifdef DEBUG
-	NSLog(@"SMSNinja: callHistoryRecordAddedNotification:: address = %@", tempAddress);
-#endif
+
+	NSLog(@"SMSNinja: PARecentsManager | callHistoryRecordAddedNotification: | address = %@", tempAddress);
+
 	if ([[settings objectForKey:@"appIsOn"] boolValue])
 	{
 		BOOL shouldClearSpam = NO;
@@ -253,9 +253,9 @@
 		}
 	}
 	text = [text length] != 0 ? [text substringToIndex:([text length] - 1)] : @" ";
-#ifdef DEBUG
-	NSLog(@"SMSNinja: _processReceivedMessage:: address = %@, text = %@, with %lu attachments", address, text, (unsigned long)[pictureArray count]);
-#endif
+
+	NSLog(@"SMSNinja: SMSServiceSession | _processReceivedMessage: | address = %@, text = %@, with %lu attachments", address, text, (unsigned long)[pictureArray count]);
+
 	if (ActionOfTextFunctionWithInfo(addressArray, text, pictureArray, NO) == 0) %orig;
 }
 %end

@@ -317,7 +317,7 @@ void LoadSettings(CFNotificationCenterRef center, void *observer, CFStringRef na
 
 void ReloadConversation(void)
 {
-	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
 	{
 		if (![[[NSProcessInfo processInfo] processName] isEqualToString:@"MobileSMS"])
 		{
@@ -474,10 +474,10 @@ void UpdateBadge(void)
 				else NSLog(@"SMSNinja: Failed to prepare %@, error %d", sql, prepareResult);
 
 				SBIconModel *iconModel = nil;
-				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) iconModel = [objc_getClass("SBIconModel") sharedInstance];
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) iconModel = [objc_getClass("SBIconModel") sharedInstance];
 				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) iconModel = [(SBIconController *)[objc_getClass("SBIconController") sharedInstance] model];
 				SBIcon *icon;
-				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) icon = [iconModel applicationIconForDisplayIdentifier:@"com.naken.smsninja"];
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) icon = [iconModel applicationIconForDisplayIdentifier:@"com.naken.smsninja"];
 				else icon = [iconModel applicationIconForBundleIdentifier:@"com.naken.smsninja"];
 
 				if ([messageCount intValue] + [callCount intValue] == 0)
@@ -523,10 +523,10 @@ void UpdateBadge(void)
 	else if (![[settings objectForKey:@"appIsOn"] boolValue] && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
 	{
 		SBIconModel *iconModel = nil;
-		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) iconModel = [objc_getClass("SBIconModel") sharedInstance];
+		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) iconModel = [objc_getClass("SBIconModel") sharedInstance];
 		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) iconModel = [(SBIconController *)[objc_getClass("SBIconController") sharedInstance] model];
 		SBIcon *icon;
-		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) icon = [iconModel applicationIconForDisplayIdentifier:@"com.naken.smsninja"];
+		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) icon = [iconModel applicationIconForDisplayIdentifier:@"com.naken.smsninja"];
 		else icon = [iconModel applicationIconForBundleIdentifier:@"com.naken.smsninja"];
 
 		[icon setBadge:nil];
@@ -927,14 +927,14 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 				{
 					CFStringRef internationalCode = NULL;
 					void *libHandle = NULL;
-					if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+					if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
 					{		
 						static CFStringRef (*UICountryCodeForInternationalCode)(CFStringRef);
 						libHandle = dlopen("/System/Library/Frameworks/UIKit.framework/UIKit", RTLD_LAZY);
 						UICountryCodeForInternationalCode = (CFStringRef (*)(CFStringRef))dlsym(libHandle, "UICountryCodeForInternationalCode");
 						internationalCode = UICountryCodeForInternationalCode((CFStringRef)countryCode);
 					}
-					else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1)
+					else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
 					{
 						static CFStringRef (*TUISOCountryCodeForMCC)(CFStringRef);
 						libHandle = dlopen("/System/Library/PrivateFrameworks/TelephonyUtilities.framework/TelephonyUtilities", RTLD_LAZY);
@@ -942,7 +942,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 						internationalCode = TUISOCountryCodeForMCC((CFStringRef)countryCode);
 					}
 					record = ABAddressBookFindPersonMatchingPhoneNumberWithCountry(addressbook, (CFStringRef)self, internationalCode, &unknown, 0);
-					dlclose(libHandle);				
+					dlclose(libHandle);
 				}
 				if (!record) record = ABAddressBookFindPersonMatchingPhoneNumber(addressbook, (CFStringRef)self, &unknown, 0);
 			}
@@ -978,14 +978,14 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			{
 				CFStringRef internationalCode = NULL;
 				void *libHandle = NULL;
-				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
 				{		
 					static CFStringRef (*UICountryCodeForInternationalCode)(CFStringRef);
 					libHandle = dlopen("/System/Library/Frameworks/UIKit.framework/UIKit", RTLD_LAZY);
 					UICountryCodeForInternationalCode = (CFStringRef (*)(CFStringRef))dlsym(libHandle, "UICountryCodeForInternationalCode");
 					internationalCode = UICountryCodeForInternationalCode((CFStringRef)countryCode);
 				}
-				else if (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1)
+				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
 				{
 					static CFStringRef (*TUISOCountryCodeForMCC)(CFStringRef);
 					libHandle = dlopen("/System/Library/PrivateFrameworks/TelephonyUtilities.framework/TelephonyUtilities", RTLD_LAZY);

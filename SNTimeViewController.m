@@ -375,7 +375,7 @@
 {
 	NSDictionary *userInfo = [notification userInfo];
 	float movementDuration = [(NSNumber *)[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
-	int movementDistance = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height - (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1 ? self.navigationController.navigationBar.frame.size.height : 0.0f);
+	int movementDistance = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height - (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 ? self.navigationController.navigationBar.frame.size.height : 0.0f);
 
 	[UIView beginAnimations:@"animation" context:nil];
 	[UIView setAnimationBeginsFromCurrentState:YES];
@@ -388,7 +388,7 @@
 {
 	NSDictionary *userInfo = [notification userInfo];
 	float movementDuration = [(NSNumber *)[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
-	int movementDistance = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height - (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_6_1 ? self.navigationController.navigationBar.frame.size.height : 0.0f);
+	int movementDistance = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height - (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 ? self.navigationController.navigationBar.frame.size.height : 0.0f);
 
 	[UIView beginAnimations:@"animation" context:nil];
 	[UIView setAnimationBeginsFromCurrentState:YES];
