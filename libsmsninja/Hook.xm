@@ -425,9 +425,21 @@ static NSString *chosenKeyword;
 		NSMutableArray *pictureArray = [NSMutableArray array];
 		for (NSString *transferGUID in [message fileTransferGUIDs])
 		{
-			UIImage *image = [[UIImage alloc] initWithContentsOfFile:[[[%c(IMFileTransferCenter) sharedInstance] transferForGUID:transferGUID] localPath]];
-			[pictureArray addObject:image];
-			[image release];
+			IMFileTransfer *transfer = [[%c(IMFileTransferCenter) sharedInstance] transferForGUID:transferGUID];
+			if ([[transfer mimeType] hasPrefix:@"image/"])
+			{
+				UIImage *image = [[UIImage alloc] initWithContentsOfFile:[transfer localPath]];
+				[pictureArray addObject:image];
+				[image release];
+			}
+			else if ([[transfer mimeType] hasPrefix:@"audio/"])
+			{
+				// TODO: save audio attachments
+			}
+			else if ([[transfer mimeType] hasPrefix:@"video/"])
+			{
+				// TODO: save video attachments
+			}
 		}
 
 		NSLog(@"SMSNinja: IMChatRegistry | account:chat:style:chatProperties:messageSent: | bundle = %@, addressArray = %@, text = %@, with %lu attachments", [[NSBundle mainBundle] bundleIdentifier], addressArray, text, (unsigned long)[pictureArray count]);
@@ -685,7 +697,6 @@ static NSString *chosenKeyword;
 %hook IMDServiceSession
 - (void)didReceiveMessage:(id)message forChat:(NSString *)arg2 style:(unsigned char)arg3 // incoming iMessage_5/message_6_7_8
 {	
-	// TODO: iOS 8的transferGUID可能是声音或者视频，检查格式！
 	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) message = (FZMessage *)message;
 	else message = (IMMessageItem *)message;
 
@@ -712,12 +723,24 @@ static NSString *chosenKeyword;
 		text = [text length] != 0 ? text : @" ";
 
 		IMDFileTransferCenter *center = [%c(IMDFileTransferCenter) sharedInstance];
-		NSMutableArray *pictureArray = [NSMutableArray arrayWithCapacity:[transferGUIDArray count]];
+		NSMutableArray *pictureArray = [NSMutableArray array];
 		for (NSString *transferGUID in transferGUIDArray)
 		{
-			UIImage *image = [[UIImage alloc] initWithContentsOfFile:[[center transferForGUID:transferGUID] localPath]];
-			[pictureArray addObject:image];
-			[image release];
+			IMFileTransfer *transfer = [center transferForGUID:transferGUID];
+			if ([[transfer mimeType] hasPrefix:@"image/"])
+			{
+				UIImage *image = [[UIImage alloc] initWithContentsOfFile:[transfer localPath]];
+				[pictureArray addObject:image];
+				[image release];
+			}
+			else if ([[transfer mimeType] hasPrefix:@"audio/"])
+			{
+				// TODO: save audio attachments
+			}
+			else if ([[transfer mimeType] hasPrefix:@"video/"])
+			{
+				// TODO: save video attachments
+			}
 		}
 
 		NSLog(@"SMSNinja: IMDServiceSession | didReceiveMessage:forChat:style: | address = %@, text = %@, with %lu attachments", sender, text, (unsigned long)[pictureArray count]);
@@ -1335,6 +1358,7 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 %hook IMDaemonController // grant SpringBoard permission to send messages :P
 - (BOOL)addListenerID:(id)arg1 capabilities:(unsigned)arg2
 {
+	// TODO: iOS 8里又变啦！
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [arg1 isEqualToString:@"com.apple.MobileSMS"])
 	{
 		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) return %orig(arg1, 16647);

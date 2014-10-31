@@ -102,6 +102,7 @@ typedef struct __CTCall* CTCallRef;
 // IM
 @interface IMFileTransfer : NSObject
 @property (retain, nonatomic) NSString *localPath;
+@property (readonly, assign, nonatomic) NSString* mimeType;
 @end
 
 @interface IMDFileTransferCenter : NSObject

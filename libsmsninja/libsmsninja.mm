@@ -687,9 +687,6 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			}
 			else if ((index = [address indexInBlackListWithType:0]) != NSNotFound)
 			{
-#ifdef DEBUG
-				NSLog(@"SMSNinja: 5s Crash Debug: %lu", (unsigned long)index);
-#endif
 				if (!isFromMe && [blackReplyArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
 				if (!isFromMe && [blackForwardArray[index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
 				if (!isFromMe && [blackSoundArray[index] intValue] == 1) PlayBlockSound();
@@ -758,9 +755,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		NSUInteger numberOfMatches = [regex numberOfMatchesInString:self options:0 range:NSMakeRange(0, [self length])];
 		if (numberOfMatches > 0)
 		{
-#ifdef DEBUG
 			NSLog(@"SMSNinja: %@ matches regex %@ (%@)", self, pattern, stringInList);
-#endif
 			return YES;
 		}
 		else return NO;
@@ -774,9 +769,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 	NSString *text = self;
 	for (NSString *character in @[@" ", @"~", @"`", @"!", @"@", @"#", @"$", @"%", @"^", @"&", @"*", @"(", @")", @"-", @"=", @"_", @"+", @"{", @"}", @"[", @"]", @"|", @"\\", @":", @";", @"\"", @"'", @"<", @">", @",", @".", @"?", @"/", @"·", @"！", @"￥", @"⋯⋯", @"（", @"）", @"——", @"【", @"】", @"、", @"：", @"；", @"“", @"”", @"‘", @"’", @"《", @"》", @"，", @"。", @"？"])
 		text = [text stringByReplacingOccurrencesOfString:character withString:@""];
-#ifdef DEBUG
 	NSLog(@"SMSNinja: %@ becomes %@ after unpack", self, text);
-#endif
 	return text;
 }
 
@@ -790,9 +783,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [privateKeywordArray indexOfObject:address];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:privateTypeArray[index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
-#ifdef DEBUG
 				NSLog(@"SMSNinja: %@ as address is in privatelist", self);
-#endif
 				return index;
 			}
 		}			
@@ -804,16 +795,12 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [privateKeywordArray indexOfObject:keyword];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:privateTypeArray[index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
 			{
-#ifdef DEBUG
 				NSLog(@"SMSNinja: %@ contains keyword %@ in privatelist", self, keyword);
-#endif
 				return index;
 			}
 		}
 	}
-#ifdef DEBUG
 	NSLog(@"SMSNinja: %@ is NOT in privatelist", self);
-#endif
 	return NSNotFound;
 }
 
@@ -827,9 +814,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [blackKeywordArray indexOfObject:address];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:blackTypeArray[index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
-#ifdef DEBUG
 				NSLog(@"SMSNinja: %@ as address is in blacklist", self);
-#endif
 				return index;
 			}
 		}	
@@ -841,9 +826,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [blackKeywordArray indexOfObject:keyword];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:blackTypeArray[index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
 			{
-#ifdef DEBUG
 				NSLog(@"SMSNinja: %@ contains keyword %@ in blacklist", self, keyword);
-#endif
 				return index;
 			}
 		}
@@ -861,17 +844,13 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 
 				if( (([endTime intValue] > [startTime intValue] && [currentTime intValue] > [startTime intValue] && [currentTime intValue] < [endTime intValue]) || ([endTime intValue] < [startTime intValue] && ([currentTime intValue] > [startTime intValue] || [currentTime intValue] < [endTime intValue])) || ([currentTime intValue] == [startTime intValue] || [currentTime intValue] == [endTime intValue])) )
 				{
-#ifdef DEBUG
 					NSLog(@"SMSNinja: %@ as time is in blacklist", self);
-#endif
 					return index;
 				}
 			}
 		}
 	}
-#ifdef DEBUG
 	NSLog(@"SMSNinja: %@ is NOT in blacklist", self);
-#endif
 	return NSNotFound;
 }
 
@@ -885,9 +864,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [whiteKeywordArray indexOfObject:address];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:whiteTypeArray[index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
-#ifdef DEBUG
 				NSLog(@"SMSNinja: %@ as address is in whitelist", self);
-#endif
 				return index;
 			}
 		}	
@@ -899,16 +876,12 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [whiteKeywordArray indexOfObject:keyword];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:whiteTypeArray[index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
 			{
-#ifdef DEBUG
 				NSLog(@"SMSNinja: %@ contains keyword %@ in whitelist", self, keyword);
-#endif
 				return index;
 			}
 		}
 	}
-#ifdef DEBUG
 	NSLog(@"SMSNinja: %@ is NOT in whitelist", self);
-#endif
 	return NSNotFound;
 }
 
@@ -956,10 +929,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"CheckAddressBook" userInfo:@{@"address" : self}];
 		result = [(NSNumber *)[reply objectForKey:@"result"] boolValue];
 	}
-#ifdef DEBUG
 	if (result) NSLog(@"SMSNinja: %@ as address is in addressbook", self);
 	else NSLog(@"SMSNinja: %@ is NOT in addressbook", self);
-#endif
 	return result;
 }
 
@@ -1014,10 +985,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"GetAddressBookName" userInfo:@{@"address" : self}];
 		name = (NSString *)[reply objectForKey:@"result"];
 	}
-#ifdef DEBUG
 	if ([name length] != 0) NSLog(@"SMSNinja: Address %@ matches name %@ in addressbook", self, name);
 	else NSLog(@"SMSNinja: Address %@ doesn't match any name in addressbook", self);
-#endif
 	return name;
 }
 @end
