@@ -82,7 +82,7 @@
 	[super dealloc];
 }
 
-- (SNTimeViewController *)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{
@@ -317,15 +317,15 @@
 
 	if ([keyword isEqualToString:self.originalKeyword] && index != NSNotFound)
 	{
-		[((SNBlacklistViewController *)viewController)->keywordArray replaceObjectAtIndex:index withObject:keyword];
-		[((SNBlacklistViewController *)viewController)->nameArray replaceObjectAtIndex:index withObject:self.nameString];
-		[((SNBlacklistViewController *)viewController)->replyArray replaceObjectAtIndex:index withObject:self.replyString];
-		[((SNBlacklistViewController *)viewController)->messageArray replaceObjectAtIndex:index withObject:self.messageString];
-		[((SNBlacklistViewController *)viewController)->forwardArray replaceObjectAtIndex:index withObject:self.forwardString];
-		[((SNBlacklistViewController *)viewController)->numberArray replaceObjectAtIndex:index withObject:self.numberString];
-		[((SNBlacklistViewController *)viewController)->soundArray replaceObjectAtIndex:index withObject:self.soundString];
-		[((SNBlacklistViewController *)viewController)->smsArray replaceObjectAtIndex:index withObject:self.messageAction];
-		[((SNBlacklistViewController *)viewController)->phoneArray replaceObjectAtIndex:index withObject:self.phoneAction];
+		((SNBlacklistViewController *)viewController)->keywordArray[index] = keyword;
+		((SNBlacklistViewController *)viewController)->nameArray[index] = self.nameString;
+		((SNBlacklistViewController *)viewController)->replyArray[index] = self.replyString;
+		((SNBlacklistViewController *)viewController)->messageArray[index] = self.messageString;
+		((SNBlacklistViewController *)viewController)->forwardArray[index] = self.forwardString;
+		((SNBlacklistViewController *)viewController)->numberArray[index] = self.numberString;
+		((SNBlacklistViewController *)viewController)->soundArray[index] = self.soundString;
+		((SNBlacklistViewController *)viewController)->smsArray[index] = self.messageAction;
+		((SNBlacklistViewController *)viewController)->phoneArray[index] = self.phoneAction;
 	}
 	else
 	{
@@ -375,8 +375,8 @@
 - (void)keyboardWillShow:(NSNotification *)notification
 {
 	NSDictionary *userInfo = [notification userInfo];
-	float movementDuration = [(NSNumber *)[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
-	int movementDistance = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height - (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 ? self.navigationController.navigationBar.frame.size.height : 0.0f);
+	float movementDuration = [(NSNumber *)userInfo[UIKeyboardAnimationDurationUserInfoKey] floatValue];
+	int movementDistance = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height - (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 ? self.navigationController.navigationBar.frame.size.height : 0.0f);
 
 	[UIView beginAnimations:@"animation" context:nil];
 	[UIView setAnimationBeginsFromCurrentState:YES];
@@ -388,8 +388,8 @@
 - (void)keyboardWillHide:(NSNotification *)notification
 {
 	NSDictionary *userInfo = [notification userInfo];
-	float movementDuration = [(NSNumber *)[userInfo objectForKey:UIKeyboardAnimationDurationUserInfoKey] floatValue];
-	int movementDistance = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height - (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 ? self.navigationController.navigationBar.frame.size.height : 0.0f);
+	float movementDuration = [(NSNumber *)userInfo[UIKeyboardAnimationDurationUserInfoKey] floatValue];
+	int movementDistance = [userInfo[UIKeyboardFrameEndUserInfoKey] CGRectValue].size.height - (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 ? self.navigationController.navigationBar.frame.size.height : 0.0f);
 
 	[UIView beginAnimations:@"animation" context:nil];
 	[UIView setAnimationBeginsFromCurrentState:YES];

@@ -82,34 +82,34 @@ static int amount;
 			while (sqlite3_step(statement) == SQLITE_ROW)
 			{
 				char *keyword = (char *)sqlite3_column_text(statement, 0);
-				[keywordArray addObject:keyword ? [NSString stringWithUTF8String:keyword] : @""];
+				[keywordArray addObject:keyword ? @(keyword) : @""];
 
 				char *type = (char *)sqlite3_column_text(statement, 1);
-				[typeArray addObject:type ? [NSString stringWithUTF8String:type] : @""];
+				[typeArray addObject:type ? @(type) : @""];
 
 				char *name = (char *)sqlite3_column_text(statement, 2);
-				[nameArray addObject:name ? [NSString stringWithUTF8String:name] : @""];
+				[nameArray addObject:name ? @(name) : @""];
 
 				char *phone = (char *)sqlite3_column_text(statement, 3);
-				[phoneArray addObject:phone ? [NSString stringWithUTF8String:phone] : @""];
+				[phoneArray addObject:phone ? @(phone) : @""];
 
 				char *sms = (char *)sqlite3_column_text(statement, 4);
-				[smsArray addObject:sms ? [NSString stringWithUTF8String:sms] : @""];
+				[smsArray addObject:sms ? @(sms) : @""];
 
 				char *reply = (char *)sqlite3_column_text(statement, 5);
-				[replyArray addObject:reply ? [NSString stringWithUTF8String:reply] : @""];
+				[replyArray addObject:reply ? @(reply) : @""];
 
 				char *message = (char *)sqlite3_column_text(statement, 6);
-				[messageArray addObject:message ? [NSString stringWithUTF8String:message] : @""];
+				[messageArray addObject:message ? @(message) : @""];
 
 				char *forward = (char *)sqlite3_column_text(statement, 7);
-				[forwardArray addObject:forward ? [NSString stringWithUTF8String:forward] : @""];
+				[forwardArray addObject:forward ? @(forward) : @""];
 
 				char *number = (char *)sqlite3_column_text(statement, 8);
-				[numberArray addObject:number ? [NSString stringWithUTF8String:number] : @""];
+				[numberArray addObject:number ? @(number) : @""];
 
 				char *sound = (char *)sqlite3_column_text(statement, 9);
-				[soundArray addObject:sound ? [NSString stringWithUTF8String:sound] : @""];
+				[soundArray addObject:sound ? @(sound) : @""];
 			}
 			sqlite3_finalize(statement);
 		}
@@ -133,7 +133,7 @@ static int amount;
 	else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
 }
 
-- (SNBlacklistViewController *)init
+- (instancetype)init
 {
 	if ((self = [super initWithStyle:UITableViewStylePlain]))
 	{
@@ -172,7 +172,7 @@ static int amount;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:NSLocalizedString(@"White", @"White"), NSLocalizedString(@"Black", @"Black"), nil]];
+	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"White", @"White"), NSLocalizedString(@"Black", @"Black")]];
 	segmentedControl.selectedSegmentIndex = 1;
 	segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
 	segmentedControl.frame = CGRectMake(0.0f, 0.0f, 100.0f, 30.0f);
@@ -202,12 +202,12 @@ static int amount;
 	cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 
 	UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10.0f, 2.0f, cell.contentView.bounds.size.width - 50.0f, (cell.contentView.bounds.size.height - 4.0f) / 2.0f)];
-	nameLabel.text = [nameArray objectAtIndex:indexPath.row];
+	nameLabel.text = nameArray[indexPath.row];
 	[cell.contentView addSubview:nameLabel];
 	[nameLabel release];
 
 	UILabel *contentLabel = [[UILabel alloc] initWithFrame:CGRectMake(nameLabel.frame.origin.x, nameLabel.frame.origin.y + nameLabel.frame.size.height, nameLabel.bounds.size.width, nameLabel.bounds.size.height)];
-	contentLabel.text = [keywordArray objectAtIndex:indexPath.row];
+	contentLabel.text = keywordArray[indexPath.row];
 	[cell.contentView addSubview:contentLabel];
 	[contentLabel release];
 
@@ -229,7 +229,7 @@ static int amount;
 	{
 		for (NSIndexPath *chosenRowIndexPath in deleteSet)
 		{
-			NSString *sql = [NSString stringWithFormat:@"delete from blacklist where keyword = '%@' and type = '%@' and name = '%@' and phone = '%@' and sms = '%@' and reply = '%@' and message = '%@' and forward = '%@' and number = '%@' and sound = '%@'", [keywordArray objectAtIndex:chosenRowIndexPath.row], [typeArray objectAtIndex:chosenRowIndexPath.row], [[nameArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [phoneArray objectAtIndex:chosenRowIndexPath.row], [smsArray objectAtIndex:chosenRowIndexPath.row], [replyArray objectAtIndex:chosenRowIndexPath.row], [[messageArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [forwardArray objectAtIndex:chosenRowIndexPath.row], [numberArray objectAtIndex:chosenRowIndexPath.row], [soundArray objectAtIndex:chosenRowIndexPath.row]];
+			NSString *sql = [NSString stringWithFormat:@"delete from blacklist where keyword = '%@' and type = '%@' and name = '%@' and phone = '%@' and sms = '%@' and reply = '%@' and message = '%@' and forward = '%@' and number = '%@' and sound = '%@'", keywordArray[chosenRowIndexPath.row], typeArray[chosenRowIndexPath.row], [nameArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], phoneArray[chosenRowIndexPath.row], smsArray[chosenRowIndexPath.row], replyArray[chosenRowIndexPath.row], [messageArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], forwardArray[chosenRowIndexPath.row], numberArray[chosenRowIndexPath.row], soundArray[chosenRowIndexPath.row]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 		}
@@ -390,7 +390,7 @@ static int amount;
 			[soundArray addObject:[NSString stringWithFormat:@"%ld", (long)buttonIndex]];
 
 			[self.tableView beginUpdates];
-			[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
+			[self.tableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
 			[self.tableView endUpdates];
 
 			[self dismissModalViewControllerAnimated:YES];
@@ -415,51 +415,51 @@ static int amount;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	if ([[typeArray objectAtIndex:indexPath.row] isEqualToString:@"0"]) // SNNumberViewController
+	if ([typeArray[indexPath.row] isEqualToString:@"0"]) // SNNumberViewController
 	{
 		SNNumberViewController *numberViewController = [[SNNumberViewController alloc] init];
 		numberViewController.flag = @"black";
-		numberViewController.nameString = [nameArray objectAtIndex:indexPath.row];
-		numberViewController.keywordString = [keywordArray objectAtIndex:indexPath.row];
+		numberViewController.nameString = nameArray[indexPath.row];
+		numberViewController.keywordString = keywordArray[indexPath.row];
 		numberViewController.originalKeyword = numberViewController.keywordString;
-		numberViewController.phoneAction = [phoneArray objectAtIndex:indexPath.row];
-		numberViewController.messageAction = [smsArray objectAtIndex:indexPath.row];
-		numberViewController.replyString = [replyArray objectAtIndex:indexPath.row];
-		numberViewController.messageString = [messageArray objectAtIndex:indexPath.row];
-		numberViewController.forwardString = [forwardArray objectAtIndex:indexPath.row];
-		numberViewController.numberString = [numberArray objectAtIndex:indexPath.row];
-		numberViewController.soundString = [soundArray objectAtIndex:indexPath.row];
+		numberViewController.phoneAction = phoneArray[indexPath.row];
+		numberViewController.messageAction = smsArray[indexPath.row];
+		numberViewController.replyString = replyArray[indexPath.row];
+		numberViewController.messageString = messageArray[indexPath.row];
+		numberViewController.forwardString = forwardArray[indexPath.row];
+		numberViewController.numberString = numberArray[indexPath.row];
+		numberViewController.soundString = soundArray[indexPath.row];
 		[self.navigationController pushViewController:numberViewController animated:YES];
 		[numberViewController release];
 	}
-	else if ([[typeArray objectAtIndex:indexPath.row] isEqualToString:@"1"]) // SNContentViewController
+	else if ([typeArray[indexPath.row] isEqualToString:@"1"]) // SNContentViewController
 	{
 		SNContentViewController *contentViewController = [[SNContentViewController alloc] init];
 		contentViewController.flag = @"black";
-		contentViewController.nameString = [nameArray objectAtIndex:indexPath.row];
-		contentViewController.keywordString = [keywordArray objectAtIndex:indexPath.row];
+		contentViewController.nameString = nameArray[indexPath.row];
+		contentViewController.keywordString = keywordArray[indexPath.row];
 		contentViewController.originalKeyword = contentViewController.keywordString;
-		contentViewController.replyString = [replyArray objectAtIndex:indexPath.row];
-		contentViewController.messageString = [messageArray objectAtIndex:indexPath.row];
-		contentViewController.forwardString = [forwardArray objectAtIndex:indexPath.row];
-		contentViewController.numberString = [numberArray objectAtIndex:indexPath.row];
-		contentViewController.soundString = [soundArray objectAtIndex:indexPath.row];
+		contentViewController.replyString = replyArray[indexPath.row];
+		contentViewController.messageString = messageArray[indexPath.row];
+		contentViewController.forwardString = forwardArray[indexPath.row];
+		contentViewController.numberString = numberArray[indexPath.row];
+		contentViewController.soundString = soundArray[indexPath.row];
 		[self.navigationController pushViewController:contentViewController animated:YES];
 		[contentViewController release];
 	}
-	else if ([[typeArray objectAtIndex:indexPath.row] isEqualToString:@"2"]) // SNTimeViewController
+	else if ([typeArray[indexPath.row] isEqualToString:@"2"]) // SNTimeViewController
 	{
 		SNTimeViewController *timeViewController = [[SNTimeViewController alloc] init];
-		timeViewController.nameString = [nameArray objectAtIndex:indexPath.row];
-		timeViewController.keywordString = [keywordArray objectAtIndex:indexPath.row];
+		timeViewController.nameString = nameArray[indexPath.row];
+		timeViewController.keywordString = keywordArray[indexPath.row];
 		timeViewController.originalKeyword = timeViewController.keywordString;
-		timeViewController.phoneAction = [phoneArray objectAtIndex:indexPath.row];
-		timeViewController.messageAction = [smsArray objectAtIndex:indexPath.row];
-		timeViewController.replyString = [replyArray objectAtIndex:indexPath.row];
-		timeViewController.messageString = [messageArray objectAtIndex:indexPath.row];
-		timeViewController.forwardString = [forwardArray objectAtIndex:indexPath.row];
-		timeViewController.numberString = [numberArray objectAtIndex:indexPath.row];
-		timeViewController.soundString = [soundArray objectAtIndex:indexPath.row];
+		timeViewController.phoneAction = phoneArray[indexPath.row];
+		timeViewController.messageAction = smsArray[indexPath.row];
+		timeViewController.replyString = replyArray[indexPath.row];
+		timeViewController.messageString = messageArray[indexPath.row];
+		timeViewController.forwardString = forwardArray[indexPath.row];
+		timeViewController.numberString = numberArray[indexPath.row];
+		timeViewController.soundString = soundArray[indexPath.row];
 		[self.navigationController pushViewController:timeViewController animated:YES];
 		[timeViewController release];
 	}

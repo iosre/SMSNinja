@@ -52,16 +52,16 @@ static int amount;
 	{
 		for (NSIndexPath *chosenRowIndexPath in bulkSet)
 		{
-			NSString *sql = [NSString stringWithFormat:@"delete from privatesms where number = '%@' and name = '%@' and time = '%@' and content = '%@' and id = '%@' and pictures = '%@'", [numberArray objectAtIndex:chosenRowIndexPath.row], [[nameArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [timeArray objectAtIndex:chosenRowIndexPath.row], [[contentArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [idArray objectAtIndex:chosenRowIndexPath.row], [picturesArray objectAtIndex:chosenRowIndexPath.row]];
+			NSString *sql = [NSString stringWithFormat:@"delete from privatesms where number = '%@' and name = '%@' and time = '%@' and content = '%@' and id = '%@' and pictures = '%@'", numberArray[chosenRowIndexPath.row], [nameArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], timeArray[chosenRowIndexPath.row], [contentArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], idArray[chosenRowIndexPath.row], picturesArray[chosenRowIndexPath.row]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 
 			NSFileManager *fileManager = [NSFileManager defaultManager];
 			NSError *error = nil;
-			for (int i = 0; i < [[picturesArray objectAtIndex:chosenRowIndexPath.row] intValue]; i++)
+			for (int i = 0; i < [picturesArray[chosenRowIndexPath.row] intValue]; i++)
 			{
-				[fileManager removeItemAtPath:[[PRIVATEPICTURES stringByAppendingString:[idArray objectAtIndex:chosenRowIndexPath.row]] stringByAppendingFormat:@"-%d.png", i] error:&error];
-				if (error) NSLog(@"SMSNinja: Failed to delete %@, error %@", [[PRIVATEPICTURES stringByAppendingString:[idArray objectAtIndex:chosenRowIndexPath.row]] stringByAppendingFormat:@"-%d.png", i], [error localizedDescription]);
+				[fileManager removeItemAtPath:[[PRIVATEPICTURES stringByAppendingString:idArray[chosenRowIndexPath.row]] stringByAppendingFormat:@"-%d.png", i] error:&error];
+				if (error) NSLog(@"SMSNinja: Failed to delete %@, error %@", [[PRIVATEPICTURES stringByAppendingString:idArray[chosenRowIndexPath.row]] stringByAppendingFormat:@"-%d.png", i], [error localizedDescription]);
 			}
 		}
 		sqlite3_close(database);
@@ -94,7 +94,7 @@ static int amount;
 	[self.tableView endUpdates];
 }
 
-- (SNPrivateMessageHistoryViewController *)init
+- (instancetype)init
 {
 	if ((self = [super initWithStyle:UITableViewStylePlain]))
 	{
@@ -103,7 +103,7 @@ static int amount;
 
 		UIBarButtonItem *deleteButton = [[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Delete", @"Delete") style: UIBarButtonItemStyleBordered target: self action:@selector(bulkDelete)] autorelease];
 		deleteButton.tintColor = [UIColor redColor];
-		self.toolbarItems = [NSArray arrayWithObjects:deleteButton, nil];
+		self.toolbarItems = @[deleteButton];
 
 		idArray = [[NSMutableArray alloc] initWithCapacity:600];
 		nameArray = [[NSMutableArray alloc] initWithCapacity:600];
@@ -121,7 +121,7 @@ static int amount;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:NSLocalizedString(@"SMS", @"SMS"), NSLocalizedString(@"Call", @"Call"), nil]];
+	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"SMS", @"SMS"), NSLocalizedString(@"Call", @"Call")]];
 	segmentedControl.selectedSegmentIndex = 0;
 	segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
 	segmentedControl.frame = CGRectMake(0.0f, 0.0f, 100.0f, 30.0f);
@@ -147,22 +147,22 @@ static int amount;
 			while (sqlite3_step(statement) == SQLITE_ROW)
 			{
 				char *name = (char *)sqlite3_column_text(statement, 0);
-				[nameArray addObject:name ? [NSString stringWithUTF8String:name] : @""];
+				[nameArray addObject:name ? @(name) : @""];
 
 				char *content = (char *)sqlite3_column_text(statement, 1);
-				[contentArray addObject:content ? [NSString stringWithUTF8String:content] : @""];
+				[contentArray addObject:content ? @(content) : @""];
 
 				char *time = (char *)sqlite3_column_text(statement, 2);
-				[timeArray addObject:time ? [NSString stringWithUTF8String:time] : @""];;
+				[timeArray addObject:time ? @(time) : @""];;
 
 				char *number = (char *)sqlite3_column_text(statement, 3);
-				[numberArray addObject:number ? [NSString stringWithUTF8String:number] : @""];
+				[numberArray addObject:number ? @(number) : @""];
 
 				char *identifier = (char *)sqlite3_column_text(statement, 4);
-				[idArray addObject:identifier ? [NSString stringWithUTF8String:identifier] : @""];
+				[idArray addObject:identifier ? @(identifier) : @""];
 
 				char *pictures = (char *)sqlite3_column_text(statement, 5);
-				[picturesArray addObject:pictures ? [NSString stringWithUTF8String:pictures] : @""];
+				[picturesArray addObject:pictures ? @(pictures) : @""];
 			}
 			sqlite3_finalize(statement);
 		}
@@ -220,7 +220,7 @@ static int amount;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
 
-	cell.accessoryType = [[picturesArray objectAtIndex:indexPath.row] intValue] == 0 ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryDetailDisclosureButton;
+	cell.accessoryType = [picturesArray[indexPath.row] intValue] == 0 ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryDetailDisclosureButton;
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && cell.accessoryType == UITableViewCellAccessoryDetailDisclosureButton) cell.accessoryType = UITableViewCellAccessoryDetailButton;
 
 	UITableViewCell *defaultCell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"default-cell"];
@@ -232,7 +232,7 @@ static int amount;
 	nameLabel.font = [UIFont boldSystemFontOfSize:[UIFont labelFontSize]];	
 	nameLabel.tag = 1;
 	nameLabel.adjustsFontSizeToFitWidth = YES;
-	nameLabel.text = [[nameArray objectAtIndex:indexPath.row] length] != 0 ? [nameArray objectAtIndex:indexPath.row] : [numberArray objectAtIndex:indexPath.row];
+	nameLabel.text = [nameArray[indexPath.row] length] != 0 ? nameArray[indexPath.row] : numberArray[indexPath.row];
 	[cell.contentView addSubview:nameLabel];
 	[nameLabel release];
 
@@ -241,7 +241,7 @@ static int amount;
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) timeLabel.textAlignment = UITextAlignmentRight;
 	else timeLabel.textAlignment = NSTextAlignmentRight;
 	timeLabel.adjustsFontSizeToFitWidth = nameLabel.adjustsFontSizeToFitWidth;
-	timeLabel.text = [timeArray objectAtIndex:indexPath.row];
+	timeLabel.text = timeArray[indexPath.row];
 	timeLabel.textColor = nameLabel.textColor;
 	[cell.contentView addSubview:timeLabel];
 	[timeLabel release];
@@ -249,7 +249,7 @@ static int amount;
 	UILabel *contentLabel = [[UILabel alloc] initWithFrame:CGRectMake(nameLabel.frame.origin.x, nameLabel.frame.origin.y + nameLabel.bounds.size.height, nameLabel.bounds.size.width + timeLabel.bounds.size.width, nameLabel.bounds.size.height)];
 	contentLabel.tag = 3;
 	contentLabel.numberOfLines = 0;
-	contentLabel.text = [contentArray objectAtIndex:indexPath.row];
+	contentLabel.text = contentArray[indexPath.row];
 	CGSize expectedLabelSize = [contentLabel.text sizeWithFont:contentLabel.font constrainedToSize:CGSizeMake(contentLabel.bounds.size.width, contentLabel.bounds.size.height * 60.0f) lineBreakMode:contentLabel.lineBreakMode];
 	CGRect newFrame = contentLabel.frame;
 	newFrame.size.height = expectedLabelSize.height;
@@ -275,16 +275,16 @@ static int amount;
 			{
 				for (NSIndexPath *chosenRowIndexPath in bulkSet)
 				{
-					NSString *sql = [NSString stringWithFormat:@"delete from privatesms where number = '%@' and name = '%@' and time = '%@' and content = '%@' and id = '%@' and pictures = '%@'", [numberArray objectAtIndex:chosenRowIndexPath.row], [[nameArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [timeArray objectAtIndex:chosenRowIndexPath.row], [[contentArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [idArray objectAtIndex:chosenRowIndexPath.row], [picturesArray objectAtIndex:chosenRowIndexPath.row]];
+					NSString *sql = [NSString stringWithFormat:@"delete from privatesms where number = '%@' and name = '%@' and time = '%@' and content = '%@' and id = '%@' and pictures = '%@'", numberArray[chosenRowIndexPath.row], [nameArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], timeArray[chosenRowIndexPath.row], [contentArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], idArray[chosenRowIndexPath.row], picturesArray[chosenRowIndexPath.row]];
 					int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 					if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 
 					NSFileManager *fileManager = [NSFileManager defaultManager];
 					NSError *error = nil;
-					for (int i = 0; i < [[picturesArray objectAtIndex:chosenRowIndexPath.row] intValue]; i++)
+					for (int i = 0; i < [picturesArray[chosenRowIndexPath.row] intValue]; i++)
 					{
-						[fileManager removeItemAtPath:[[PRIVATEPICTURES stringByAppendingString:[idArray objectAtIndex:chosenRowIndexPath.row]] stringByAppendingFormat:@"-%d.png", i] error:&error];
-						if (error) NSLog(@"SMSNinja: Failed to delete %@, error %@", [[PRIVATEPICTURES stringByAppendingString:[idArray objectAtIndex:chosenRowIndexPath.row]] stringByAppendingFormat:@"-%d.png", i], [error localizedDescription]);
+						[fileManager removeItemAtPath:[[PRIVATEPICTURES stringByAppendingString:idArray[chosenRowIndexPath.row]] stringByAppendingFormat:@"-%d.png", i] error:&error];
+						if (error) NSLog(@"SMSNinja: Failed to delete %@, error %@", [[PRIVATEPICTURES stringByAppendingString:idArray[chosenRowIndexPath.row]] stringByAppendingFormat:@"-%d.png", i], [error localizedDescription]);
 					}
 				}
 				sqlite3_close(database);
@@ -306,16 +306,16 @@ static int amount;
 			[self.tableView endUpdates];
 			break;
 		case 1:
-			[[UIPasteboard generalPasteboard] setValue:[numberArray objectAtIndex:chosenRow] forPasteboardType:@"public.utf8-plain-text"];
+			[[UIPasteboard generalPasteboard] setValue:numberArray[chosenRow] forPasteboardType:@"public.utf8-plain-text"];
 			break;
 		case 2:
-			[[UIPasteboard generalPasteboard] setValue:[contentArray objectAtIndex:chosenRow] forPasteboardType:@"public.utf8-plain-text"];
+			[[UIPasteboard generalPasteboard] setValue:contentArray[chosenRow] forPasteboardType:@"public.utf8-plain-text"];
 			break;
 		case 3:
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"sms:%@", [numberArray objectAtIndex:chosenRow]]]];
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"sms:%@", numberArray[chosenRow]]]];
 			break;
 		case 4:
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"tel:%@", [numberArray objectAtIndex:chosenRow]]]];
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"tel:%@", numberArray[chosenRow]]]];
 			break;
 	}
 }
@@ -342,8 +342,8 @@ static int amount;
 {
 	SNPictureViewController *picturesViewController = [[SNPictureViewController alloc] init];
 	picturesViewController.flag = @"private";
-	picturesViewController.idString = [idArray objectAtIndex:indexPath.row];
-	picturesViewController->picturesCount = [[picturesArray objectAtIndex:indexPath.row] intValue];
+	picturesViewController.idString = idArray[indexPath.row];
+	picturesViewController->picturesCount = [picturesArray[indexPath.row] intValue];
 	[self.navigationController pushViewController:picturesViewController animated:YES];
 	[picturesViewController release];
 }
@@ -359,7 +359,7 @@ static int amount;
 	UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
 	UIFont *font = label.font;
 	[label release];
-	return (cell.contentView.bounds.size.height - 4.0f) / 2.0f + [[contentArray objectAtIndex:indexPath.row] sizeWithFont:font constrainedToSize:CGSizeMake((cell.contentView.bounds.size.width  - 50.0f), (cell.contentView.bounds.size.height - 4.0f) / 2.0f * 60.0f) lineBreakMode:NSLineBreakByWordWrapping].height + 4.0f;
+	return (cell.contentView.bounds.size.height - 4.0f) / 2.0f + [contentArray[indexPath.row] sizeWithFont:font constrainedToSize:CGSizeMake((cell.contentView.bounds.size.width  - 50.0f), (cell.contentView.bounds.size.height - 4.0f) / 2.0f * 60.0f) lineBreakMode:NSLineBreakByWordWrapping].height + 4.0f;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath

@@ -48,7 +48,7 @@ static int amount;
 	{
 		for (NSIndexPath *chosenRowIndexPath in bulkSet)
 		{
-			NSString *sql = [NSString stringWithFormat:@"delete from blockedcall where number = '%@' and name = '%@' and time = '%@' and content = '%@' and read = '%@' and id = '%@'", [numberArray objectAtIndex:chosenRowIndexPath.row], [[nameArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [timeArray objectAtIndex:chosenRowIndexPath.row], [[contentArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [readArray objectAtIndex:chosenRowIndexPath.row], [idArray objectAtIndex:chosenRowIndexPath.row]];
+			NSString *sql = [NSString stringWithFormat:@"delete from blockedcall where number = '%@' and name = '%@' and time = '%@' and content = '%@' and read = '%@' and id = '%@'", numberArray[chosenRowIndexPath.row], [nameArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], timeArray[chosenRowIndexPath.row], [contentArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], readArray[chosenRowIndexPath.row], idArray[chosenRowIndexPath.row]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 		}
@@ -92,11 +92,11 @@ static int amount;
 		{
 			for (NSIndexPath *chosenRowIndexPath in weakSelf->bulkSet)
 			{
-				NSString *sql = [NSString stringWithFormat:@"update blockedcall set read = '0' where id = '%@'", [weakSelf->idArray objectAtIndex:chosenRowIndexPath.row]];
+				NSString *sql = [NSString stringWithFormat:@"update blockedcall set read = '0' where id = '%@'", weakSelf->idArray[chosenRowIndexPath.row]];
 				int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 				if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
                 
-				[weakSelf->readArray replaceObjectAtIndex:chosenRowIndexPath.row withObject:@"0"];
+				weakSelf->readArray[chosenRowIndexPath.row] = @"0";
 			}
 			sqlite3_close(database);
 		}
@@ -117,11 +117,11 @@ static int amount;
 		{
 			for (NSIndexPath *chosenRowIndexPath in weakSelf->bulkSet)
 			{
-				NSString *sql = [NSString stringWithFormat:@"update blockedcall set read = '1' where id = '%@'", [weakSelf->idArray objectAtIndex:chosenRowIndexPath.row]];
+				NSString *sql = [NSString stringWithFormat:@"update blockedcall set read = '1' where id = '%@'", weakSelf->idArray[chosenRowIndexPath.row]];
 				int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 				if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 
-				[weakSelf->readArray replaceObjectAtIndex:chosenRowIndexPath.row withObject:@"1"];
+				weakSelf->readArray[chosenRowIndexPath.row] = @"1";
 			}
 			sqlite3_close(database);
 		}
@@ -146,22 +146,22 @@ static int amount;
 			while (sqlite3_step(statement) == SQLITE_ROW)
 			{
 				char *name = (char *)sqlite3_column_text(statement, 0);
-				[nameArray addObject:name ? [NSString stringWithUTF8String:name] : @""];
+				[nameArray addObject:name ? @(name) : @""];
 
 				char *content = (char *)sqlite3_column_text(statement, 1);
-				[contentArray addObject:content ? [NSString stringWithUTF8String:content] : @""];
+				[contentArray addObject:content ? @(content) : @""];
 
 				char *time = (char *)sqlite3_column_text(statement, 2);
-				[timeArray addObject:time ? [NSString stringWithUTF8String:time] : @""];
+				[timeArray addObject:time ? @(time) : @""];
 
 				char *number = (char *)sqlite3_column_text(statement, 3);
-				[numberArray addObject:number ? [NSString stringWithUTF8String:number] : @""];
+				[numberArray addObject:number ? @(number) : @""];
 
 				char *read = (char *)sqlite3_column_text(statement, 4);
-				[readArray addObject:read ? [NSString stringWithUTF8String:read] : @""];
+				[readArray addObject:read ? @(read) : @""];
 
 				char *identifier = (char *)sqlite3_column_text(statement, 5);
-				[idArray addObject:identifier ? [NSString stringWithUTF8String:identifier] : @""];
+				[idArray addObject:identifier ? @(identifier) : @""];
 			}
 			sqlite3_finalize(statement);
 		}
@@ -185,7 +185,7 @@ static int amount;
 	else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
 }
 
-- (SNBlockedCallHistoryViewController *)init
+- (instancetype)init
 {
 	if ((self = [super initWithStyle:UITableViewStylePlain]))
 	{
@@ -197,7 +197,7 @@ static int amount;
 		UIBarButtonItem *unreadButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Mark as unread", @"Mark as unread") style:UIBarButtonItemStyleBordered target:self action:@selector(bulkUnread)];
 		UIBarButtonItem *readButton = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Mark as read", @"Mark as read") style:UIBarButtonItemStyleBordered target:self action:@selector(bulkRead)];
 		UIBarButtonItem *flexibleSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil];
-		self.toolbarItems = [NSArray arrayWithObjects:flexibleSpace, deleteButton, flexibleSpace, unreadButton, flexibleSpace, readButton, flexibleSpace, nil];
+		self.toolbarItems = @[flexibleSpace, deleteButton, flexibleSpace, unreadButton, flexibleSpace, readButton, flexibleSpace];
 		[flexibleSpace release];
 
 		idArray = [[NSMutableArray alloc] initWithCapacity:600];
@@ -230,7 +230,7 @@ static int amount;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:NSLocalizedString(@"SMS", @"SMS"), NSLocalizedString(@"Call", @"Call"), nil]];
+	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"SMS", @"SMS"), NSLocalizedString(@"Call", @"Call")]];
 	segmentedControl.selectedSegmentIndex = 1;
 	segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
 	segmentedControl.frame = CGRectMake(0.0f, 0.0f, 100.0f, 30.0f);
@@ -268,8 +268,8 @@ static int amount;
 	nameLabel.font = [UIFont boldSystemFontOfSize:[UIFont labelFontSize]];	
 	nameLabel.tag = 1;
 	nameLabel.adjustsFontSizeToFitWidth = YES;
-	nameLabel.text = [[nameArray objectAtIndex:indexPath.row] length] != 0 ? [nameArray objectAtIndex:indexPath.row] : [numberArray objectAtIndex:indexPath.row];
-	if ([[readArray objectAtIndex:indexPath.row] isEqualToString:@"0"]) nameLabel.textColor = [UIColor blueColor];
+	nameLabel.text = [nameArray[indexPath.row] length] != 0 ? nameArray[indexPath.row] : numberArray[indexPath.row];
+	if ([readArray[indexPath.row] isEqualToString:@"0"]) nameLabel.textColor = [UIColor blueColor];
 	[cell.contentView addSubview:nameLabel];
 	[nameLabel release];
 
@@ -278,7 +278,7 @@ static int amount;
 	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) timeLabel.textAlignment = UITextAlignmentRight;
 	else timeLabel.textAlignment = NSTextAlignmentRight;
 	timeLabel.adjustsFontSizeToFitWidth = nameLabel.adjustsFontSizeToFitWidth;
-	timeLabel.text = [timeArray objectAtIndex:indexPath.row];
+	timeLabel.text = timeArray[indexPath.row];
 	timeLabel.textColor = nameLabel.textColor;
 	[cell.contentView addSubview:timeLabel];
 	[timeLabel release];
@@ -286,7 +286,7 @@ static int amount;
 	UILabel *contentLabel = [[UILabel alloc] initWithFrame:CGRectMake(nameLabel.frame.origin.x, nameLabel.frame.origin.y + nameLabel.bounds.size.height, nameLabel.bounds.size.width + timeLabel.bounds.size.width, nameLabel.bounds.size.height)];
 	contentLabel.tag = 3;
 	contentLabel.numberOfLines = 0;
-	contentLabel.text = [[contentArray objectAtIndex:indexPath.row] intValue] == 0 ? NSLocalizedString(@"Incoming", @"Incoming") : NSLocalizedString(@"Outgoing", @"Outgoing");
+	contentLabel.text = [contentArray[indexPath.row] intValue] == 0 ? NSLocalizedString(@"Incoming", @"Incoming") : NSLocalizedString(@"Outgoing", @"Outgoing");
 	CGSize expectedLabelSize = [contentLabel.text sizeWithFont:contentLabel.font constrainedToSize:CGSizeMake(contentLabel.bounds.size.width, contentLabel.bounds.size.height * 60.0f) lineBreakMode:contentLabel.lineBreakMode];
 	CGRect newFrame = contentLabel.frame;
 	newFrame.size.height = expectedLabelSize.height;
@@ -313,7 +313,7 @@ static int amount;
 			{
 				for (NSIndexPath *chosenRowIndexPath in weakSelf->bulkSet)
 				{
-					NSString *sql = [NSString stringWithFormat:@"delete from blockedcall where number = '%@' and name = '%@' and time = '%@' and content = '%@' and read = '%@' and id = '%@'", [numberArray objectAtIndex:chosenRowIndexPath.row], [[nameArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [timeArray objectAtIndex:chosenRowIndexPath.row], [[contentArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [readArray objectAtIndex:chosenRowIndexPath.row], [idArray objectAtIndex:chosenRowIndexPath.row]];
+					NSString *sql = [NSString stringWithFormat:@"delete from blockedcall where number = '%@' and name = '%@' and time = '%@' and content = '%@' and read = '%@' and id = '%@'", numberArray[chosenRowIndexPath.row], [nameArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], timeArray[chosenRowIndexPath.row], [contentArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], readArray[chosenRowIndexPath.row], idArray[chosenRowIndexPath.row]];
 					int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 					if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 				}
@@ -345,11 +345,11 @@ static int amount;
 				{
 					for (NSIndexPath *chosenRowIndexPath in weakSelf->bulkSet)
 					{
-						NSString *sql = [NSString stringWithFormat:@"update blockedcall set read = '0' where id = '%@'", [weakSelf->idArray objectAtIndex:chosenRowIndexPath.row]];
+						NSString *sql = [NSString stringWithFormat:@"update blockedcall set read = '0' where id = '%@'", weakSelf->idArray[chosenRowIndexPath.row]];
 						int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 						if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 
-						[weakSelf->readArray replaceObjectAtIndex:chosenRowIndexPath.row withObject:@"0"];
+						weakSelf->readArray[chosenRowIndexPath.row] = @"0";
 					}
 					sqlite3_close(database);
 				}
@@ -369,11 +369,11 @@ static int amount;
 				{
 					for (NSIndexPath *chosenRowIndexPath in weakSelf->bulkSet)
 					{
-						NSString *sql = [NSString stringWithFormat:@"update blockedcall set read = '1' where id = '%@'", [weakSelf->idArray objectAtIndex:chosenRowIndexPath.row]];
+						NSString *sql = [NSString stringWithFormat:@"update blockedcall set read = '1' where id = '%@'", weakSelf->idArray[chosenRowIndexPath.row]];
 						int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 						if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 
-						[weakSelf->readArray replaceObjectAtIndex:chosenRowIndexPath.row withObject:@"1"];
+						weakSelf->readArray[chosenRowIndexPath.row] = @"1";
 					}
 					sqlite3_close(database);
 				}
@@ -384,13 +384,13 @@ static int amount;
 					if ([view isKindOfClass:[UILabel class]]) ((UILabel *)view).textColor = [UIColor blackColor];
 			break;
 		case 3:
-			[[UIPasteboard generalPasteboard] setValue:[numberArray objectAtIndex:chosenRow] forPasteboardType:@"public.utf8-plain-text"];
+			[[UIPasteboard generalPasteboard] setValue:numberArray[chosenRow] forPasteboardType:@"public.utf8-plain-text"];
 			break;
 		case 4:
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"sms:%@", [numberArray objectAtIndex:chosenRow]]]];
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"sms:%@", numberArray[chosenRow]]]];
 			break;
 		case 5:
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"tel:%@", [numberArray objectAtIndex:chosenRow]]]];
+			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"tel:%@", numberArray[chosenRow]]]];
 			break;
 	}
 }
@@ -424,7 +424,7 @@ static int amount;
 	UILabel *label = [[UILabel alloc] initWithFrame:CGRectZero];
 	UIFont *font = label.font;
 	[label release];
-	return (cell.contentView.bounds.size.height - 4.0f) / 2.0f + [[contentArray objectAtIndex:indexPath.row] sizeWithFont:font constrainedToSize:CGSizeMake((cell.contentView.bounds.size.width - 50.0f), (cell.contentView.bounds.size.height - 4.0f) / 2.0f * 60.0f) lineBreakMode:NSLineBreakByWordWrapping].height + 4.0f;
+	return (cell.contentView.bounds.size.height - 4.0f) / 2.0f + [contentArray[indexPath.row] sizeWithFont:font constrainedToSize:CGSizeMake((cell.contentView.bounds.size.width - 50.0f), (cell.contentView.bounds.size.height - 4.0f) / 2.0f * 60.0f) lineBreakMode:NSLineBreakByWordWrapping].height + 4.0f;
 }
 
 - (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath

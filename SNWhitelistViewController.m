@@ -59,13 +59,13 @@ static int amount;
 			while (sqlite3_step(statement) == SQLITE_ROW)
 			{
 				char *keyword = (char *)sqlite3_column_text(statement, 0);
-				[keywordArray addObject:keyword ? [NSString stringWithUTF8String:keyword] : @""];
+				[keywordArray addObject:keyword ? @(keyword) : @""];
 
 				char *type = (char *)sqlite3_column_text(statement, 1);
-				[typeArray addObject:type ? [NSString stringWithUTF8String:type] : @""];
+				[typeArray addObject:type ? @(type) : @""];
 
 				char *name = (char *)sqlite3_column_text(statement, 2);
-				[nameArray addObject:name ? [NSString stringWithUTF8String:name] : @""];
+				[nameArray addObject:name ? @(name) : @""];
 			}
 			sqlite3_finalize(statement);
 		}
@@ -89,7 +89,7 @@ static int amount;
 	else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
 }
 
-- (SNWhitelistViewController *)init
+- (instancetype)init
 {
 	if ((self = [super initWithStyle:UITableViewStylePlain]))
 	{
@@ -121,7 +121,7 @@ static int amount;
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:NSLocalizedString(@"White", @"White"), NSLocalizedString(@"Black", @"Black"), nil]];
+	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:@[NSLocalizedString(@"White", @"White"), NSLocalizedString(@"Black", @"Black")]];
 	segmentedControl.selectedSegmentIndex = 0;
 	segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
 	segmentedControl.frame = CGRectMake(0.0f, 0.0f, 100.0f, 30.0f);
@@ -132,12 +132,12 @@ static int amount;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	if ([[typeArray objectAtIndex:indexPath.row] isEqualToString:@"0"]) // NumberViewController
+	if ([typeArray[indexPath.row] isEqualToString:@"0"]) // NumberViewController
 	{
 		SNNumberViewController *numberViewController = [[SNNumberViewController alloc] init];
 		numberViewController.flag = @"white";
-		numberViewController.nameString = [nameArray objectAtIndex:indexPath.row];
-		numberViewController.keywordString = [keywordArray objectAtIndex:indexPath.row];
+		numberViewController.nameString = nameArray[indexPath.row];
+		numberViewController.keywordString = keywordArray[indexPath.row];
 		numberViewController.originalKeyword = numberViewController.keywordString;
 		numberViewController.phoneAction = @"1";
 		numberViewController.messageAction = @"1";
@@ -149,12 +149,12 @@ static int amount;
 		[self.navigationController pushViewController:numberViewController animated:YES];
 		[numberViewController release];
 	}
-	else if ([[typeArray objectAtIndex:indexPath.row] isEqualToString:@"1"]) // ContentViewController
+	else if ([typeArray[indexPath.row] isEqualToString:@"1"]) // ContentViewController
 	{
 		SNContentViewController *contentViewController = [[SNContentViewController alloc] init];
 		contentViewController.flag = @"white";
-		contentViewController.nameString = [nameArray objectAtIndex:indexPath.row];
-		contentViewController.keywordString = [keywordArray objectAtIndex:indexPath.row];
+		contentViewController.nameString = nameArray[indexPath.row];
+		contentViewController.keywordString = keywordArray[indexPath.row];
 		contentViewController.originalKeyword = contentViewController.keywordString;
 		contentViewController.replyString = @"0";
 		contentViewController.messageString = @"";
@@ -187,12 +187,12 @@ static int amount;
 	cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 
 	UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(10.0f, 2.0f, cell.contentView.bounds.size.width - 50.0f, (cell.contentView.bounds.size.height - 4.0f) / 2.0f)];
-	nameLabel.text = [nameArray objectAtIndex:indexPath.row];
+	nameLabel.text = nameArray[indexPath.row];
 	[cell.contentView addSubview:nameLabel];
 	[nameLabel release];
 
 	UILabel *contentLabel = [[UILabel alloc] initWithFrame:CGRectMake(nameLabel.frame.origin.x, nameLabel.frame.origin.y + nameLabel.frame.size.height, nameLabel.bounds.size.width, nameLabel.bounds.size.height)];
-	contentLabel.text = [keywordArray objectAtIndex:indexPath.row];
+	contentLabel.text = keywordArray[indexPath.row];
 	[cell.contentView addSubview:contentLabel];
 	[contentLabel release];
 
@@ -214,7 +214,7 @@ static int amount;
 	{
 		for (NSIndexPath *chosenRowIndexPath in deleteSet)
 		{
-			NSString *sql = [NSString stringWithFormat:@"delete from whitelist where keyword = '%@' and type = '%@' and name = '%@'", [keywordArray objectAtIndex:chosenRowIndexPath.row], [typeArray objectAtIndex:chosenRowIndexPath.row], [[nameArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
+			NSString *sql = [NSString stringWithFormat:@"delete from whitelist where keyword = '%@' and type = '%@' and name = '%@'", keywordArray[chosenRowIndexPath.row], typeArray[chosenRowIndexPath.row], [nameArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 		}
@@ -412,7 +412,7 @@ static int amount;
 	[nameArray addObject:self.chosenName];
 
 	[self.tableView beginUpdates];
-	[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
+	[self.tableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
 	[self.tableView endUpdates];
 
 	[self dismissModalViewControllerAnimated:YES];
@@ -473,7 +473,7 @@ static int amount;
 		[nameArray addObject:self.chosenName];
 
 		[self.tableView beginUpdates];
-		[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
+		[self.tableView insertRowsAtIndexPaths:@[[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
 		[self.tableView endUpdates];
 
 		[self dismissModalViewControllerAnimated:YES];

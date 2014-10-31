@@ -91,7 +91,7 @@
 	[super dealloc];
 }
 
-- (SNContentViewController *)init
+- (instancetype)init
 {
 	if ((self = [super initWithStyle:UITableViewStyleGrouped]))
 	{
@@ -249,13 +249,13 @@
 			NSUInteger index = [((SNBlacklistViewController *)viewController)->keywordArray indexOfObject:self.originalKeyword];
 			if ([keyword isEqualToString:self.originalKeyword] && index != NSNotFound)
 			{
-				[((SNBlacklistViewController *)viewController)->keywordArray replaceObjectAtIndex:index withObject:keyword];
-				[((SNBlacklistViewController *)viewController)->nameArray replaceObjectAtIndex:index withObject:self.nameString];
-				[((SNBlacklistViewController *)viewController)->replyArray replaceObjectAtIndex:index withObject:self.replyString];
-				[((SNBlacklistViewController *)viewController)->messageArray replaceObjectAtIndex:index withObject:self.messageString];
-				[((SNBlacklistViewController *)viewController)->forwardArray replaceObjectAtIndex:index withObject:self.forwardString];
-				[((SNBlacklistViewController *)viewController)->numberArray replaceObjectAtIndex:index withObject:self.numberString];
-				[((SNBlacklistViewController *)viewController)->soundArray replaceObjectAtIndex:index withObject:self.soundString];
+				((SNBlacklistViewController *)viewController)->keywordArray[index] = keyword;
+				((SNBlacklistViewController *)viewController)->nameArray[index] = self.nameString;
+				((SNBlacklistViewController *)viewController)->replyArray[index] = self.replyString;
+				((SNBlacklistViewController *)viewController)->messageArray[index] = self.messageString;
+				((SNBlacklistViewController *)viewController)->forwardArray[index] = self.forwardString;
+				((SNBlacklistViewController *)viewController)->numberArray[index] = self.numberString;
+				((SNBlacklistViewController *)viewController)->soundArray[index] = self.soundString;
 			}
 			else
 			{
@@ -279,8 +279,8 @@
 			NSUInteger index = [((SNWhitelistViewController *)viewController)->keywordArray indexOfObject:self.originalKeyword];
 			if ([keyword isEqualToString:self.originalKeyword] && index != NSNotFound)
 			{
-				[((SNWhitelistViewController *)viewController)->keywordArray replaceObjectAtIndex:index withObject:keyword];
-				[((SNWhitelistViewController *)viewController)->nameArray replaceObjectAtIndex:index withObject:self.nameString];
+				((SNWhitelistViewController *)viewController)->keywordArray[index] = keyword;
+				((SNWhitelistViewController *)viewController)->nameArray[index] = self.nameString;
 			}
 			else
 			{
@@ -297,13 +297,13 @@
 			NSUInteger index = [((SNPrivatelistViewController *)viewController)->keywordArray indexOfObject:self.originalKeyword];
 			if ([keyword isEqualToString:self.originalKeyword] && index != NSNotFound)
 			{
-				[((SNPrivatelistViewController *)viewController)->keywordArray replaceObjectAtIndex:index withObject:keyword];
-				[((SNPrivatelistViewController *)viewController)->nameArray replaceObjectAtIndex:index withObject:self.nameString];
-				[((SNPrivatelistViewController *)viewController)->replyArray replaceObjectAtIndex:index withObject:self.replyString];
-				[((SNPrivatelistViewController *)viewController)->messageArray replaceObjectAtIndex:index withObject:self.messageString];
-				[((SNPrivatelistViewController *)viewController)->forwardArray replaceObjectAtIndex:index withObject:self.forwardString];
-				[((SNPrivatelistViewController *)viewController)->numberArray replaceObjectAtIndex:index withObject:self.numberString];
-				[((SNPrivatelistViewController *)viewController)->soundArray replaceObjectAtIndex:index withObject:self.soundString];
+				((SNPrivatelistViewController *)viewController)->keywordArray[index] = keyword;
+				((SNPrivatelistViewController *)viewController)->nameArray[index] = self.nameString;
+				((SNPrivatelistViewController *)viewController)->replyArray[index] = self.replyString;
+				((SNPrivatelistViewController *)viewController)->messageArray[index] = self.messageString;
+				((SNPrivatelistViewController *)viewController)->forwardArray[index] = self.forwardString;
+				((SNPrivatelistViewController *)viewController)->numberArray[index] = self.numberString;
+				((SNPrivatelistViewController *)viewController)->soundArray[index] = self.soundString;
 			}
 			else
 			{

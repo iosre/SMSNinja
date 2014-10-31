@@ -32,7 +32,7 @@
 	[super dealloc];
 }
 
-- (SNMessageActionViewController *)init
+- (instancetype)init
 {
 	if ((self = [super initWithStyle:UITableViewStyleGrouped]))
 	{
@@ -119,7 +119,7 @@
 		}
 	}
 
-	id viewController = [self.navigationController.viewControllers objectAtIndex:([self.navigationController.viewControllers count] - 2)];
+	id viewController = (self.navigationController.viewControllers)[([self.navigationController.viewControllers count] - 2)];
 	[viewController setMessageAction:nil];
 	[viewController setMessageAction:self.messageAction];
 }

@@ -34,7 +34,7 @@
 	[super dealloc];
 }
 
-- (SNMainViewController *)init
+- (instancetype)init
 {
 	if ((self = [super initWithStyle:UITableViewStyleGrouped]))
 	{
@@ -167,7 +167,7 @@ static void (^CreateDatabase)(void) = ^(void)
 
 				cell.accessoryView = appSwitch;
 				NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:SETTINGS];
-				appSwitch.on = [[dictionary objectForKey:@"appIsOn"] boolValue];
+				appSwitch.on = [dictionary[@"appIsOn"] boolValue];
 				[appSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
 				break;
 			}
@@ -229,7 +229,7 @@ static void (^CreateDatabase)(void) = ^(void)
 - (void)saveSettings
 {
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:SETTINGS];
-	[dictionary setObject:[NSNumber numberWithBool:appSwitch.on] forKey:@"appIsOn"];
+	dictionary[@"appIsOn"] = @(appSwitch.on);
 	[dictionary writeToFile:SETTINGS atomically:YES];
 
 	notify_post("com.naken.smsninja.settingschanged");	

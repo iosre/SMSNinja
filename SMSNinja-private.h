@@ -10,7 +10,7 @@
 @end
 
 @interface CPDistributedMessagingCenter : NSObject
-+ (id)centerNamed:(id)named;
++ (instancetype)centerNamed:(id)named;
 - (id)sendMessageAndReceiveReplyName:(id)name userInfo:(id)info;
 - (BOOL)sendMessageName:(id)name userInfo:(id)info;
 - (void)runServerOnCurrentThread;
@@ -19,5 +19,5 @@
 
 @interface UIApplication (private_5_6_7)
 - (void)terminateWithSuccess;
-- (BOOL)isLocked;
+@property (NS_NONATOMIC_IOSONLY, getter=isLocked, readonly) BOOL locked;
 @end
