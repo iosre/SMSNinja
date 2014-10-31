@@ -494,7 +494,7 @@ static NSString *chosenKeyword;
 	else
 	{
 		IMAVChatProxy *avChatProxy = [arg1 object];
-		if ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && [avChatProxy state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChatProxy state] == 2))
+		if ([avChatProxy state] == 2)
 		{
 			NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
 			for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
