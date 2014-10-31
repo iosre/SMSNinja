@@ -1,4 +1,6 @@
 #!/bin/sh
+#killall imagent >/dev/null 2>&1
+#killall identityservicesd >/dev/null 2>&1
 launchctl unload /System/Library/LaunchDaemons/com.apple.imagent.plist
 launchctl load /System/Library/LaunchDaemons/com.apple.imagent.plist
 launchctl unload /System/Library/LaunchDaemons/com.apple.identityservicesd.plist
