@@ -49,6 +49,7 @@
 
 - (void)viewDidLoad
 {
+    [super viewDidLoad];
 	[self updateDatabase];
 
 	CGRect appFrame = [[UIScreen mainScreen] applicationFrame];

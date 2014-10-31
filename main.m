@@ -2,8 +2,9 @@
 
 int main(int argc, char **argv)
 {
-	NSAutoreleasePool *p = [[NSAutoreleasePool alloc] init];
-	int ret = UIApplicationMain(argc, argv, @"SMSNinjaApplication", @"SMSNinjaApplication");
-	[p drain];
-	return ret;
+	@autoreleasepool
+	{
+		int ret = UIApplicationMain(argc, argv, @"SMSNinjaApplication", @"SMSNinjaApplication");
+		return ret;
+	}
 }

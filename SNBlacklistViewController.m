@@ -171,6 +171,7 @@ static int amount;
 
 - (void)viewDidLoad
 {
+    [super viewDidLoad];
 	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:NSLocalizedString(@"White", @"White"), NSLocalizedString(@"Black", @"Black"), nil]];
 	segmentedControl.selectedSegmentIndex = 1;
 	segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;

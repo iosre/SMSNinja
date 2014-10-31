@@ -55,6 +55,7 @@
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    [super viewWillDisappear:animated];
 	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
 	{
 		[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:NO];
@@ -64,6 +65,7 @@
 
 - (void)viewDidLoad
 {
+    [super viewDidLoad];
 	pictureScrollView.contentSize = CGSizeMake([UIScreen mainScreen].bounds.size.width * picturesCount, pictureScrollView.bounds.size.height);
 
 	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)

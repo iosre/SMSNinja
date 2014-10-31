@@ -104,6 +104,7 @@
 
 - (void)viewDidLoad
 {
+    [super viewDidLoad];
 	timePickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, self.view.bounds.size.width, self.view.bounds.size.height / 2.0f)];
 	timePickerView.delegate = self;
 	timePickerView.showsSelectionIndicator = YES;
