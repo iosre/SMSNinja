@@ -39,7 +39,7 @@ static SNTelephonyManager *sharedManager;
 			CKSubConversation *conversation = [conversationList existingConversationForAddresses:@[address]];
 			if (!conversation)
 			{
-				CKMadridEntity *madridEntity = [madridService copyEntityForAddressString:address];
+				CKMadridEntity *madridEntity = (CKMadridEntity *)[madridService copyEntityForAddressString:address];
 				conversation = [conversationList conversationForRecipients:@[madridEntity] create:YES service:madridService];
 				[madridEntity release];
 			}
@@ -53,7 +53,7 @@ static SNTelephonyManager *sharedManager;
 	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
 	{
 		IMDaemonController *controller = [objc_getClass("IMDaemonController") sharedController];
-		CKIMEntity *imEntity = [objc_getClass("CKIMEntity") copyEntityForAddressString:address];
+		CKIMEntity *imEntity = (CKIMEntity *)[objc_getClass("CKIMEntity") copyEntityForAddressString:address];
 		CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
 		CKConversation *conversation = [conversationList conversationForExistingChatWithAddresses:@[address]];
 		if (!conversation) conversation = [conversationList conversationForRecipients:@[imEntity] create:YES];
@@ -70,7 +70,7 @@ static SNTelephonyManager *sharedManager;
 	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
 	{
 		IMDaemonController *controller = [objc_getClass("IMDaemonController") sharedController];
-		CKEntity *entity = [objc_getClass("CKEntity") copyEntityForAddressString:address];			
+		CKEntity *entity = (CKEntity *)[objc_getClass("CKEntity") copyEntityForAddressString:address];			
 		CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
 		CKConversation *conversation = [conversationList conversationForExistingChatWithAddresses:@[address]];
 		if (!conversation) conversation = [conversationList conversationForRecipients:@[entity] create:YES];
@@ -88,23 +88,34 @@ static SNTelephonyManager *sharedManager;
 	}
 	else
 	{
-		IMDaemonController *controller = [objc_getClass("IMDaemonController") sharedController];
-		CKEntity *entity = [objc_getClass("CKEntity") copyEntityForAddressString:address];
-		IMHandle *handle = [entity handle];
-		CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
-		IMChat *chat = [[objc_getClass("IMChatRegistry") sharedInstance] existingChatForIMHandle:handle];
-		CKConversation *conversation = [conversationList conversationForExistingChat:chat];
-		if (!conversation) conversation = [conversationList conversationForHandles:@[handle] create:YES];
-		if ([conversation _iMessage_canSendToRecipients:@[entity] alertIfUnable:NO] && controller.isConnected)
+		IMAccountController *accountController = [objc_getClass("IMAccountController") sharedInstance];
+		IMAccount *account = [accountController bestAccountForService:[objc_getClass("IMServiceImpl") iMessageService]];
+		if (!account) NSLog(@"SMSNinja: Failed to send iMessage because we can't find a valid iMessage account.");
+		else
 		{
-			NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text];
-			CKComposition *composition = [[objc_getClass("CKComposition") alloc] initWithText:attributedString subject:nil];
-			IMMessage *imMessage = [conversation messageWithComposition:composition];
-			[conversation sendMessage:imMessage onService:[objc_getClass("IMService") iMessageService] newComposition:NO];
-			[attributedString release];
-			[composition release];
+			if (![account isActive] || ![account isConnected] || ![account isOperational]) [accountController activateAccount:account];
+			if ([account isActive] && [account isConnected] && [account isOperational])
+			{
+				CKEntity *entity = [objc_getClass("CKEntity") _copyEntityForAddressString:address onAccount:account];
+				IMHandle *handle = [entity handle];
+				IMChat *chat = [[objc_getClass("IMChatRegistry") sharedInstance] chatForIMHandle:handle];
+				CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
+				CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+				if (!conversation) conversation = [conversationList conversationForHandles:@[handle] create:YES];
+				if ([conversation _iMessage_canSendToRecipients:@[entity] alertIfUnable:NO] && ((IMDaemonController *)[objc_getClass("IMDaemonController") sharedController]).isConnected)
+				{
+					NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text];
+					CKComposition *composition = [[objc_getClass("CKComposition") alloc] initWithText:attributedString subject:nil];
+					IMMessage *imMessage = [conversation messageWithComposition:composition];
+					[conversation sendMessage:imMessage newComposition:NO];
+					[attributedString release];
+					[composition release];
+					[entity release];
+				}
+				else NSLog(@"SMSNinja: Failed to send iMessage because iMessage is broken.");
+			}
+			else NSLog(@"SMSNinja: Failed to send iMessage because we can't find a valid iMessage account.");
 		}
-		[entity release];
 	}
 }
 
@@ -117,7 +128,7 @@ static SNTelephonyManager *sharedManager;
 		CKSubConversation *conversation = [conversationList existingConversationForAddresses:@[address]];
 		if (!conversation)
 		{
-			CKSMSEntity *smsEntity = [smsService copyEntityForAddressString:address];
+			CKSMSEntity *smsEntity = (CKSMSEntity *)[smsService copyEntityForAddressString:address];
 			conversation = [conversationList conversationForRecipients:@[smsEntity] create:YES service:smsService];
 			[smsEntity release];
 		}
@@ -131,7 +142,7 @@ static SNTelephonyManager *sharedManager;
 		CKConversation *conversation = [conversationList conversationForExistingChatWithAddresses:@[address]];
 		if (!conversation)
 		{
-			CKIMEntity *imEntity = [objc_getClass("CKIMEntity") copyEntityForAddressString:address];			
+			CKIMEntity *imEntity = (CKIMEntity *)[objc_getClass("CKIMEntity") copyEntityForAddressString:address];			
 			conversation = [conversationList conversationForRecipients:@[imEntity] create:YES];
 			[imEntity release];
 		}
@@ -147,7 +158,7 @@ static SNTelephonyManager *sharedManager;
 		CKConversation *conversation = [conversationList conversationForExistingChatWithAddresses:@[address]];
 		if (!conversation)
 		{
-			CKEntity *entity = [objc_getClass("CKEntity") copyEntityForAddressString:address];			
+			CKEntity *entity = (CKEntity *)[objc_getClass("CKEntity") copyEntityForAddressString:address];			
 			conversation = [conversationList conversationForRecipients:@[entity] create:YES];
 			[entity release];
 		}
@@ -161,19 +172,30 @@ static SNTelephonyManager *sharedManager;
 	}
 	else
 	{
-		CKEntity *entity = [objc_getClass("CKEntity") copyEntityForAddressString:address];
-		IMHandle *handle = [entity handle];
-		CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
-		IMChat *chat = [[objc_getClass("IMChatRegistry") sharedInstance] existingChatForIMHandle:handle];
-		CKConversation *conversation = [conversationList conversationForExistingChat:chat];
-		if (!conversation) conversation = [conversationList conversationForHandles:@[handle] create:YES];
-		NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text];
-		CKComposition *composition = [[objc_getClass("CKComposition") alloc] initWithText:attributedString subject:nil];
-		IMMessage *imMessage = [conversation messageWithComposition:composition];
-		[conversation sendMessage:imMessage onService:[objc_getClass("IMService") smsService] newComposition:NO];
-		[attributedString release];
-		[composition release];
-		[entity release];
+		IMAccountController *accountController = [objc_getClass("IMAccountController") sharedInstance];
+		IMAccount *account = [accountController bestAccountForService:[objc_getClass("IMServiceImpl") smsService]];
+		if (!account) NSLog(@"SMSNinja: Failed to send SMS because we can't find a valid SMS account.");
+		else
+		{
+			if (![account isActive] || ![account isConnected] || ![account isOperational]) [accountController activateAccount:account];
+			if ([account isActive] && [account isConnected] && [account isOperational])
+			{
+				CKEntity *entity = [objc_getClass("CKEntity") _copyEntityForAddressString:address onAccount:account];
+				IMHandle *handle = [entity handle];
+				IMChat *chat = [[objc_getClass("IMChatRegistry") sharedInstance] chatForIMHandle:handle];
+				CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
+				CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+				if (!conversation) conversation = [conversationList conversationForHandles:@[handle] create:YES];
+				NSAttributedString *attributedString = [[NSAttributedString alloc] initWithString:text];
+				CKComposition *composition = [[objc_getClass("CKComposition") alloc] initWithText:attributedString subject:nil];
+				IMMessage *imMessage = [conversation messageWithComposition:composition];
+				[conversation sendMessage:imMessage newComposition:NO];
+				[attributedString release];
+				[composition release];
+				[entity release];
+			}
+			else NSLog(@"SMSNinja: Failed to send SMS because we can't find a valid SMS account.");
+		}
 	}
 }
 

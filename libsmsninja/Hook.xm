@@ -1355,19 +1355,6 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 }
 %end
 
-%hook IMDaemonController // grant SpringBoard permission to send messages :P
-- (BOOL)addListenerID:(id)arg1 capabilities:(unsigned)arg2
-{
-	// TODO: iOS 8里又变啦！
-	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [arg1 isEqualToString:@"com.apple.MobileSMS"])
-	{
-		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) return %orig(arg1, 16647);
-		else return %orig(arg1, 393216);
-	}
-	return %orig;
-}
-%end
-
 %hook TUPrivacyManager // take over stock blocklist, only allows removal
 - (void)setBlockIncomingCommunication:(BOOL)arg1 forPhoneNumber:(TUPhoneNumber *)arg2 // arg1: YES for add, NO for remove
 {
@@ -1399,6 +1386,14 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 	%orig;
 	NSString *bundleIdentifier = [bundle bundleIdentifier];
 	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_7);
+}
+%end
+
+%hook IMDaemonController // grant SpringBoard permission to send messages :P
+- (BOOL)addListenerID:(id)arg1 capabilities:(unsigned)arg2
+{
+	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [arg1 isEqualToString:@"com.apple.MobileSMS"]) return %orig(arg1, 16647);
+	return %orig;
 }
 %end
 
@@ -1505,6 +1500,14 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 	%orig;
 	NSString *bundleIdentifier = [bundle bundleIdentifier];
 	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_8);
+}
+%end
+
+%hook IMDaemonController // grant SpringBoard permission to send messages :P
+- (unsigned int)capabilities
+{
+	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"]) return 17159 | %orig;
+	return %orig;
 }
 %end
 

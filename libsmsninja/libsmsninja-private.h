@@ -19,14 +19,14 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface RecentCall : NSObject // 5_6
-- (id)initWithCTCall:(CTCallRef)arg1;
+- (instancetype)initWithCTCall:(CTCallRef)arg1;
 - (void)deleteUnderlyingCTCall;
 - (NSArray *)underlyingCTCalls;
 @end
 
 @interface PHRecentCall : NSObject // 7
 - (NSString *)callerDisplayName;
-- (id)initWithCTCall:(CTCallRef)arg1;
+- (instancetype)initWithCTCall:(CTCallRef)arg1;
 - (void)deleteUnderlyingCTCall;
 - (NSArray *)underlyingCTCalls;
 @end
@@ -106,7 +106,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface IMDFileTransferCenter : NSObject
-+ (id)sharedInstance;
++ (instancetype)sharedInstance;
 - (IMFileTransfer *)transferForGUID:(NSString *)arg1;
 @end
 
@@ -144,8 +144,16 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface IMMessage : NSObject
-+ (id)messageFromFZMessage:(FZMessage *)fzmessage sender:(NSString *)sender subject:(NSString *)subject;
-+ (id)messageFromIMMessageItem:(IMMessageItem *)arg1 sender:(NSString *)arg2 subject:(NSString *)arg3; // 8
++ (instancetype)messageFromFZMessage:(FZMessage *)fzmessage sender:(NSString *)sender subject:(NSString *)subject;
++ (instancetype)messageFromIMMessageItem:(IMMessageItem *)arg1 sender:(NSString *)arg2 subject:(NSString *)arg3; // 8
+@end
+
+@interface IMService : NSObject
++ (instancetype)smsService; // 6_7
++ (instancetype)iMessageService;
+@end
+
+@interface IMServiceImpl : IMService
 @end
 
 @interface IMChat : NSObject
@@ -158,6 +166,18 @@ typedef struct __CTCall* CTCallRef;
 - (void)deleteChatItems:(NSArray *)arg1; // 8
 @end
 
+@interface IMAccount : NSObject
+@property (readonly, nonatomic) BOOL isActive;
+@property (readonly, nonatomic) BOOL isConnected;
+@property (readonly, nonatomic) BOOL isOperational;
+@end
+
+@interface IMAccountController : NSObject
++ (instancetype)sharedInstance;
+- (IMAccount *)bestAccountForService:(IMServiceImpl *)arg1;
+- (BOOL)activateAccount:(IMAccount *)arg1;
+@end
+
 @interface IMHandle : NSObject
 @property (readonly, nonatomic) NSString *ID;
 @property (readonly, assign, nonatomic) NSString* normalizedID;
@@ -165,9 +185,10 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface IMChatRegistry : NSObject
-+ (id)sharedInstance;
++ (instancetype)sharedInstance;
 - (IMChat *)existingChatWithChatIdentifier:(NSString *)arg1;
 - (IMChat *)existingChatForIMHandle:(IMHandle *)arg1;
+- (IMChat *)chatForIMHandle:(IMHandle *)arg1; // 8
 @end
 
 @interface IMAVChatParticipant : NSObject
@@ -200,24 +221,19 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface IMDChatRegistry : NSObject
-+ (id)sharedInstance;
++ (instancetype)sharedInstance;
 - (IMDChat *)existingChatForID:(NSString *)arg1 account:(IMDAccount *)arg2;
 - (void)removeMessage:(FZMessage *)arg1 fromChat:(IMDChat *)arg2;
 - (void)removeChat:(IMDChat *)arg1;
 @end
 
-@interface IMService : NSObject
-+ (id)smsService; // 6_7
-+ (id)iMessageService;
-@end
-
 @interface IMDaemonController : NSObject
 @property (readonly, nonatomic) BOOL isConnected;
-+ (id)sharedController;
++ (instancetype)sharedController;
 @end
 
 @interface IMDChatStore : NSObject
-+ (id)sharedInstance;
++ (instancetype)sharedInstance;
 - (void)deleteChatWithGUID:(NSString *)arg1; // 5
 - (void)deleteChat:(IMDChat *)arg1; // 6_7
 @end
@@ -250,7 +266,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface CKService : NSObject // 5
-+ (id)availableServices;
++ (instancetype)availableServices;
 - (void)deleteMessage:(CKMessage *)message fromConversation:(_CKConversation *)conversation;
 @end
 
@@ -258,7 +274,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface CKComposition : NSObject // 7_8
-- (id)initWithText:(NSAttributedString *)arg1 subject:(NSAttributedString *)arg2;
+- (instancetype)initWithText:(NSAttributedString *)arg1 subject:(NSAttributedString *)arg2;
 @end
 
 @interface CKConversation : NSObject // 6_7_8
@@ -269,11 +285,12 @@ typedef struct __CTCall* CTCallRef;
 - (void)deleteAllMessagesAndRemoveGroup;
 - (BOOL)_iMessage_canSendToRecipients:(NSArray *)recipients withAttachments:(NSArray *)attachments alertIfUnable:(BOOL)unable; // 6_7
 - (BOOL)_iMessage_canSendToRecipients:(NSArray *)arg1 alertIfUnable:(BOOL)arg2; // 8
-- (void)sendMessage:(id)arg1 onService:(IMService *)arg2 newComposition:(BOOL)arg3;
+- (void)sendMessage:(id)arg1 newComposition:(BOOL)arg2; // 8
+- (void)sendMessage:(id)arg1 onService:(IMService *)arg2 newComposition:(BOOL)arg3; // 7
 @end
 
 @interface CKConversationList : NSObject
-+ (id)sharedConversationList;
++ (instancetype)sharedConversationList;
 - (NSArray *)activeConversations;
 - (CKSubConversation *)existingConversationForAddresses:(NSArray *)addresses; // 5
 - (void)reloadConversations; // 5
@@ -298,11 +315,12 @@ typedef struct __CTCall* CTCallRef;
 @property (readonly, nonatomic) NSString *name;
 @property (readonly, nonatomic) NSString *rawAddress;
 @property (retain, nonatomic) IMHandle *handle;
-+ (id)copyEntityForAddressString:(NSString *)arg1;
++ (instancetype)copyEntityForAddressString:(NSString *)arg1;
++ (instancetype)_copyEntityForAddressString:(NSString *)arg1 onAccount:(IMAccount *)arg2;
 @end
 
 @interface CKSMSMessage : CKMessage // 5
-- (id)initWithRowID:(int)arg1;
+- (instancetype)initWithRowID:(int)arg1;
 @end
 
 @interface CKMadridMessage : CKMessage // 5
@@ -335,8 +353,8 @@ typedef struct __CTCall* CTCallRef;
 
 @interface CKSMSService : CKService // 5
 @property (readonly, assign, nonatomic) CKConversationList* conversationList;
-+ (id)sharedSMSService;
-- (id)copyEntityForAddressString:(NSString *)addressString;
++ (instancetype)sharedSMSService;
+- (CKSMSEntity *)copyEntityForAddressString:(NSString *)addressString;
 - (void)sendMessage:(CKMessage *)message;
 - (CKSMSMessage *)_newSMSMessageWithText:(NSString *)text forConversation:(_CKConversation *)conversation;
 - (void)beginBulkDeleteMode;
@@ -344,13 +362,13 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface CKMessageComposition : NSObject // 5_6
-+ (id)newCompositionForText:(NSString *)text;
++ (instancetype)newCompositionForText:(NSString *)text;
 @end
 
 @interface CKMadridService : CKService // 5
 - (int)availabilityForAddress:(NSString *)address checkWithServer:(BOOL)server;
-+ (id)sharedMadridService;
-- (id)copyEntityForAddressString:(NSString *)addressString;
++ (instancetype)sharedMadridService;
+- (CKMadridEntity *)copyEntityForAddressString:(NSString *)addressString;
 + (BOOL)isConnectedToDaemon;
 + (BOOL)isMadridEnabled;
 + (BOOL)isMadridSupported;
@@ -362,12 +380,12 @@ typedef struct __CTCall* CTCallRef;
 - (CKMadridMessage *)newMessageWithComposition:(CKMessageComposition *)composition forConversation:(_CKConversation *)conversation;
 @end
 
-@interface CKIMEntity : NSObject // 6
-+ (id)copyEntityForAddressString:(NSString *)addressString;
+@interface CKIMEntity : CKEntity // 6
++ (instancetype)copyEntityForAddressString:(NSString *)addressString;
 @end
 
 @interface CKPreferredServiceManager : NSObject // 7
-+ (id)sharedPreferredServiceManager;
++ (instancetype)sharedPreferredServiceManager;
 - (int)availabilityForAddress:(NSString *)address onService:(IMService *)service checkWithServer:(BOOL)server;
 @end
 
@@ -411,7 +429,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface CTMessageCenter : NSObject
-+ (id)sharedMessageCenter;
++ (instancetype)sharedMessageCenter;
 - (CTMessage *)incomingMessageWithId:(unsigned)anId;
 @end
 
@@ -435,29 +453,29 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface SBIconModel : NSObject
-+ (id)sharedInstance; // 5
++ (instancetype)sharedInstance; // 5
 - (SBIcon *)applicationIconForDisplayIdentifier:(NSString *)displayIdentifier;
 - (SBIcon *)applicationIconForBundleIdentifier:(NSString *)arg1; // 8
 @end
 
 @interface SBIconController : NSObject
-+ (id)sharedInstance;
++ (instancetype)sharedInstance;
 - (SBIconModel *)model;
 @end
 
 @interface SBApplicationController : NSObject
-+ (id)sharedInstance;
++ (instancetype)sharedInstance;
 - (SBApplication *)applicationWithDisplayIdentifier:(NSString *)arg1;
 - (SBApplication *)applicationWithBundleIdentifier:(NSString *)arg1; // 8
 @end
 
 @interface SBUIController : NSObject
-+ (id)sharedInstance;
++ (instancetype)sharedInstance;
 - (void)activateApplicationFromSwitcher:(SBApplication *)arg1; // 5
 @end
 
 @interface SBAppSwitcherController : NSObject // 5_6
-+ (id)sharedInstance;
++ (instancetype)sharedInstance;
 - (void)_removeApplicationFromRecents:(SBApplication *)application;
 @end
 
@@ -491,7 +509,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface CPDistributedMessagingCenter : NSObject
-+ (id)centerNamed:(NSString *)named;
++ (instancetype)centerNamed:(NSString *)named;
 - (NSDictionary *)sendMessageAndReceiveReplyName:(NSString *)name userInfo:(NSDictionary *)info;
 - (BOOL)sendMessageName:(NSString *)name userInfo:(NSDictionary *)info;
 - (void)runServerOnCurrentThread;
