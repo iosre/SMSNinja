@@ -1,7 +1,7 @@
 #import "libsmsninja-private.h"
 
 @interface SNTelephonyManager : NSObject
-+ (id)sharedManager;
++ (instancetype)sharedManager;
 - (int)iMessageAvailabilityOfAddress:(NSString *)address;
 - (void)sendIMessageWithText:(NSString *)text address:(NSString *)address;
 - (void)sendSMSWithText:(NSString *)text address:(NSString *)address;

@@ -9,7 +9,7 @@ static SNTelephonyManager *sharedManager;
 	if (self == [SNTelephonyManager class]) sharedManager = [[self alloc] init];
 }
 
-+ (id)sharedManager
++ (instancetype)sharedManager
 {
 	return sharedManager;
 }

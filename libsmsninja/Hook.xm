@@ -93,7 +93,7 @@ static NSString *chosenKeyword;
 	if ([name isEqualToString:@"RefreshConversation"]) [[%c(CKConversationList) sharedConversationList] reloadConversations];
 	else if ([name isEqualToString:@"ClearDeletedChat"])
 	{
-		IMChat *chat = [[%c(IMChatRegistry) sharedInstance] existingChatWithChatIdentifier:(NSString *)[userInfo objectForKey:@"chatID"]];
+		IMChat *chat = [[%c(IMChatRegistry) sharedInstance] existingChatWithChatIdentifier:(NSString *)userInfo[@"chatID"]];
 		[chat leave];
 	}
 	return nil;
@@ -121,7 +121,7 @@ static NSString *chosenKeyword;
 %new
 - (void)snLongPress:(UILongPressGestureRecognizer *)gesture
 {
-	if (gesture.state == UIGestureRecognizerStateBegan && [[settings objectForKey:@"appIsOn"] boolValue])
+	if (gesture.state == UIGestureRecognizerStateBegan && [settings[@"appIsOn"] boolValue])
 	{
 		CKConversationListCell *cell = (CKConversationListCell *)gesture.view;
 		NSUInteger chosenRow = [(UITableView *)MSHookIvar<UITableView *>(self, "_table") indexPathForCell:((UITableViewCell *)cell)].row;
@@ -169,7 +169,7 @@ static NSString *chosenKeyword;
 		snActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:snActionSheetDelegate cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
 		if ([chosenKeyword indexInBlackListWithType:0] == NSNotFound) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Blacklist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		if ([chosenKeyword indexInWhiteListWithType:0] == NSNotFound) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Whitelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
-		if ([chosenKeyword indexInPrivateListWithType:0] == NSNotFound && [[settings objectForKey:@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue]) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Privatelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
+		if ([chosenKeyword indexInPrivateListWithType:0] == NSNotFound && [settings[@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue]) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Privatelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		[snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		snActionSheet.cancelButtonIndex = snActionSheet.numberOfButtons - 1;
 		if (snActionSheet.numberOfButtons > 1) [snActionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
@@ -219,20 +219,20 @@ static NSString *chosenKeyword;
 	else if ([name isEqualToString:@"PlayBlockSound"]) PlayBlockSound();
 	else if ([name isEqualToString:@"CheckAddressBook"])
 	{
-		NSString *address = [userInfo objectForKey:@"address"];
+		NSString *address = userInfo[@"address"];
 		NSNumber *result = [NSNumber numberWithBool:[address isInAddressBook]];
 		return @{@"result" : result};
 	}
 	else if ([name isEqualToString:@"GetAddressBookName"])
 	{
-		NSString *address = [userInfo objectForKey:@"address"];
+		NSString *address = userInfo[@"address"];
 		NSString *result = [address nameInAddressBook];
 		return @{@"result" : result};
 	}
 	else if ([name isEqualToString:@"SendMessage"])
 	{
-		NSString *text = [userInfo objectForKey:@"text"];
-		NSString *address = [userInfo objectForKey:@"address"];
+		NSString *text = userInfo[@"text"];
+		NSString *address = userInfo[@"address"];
 		[[SNTelephonyManager sharedManager] sendMessageWithText:text address:address];
 	}
 	else if ([name isEqualToString:@"LaunchMobilePhone"])
@@ -273,7 +273,7 @@ static NSString *chosenKeyword;
 	}
 	else if ([name isEqualToString:@"ClearDeletedChat"])
 	{
-		IMChat *chat = [[%c(IMChatRegistry) sharedInstance] existingChatWithChatIdentifier:(NSString *)[userInfo objectForKey:@"chatID"]];
+		IMChat *chat = [[%c(IMChatRegistry) sharedInstance] existingChatWithChatIdentifier:(NSString *)userInfo[@"chatID"]];
 		[chat leave];
 	}
 	else if ([name isEqualToString:@"RemoveIconFromSwitcher"])
@@ -319,19 +319,19 @@ static NSString *chosenKeyword;
 
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	UpdateBadge();
-	if ([fileManager fileExistsAtPath:@"/var/mobile/Library/SMSNinja/UnreadPrivateInfo"] && [[settings objectForKey:@"appIsOn"] boolValue] && [[settings objectForKey:@"shouldShowPurpleSquare"] boolValue]) ShowPurpleSquare();
+	if ([fileManager fileExistsAtPath:@"/var/mobile/Library/SMSNinja/UnreadPrivateInfo"] && [settings[@"appIsOn"] boolValue] && [settings[@"shouldShowPurpleSquare"] boolValue]) ShowPurpleSquare();
 }
 %end
 
 %hook CTCallCenter
-- (void)handleNotificationFromConnection:(void *)arg1 ofType:(id)arg2 withInfo:(NSDictionary *)arg3 // outgoing call
+- (void)handleNotificationFromConnection:(void *)arg1 ofType:(id)arg2 withInfo:(NSDictionary *)arg3 // outgoing call, 3 for outgoing, 4 for incoming, 5 for disconnect
 {
 	%orig;
-	if ([(NSNumber *)[arg3 objectForKey:@"kCTCallStatus"] intValue] == 3 && ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"]) || (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])))
+	if ([(NSNumber *)arg3[@"kCTCallStatus"] intValue] == 3 && ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"]) || (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])))
 	{
 		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // this is dirty on iOS 7 :(
 
-		CTCallRef call = (CTCallRef)[arg3 objectForKey:@"kCTCall"];
+		CTCallRef call = (CTCallRef)arg3[@"kCTCall"];
 		NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
 		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 		NSArray *addressArray = @[tempAddress];	
@@ -352,14 +352,13 @@ static NSString *chosenKeyword;
 %hook IMChatRegistry
 - (void)account:(id)account chat:(NSString *)chatID style:(unsigned char)style chatProperties:(id)properties messageSent:(id)message // outgoing iMessage_5/messages_6_7_8, called in SpringBoard & MobileSMS
 {
-	// TODO: Not called in SpringBoard in iOS 8，给SpringBoard赋予权限后再试
 	%orig;
 	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) message = (FZMessage *)message;
 	else message = (IMMessageItem *)message;
 	
 	if (![message isFinished]) return;
 	NSArray *transferGUIDArray = [message fileTransferGUIDs];
-	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [transferGUIDArray count] == 0) // handles text only messages
+	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [transferGUIDArray count] == 0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) // handles text only messages on iOS 5 ~ 7
 	{
 		IMChat *chat = [self existingChatWithChatIdentifier:chatID];
 		NSArray *handleArray = chat.participants;
@@ -367,7 +366,6 @@ static NSString *chosenKeyword;
 		for (IMHandle *handle in handleArray)
 		{
 			NSString *address = handle.displayID;
-			NSLog(@"SMSNinjaDebug2: address = %@", address);
 			address = [address stringByReplacingOccurrencesOfString:@"\u202a" withString:@""];
 			address = [address stringByReplacingOccurrencesOfString:@"\u202c" withString:@""];
 			address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
@@ -405,7 +403,7 @@ static NSString *chosenKeyword;
 			}
 		}
 	}
-	else if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"MobileSMS"] && [transferGUIDArray count] > 0) // handles messages with attachments
+	else if (([[[NSProcessInfo processInfo] processName] isEqualToString:@"MobileSMS"] && [transferGUIDArray count] > 0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) || ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1)) // handles messages with attachments in iOS 5 ~ 7 and all messages in iOS 8
 	{
 		IMChat *chat = [self existingChatWithChatIdentifier:chatID];
 		NSArray *handleArray = chat.participants;
@@ -511,17 +509,10 @@ static NSString *chosenKeyword;
 			NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
 			for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
 			{
-				IMAVChat *avChat = [participantProxy avChat];
-				NSMutableArray *otherParticipants = [NSMutableArray arrayWithCapacity:6];
-				[otherParticipants addObjectsFromArray:[avChat participants]];
-				[otherParticipants removeObject:[avChat localParticipant]];
-				for (IMAVChatParticipant *participant in otherParticipants)
-				{
-					IMHandle *handle = [participant imHandle];
-					NSString *address = [handle normalizedID];
-					address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-					[addressArray addObject:address];
-				}
+				IMHandle *handle = [participantProxy.avChat otherIMHandle];
+				NSString *address = [handle normalizedID];
+				address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+				[addressArray addObject:address];
 			}
 
 			NSLog(@"SMSNinja: IMAVTelephonyManager | _chatStateChanged: | addressArray = %@", addressArray);
@@ -550,8 +541,8 @@ static NSString *chosenKeyword;
 	IMAVChatProxy *chatProxy = nil; // 7
 	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
 	{
-		inviter = [[invitation userInfo] objectForKey:@"kCNFConferenceControllerInviterKey"];
-		conferenceID = [[invitation userInfo] objectForKey:@"kCNFConferenceControllerConferenceIDKey"];	
+		inviter = [invitation userInfo][@"kCNFConferenceControllerInviterKey"];
+		conferenceID = [invitation userInfo][@"kCNFConferenceControllerConferenceIDKey"];	
 		address = [inviter absoluteString];
 		if ([address hasPrefix:@"facetime://"])
 			address = [[address substringFromIndex:11] normalizedPhoneNumber];
@@ -559,8 +550,8 @@ static NSString *chosenKeyword;
 	}
 	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
 	{
-		handle = [[invitation userInfo] objectForKey:@"kCNFConferenceControllerHandleKey"];
-		conferenceID = [[invitation userInfo] objectForKey:@"kCNFConferenceControllerConferenceIDKey"];
+		handle = [invitation userInfo][@"kCNFConferenceControllerHandleKey"];
+		conferenceID = [invitation userInfo][@"kCNFConferenceControllerConferenceIDKey"];
 		address = [handle normalizedID];
 		address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 		[addressArray addObject:address];
@@ -603,16 +594,13 @@ static NSString *chosenKeyword;
 - (void)handleVideoCallStatusChanged:(NSConcreteNotification *)arg1 // incoming FaceTime
 {
 	TUFaceTimeVideoCall *videoCall = [arg1 object];
-	IMAVChat *avChat = [videoCall chat];
-	if ([avChat state] == 1)
+	IMAVChatProxy *avChatProxy = [videoCall chat];
+	if ([avChatProxy state] == 1)
 	{
-		NSMutableArray *otherParticipants = [NSMutableArray arrayWithCapacity:6];
-		[otherParticipants addObjectsFromArray:[avChat participants]];
-		[otherParticipants removeObject:[avChat localParticipant]];
 		NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
-		for (IMAVChatParticipant *participant in otherParticipants)
+		for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
 		{
-			IMHandle *handle = [participant imHandle];
+			IMHandle *handle = [participantProxy.avChat otherIMHandle];
 			NSString *address = [handle normalizedID];
 			address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 			[addressArray addObject:address];
@@ -626,7 +614,7 @@ static NSString *chosenKeyword;
 				%orig;
 				break;
 			case 1:	
-				[avChat declineInvitation];
+				[avChatProxy declineInvitation];
 				break;
 			case 2:
 				break;
@@ -649,29 +637,33 @@ static NSString *chosenKeyword;
 	CTCallRef call = nil;
 	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) call = (CTCallRef)arg1;
 	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0) call = [(TUTelephonyCall *)arg1 call];
-	NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
-	NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-	NSArray *addressArray = @[tempAddress];	
-	[address release];
-
-	NSLog(@"SMSNinja: MPTelephonyManager | displayAlertForCall: | address = %@", tempAddress);
-
-	switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
+	if (CTCallGetStatus(call) == 4)
 	{
-		case 0:
-			%orig;
-			break;
-		case 1:
-			%orig(nil);
-			CTCallDisconnect(call);
-			break;
-		case 2:
-			%orig(nil);
-			break;
-		case 3:
-			%orig;
-			break;
+		NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
+		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+		NSArray *addressArray = @[tempAddress];	
+		[address release];
+
+		NSLog(@"SMSNinja: MPTelephonyManager | displayAlertForCall: | address = %@", tempAddress);
+
+		switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
+		{
+			case 0:
+				%orig;
+				break;
+			case 1:
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %orig(nil);
+				CTCallDisconnect(call);
+				break;
+			case 2:
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %orig(nil);
+				break;
+			case 3:
+				%orig;
+				break;
+		}
 	}
+	else %orig;
 }
 %end
 
@@ -797,7 +789,7 @@ static NSString *chosenKeyword;
 {
 	if ([notification isEqualToString:@"kCTCallHistoryRecordAddNotification"])
 	{
-		CTCallRef call = (CTCallRef)[info objectForKey:@"kCTCall"];
+		CTCallRef call = (CTCallRef)info[@"kCTCall"];
 		if (!CTCallIsOutgoing(call))
 		{
 			NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
@@ -819,10 +811,10 @@ static NSString *chosenKeyword;
 			{
 				if ([blackPhoneArray[index] intValue] != 0) return;
 			}
-			else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
 			}
-			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
 		}
 	}
 	%orig;
@@ -838,7 +830,7 @@ static NSString *chosenKeyword;
 {
 	if ([notification isEqualToString:@"kCTCallHistoryRecordAddNotification"])
 	{
-		CTCallRef call = (CTCallRef)[info objectForKey:@"kCTCall"];
+		CTCallRef call = (CTCallRef)info[@"kCTCall"];
 		if (!CTCallIsOutgoing(call))
 		{
 			NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
@@ -860,10 +852,10 @@ static NSString *chosenKeyword;
 			{
 				if ([blackPhoneArray[index] intValue] != 0) return;
 			}
-			else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
 			}
-			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
 		}
 	}
 	%orig;
@@ -873,43 +865,48 @@ static NSString *chosenKeyword;
 %end // end of SNBulletinHook_7
 
 %group SNBulletinHook_8
-
+/*
 %hook MPBBDataProvider
 - (void)_handleCallHistoryDatabaseChangedNotification:(id)arg1
 {
 	CHManager *recentsManager = MSHookIvar<CHManager *>(self, "_recentsManager");
-	CHRecentCall *recentCall = recentsManager.recentCalls[0];
-	if (!recentCall.read)
+	NSArray *recentCalls = recentsManager.recentCalls;
+	if ([recentCalls count] > 0)
 	{
-		NSString *address = recentCall.callerId;
-		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-		[address release];
+		CHRecentCall *recentCall = recentCalls[0];
+		if (!recentCall.read)
+		{
+			NSString *address = recentCall.callerId;
+			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+			[address release];
 
-		NSLog(@"SMSNinja: MPBBDataProvider | _handleCallHistoryDatabaseChangedNotification: | address = %@", tempAddress);
+			NSLog(@"SMSNinja: MPBBDataProvider | _handleCallHistoryDatabaseChangedNotification: | address = %@", tempAddress);
 
-		NSUInteger index = NSNotFound;
-		if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
-		{
-			if ([privatePhoneArray[index] intValue] != 0) return;
+			NSUInteger index = NSNotFound;
+			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+			{
+				if ([privatePhoneArray[index] intValue] != 0) return;
+			}
+			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			{
+				if ([blackPhoneArray[index] intValue] != 0) return;
+			}
+			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+			{
+				if ([blackPhoneArray[index] intValue] != 0) return;
+			}
+			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
+			{
+			}
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
+			%orig;
 		}
-		else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
-		{
-			if ([blackPhoneArray[index] intValue] != 0) return;
-		}
-		else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-		{
-			if ([blackPhoneArray[index] intValue] != 0) return;
-		}
-		else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
-		{
-		}
-		else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
-		%orig;
+		else %orig;
 	}
 	else %orig;
 }
 %end
-
+*/
 %end // end of SNBulletinHook_8
 
 %group SNGeneralHook_5
@@ -1045,7 +1042,7 @@ static NSString *chosenKeyword;
 %new
 - (void)snLongPress:(UILongPressGestureRecognizer *)gesture
 {
-	if (gesture.state == UIGestureRecognizerStateBegan && [[settings objectForKey:@"appIsOn"] boolValue])
+	if (gesture.state == UIGestureRecognizerStateBegan && [settings[@"appIsOn"] boolValue])
 	{
 		NSUInteger chosenRow = [[self table] indexPathForCell:((UITableViewCell *)gesture.view)].row;
 		id call = nil;
@@ -1090,7 +1087,7 @@ static NSString *chosenKeyword;
 		snActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:snActionSheetDelegate cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
 		if ([chosenKeyword indexInBlackListWithType:0] == NSNotFound) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Blacklist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		if ([chosenKeyword indexInWhiteListWithType:0] == NSNotFound) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Whitelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
-		if ([chosenKeyword indexInPrivateListWithType:0] == NSNotFound && [[settings objectForKey:@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue]) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Privatelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
+		if ([chosenKeyword indexInPrivateListWithType:0] == NSNotFound && [settings[@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue]) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Privatelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		[snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		snActionSheet.cancelButtonIndex = snActionSheet.numberOfButtons - 1;
 		if (snActionSheet.numberOfButtons > 1) [snActionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
@@ -1145,14 +1142,14 @@ static void (*oldCallBack)(CFNotificationCenterRef center, void *observer, CFStr
 static void newCallBack(CFNotificationCenterRef center, void *observer, CFStringRef name, const void *object, CFDictionaryRef userInfo)
 {
 	oldCallBack(center, observer, name, object, userInfo);
-	CTCallRef call = (CTCallRef)[(NSDictionary *)userInfo objectForKey:@"kCTCall"];
+	CTCallRef call = (CTCallRef)((NSDictionary *)userInfo)[@"kCTCall"];
 	NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
 	NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 	[address release];
 
 	NSLog(@"SMSNinja: CoreTelephony | newCallBack(kCTCallHistoryRecordAddNotification) | address = %@", tempAddress);
 
-	if ([[settings objectForKey:@"appIsOn"] boolValue] && call)
+	if ([settings[@"appIsOn"] boolValue] && call)
 	{
 		BOOL isOutgoing = CTCallIsOutgoing(call);
 		BOOL shouldClearSpam = NO;
@@ -1163,16 +1160,16 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 		}
 		else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
 		{
-			if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+			if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
 		}
 		else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
 		{
-			if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+			if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
 		}
-		else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+		else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
 		{
 		}
-		else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+		else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
 
 		if (shouldClearSpam)
 		{
@@ -1232,7 +1229,7 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 
 	NSLog(@"SMSNinja: PhoneApplication | dialPhoneNumber:dialAssist: | number = %@", number);
 
-	if ( ([[settings objectForKey:@"appIsOn"] boolValue] && [number isEqualToString:[settings objectForKey:@"launchCode"]]) || ([[settings objectForKey:@"shouldHideIcon"] boolValue] && [[settings objectForKey:@"launchCode"] length] == 0 && [number isEqualToString:@"666666"]) )
+	if ( ([settings[@"appIsOn"] boolValue] && [number isEqualToString:settings[@"launchCode"]]) || ([settings[@"shouldHideIcon"] boolValue] && [settings[@"launchCode"] length] == 0 && [number isEqualToString:@"666666"]) )
 	{
 		PhoneTabBarController *tabBarController = [self currentViewController];
 		DialerController *dialerController = tabBarController.keypadViewController;
@@ -1273,7 +1270,7 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 %new
 - (void)snLongPress:(UILongPressGestureRecognizer *)gesture
 {
-	if (gesture.state == UIGestureRecognizerStateBegan && [[settings objectForKey:@"appIsOn"] boolValue])
+	if (gesture.state == UIGestureRecognizerStateBegan && [settings[@"appIsOn"] boolValue])
 	{
 		NSUInteger chosenRow = [[self table] indexPathForCell:((UITableViewCell *)gesture.view)].row;
 		id call = [self callAtTableViewIndex:chosenRow];
@@ -1318,7 +1315,7 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 		snActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:snActionSheetDelegate cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
 		if ([chosenKeyword indexInBlackListWithType:0] == NSNotFound) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Blacklist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		if ([chosenKeyword indexInWhiteListWithType:0] == NSNotFound) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Whitelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
-		if ([chosenKeyword indexInPrivateListWithType:0] == NSNotFound && [[settings objectForKey:@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue]) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Privatelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
+		if ([chosenKeyword indexInPrivateListWithType:0] == NSNotFound && [settings[@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue]) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Privatelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		[snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		snActionSheet.cancelButtonIndex = snActionSheet.numberOfButtons - 1;
 		if (snActionSheet.numberOfButtons > 1) [snActionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
@@ -1405,7 +1402,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 %new
 - (void)snLongPress:(UILongPressGestureRecognizer *)gesture
 {
-	if (gesture.state == UIGestureRecognizerStateBegan && [[settings objectForKey:@"appIsOn"] boolValue])
+	if (gesture.state == UIGestureRecognizerStateBegan && [settings[@"appIsOn"] boolValue])
 	{
 		NSUInteger chosenRow = [[self table] indexPathForCell:((UITableViewCell *)gesture.view)].row;
 		CHRecentCall *call = [self callAtTableViewIndex:chosenRow];
@@ -1428,7 +1425,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 		snActionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:snActionSheetDelegate cancelButtonTitle:nil destructiveButtonTitle:nil otherButtonTitles:nil];
 		if ([chosenKeyword indexInBlackListWithType:0] == NSNotFound) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Blacklist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		if ([chosenKeyword indexInWhiteListWithType:0] == NSNotFound) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Whitelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
-		if ([chosenKeyword indexInPrivateListWithType:0] == NSNotFound && [[settings objectForKey:@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue]) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Privatelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
+		if ([chosenKeyword indexInPrivateListWithType:0] == NSNotFound && [settings[@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue]) [snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Add to Privatelist", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		[snActionSheet addButtonWithTitle:NSLocalizedStringFromTableInBundle(@"Cancel", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil)];
 		snActionSheet.cancelButtonIndex = snActionSheet.numberOfButtons - 1;
 		if (snActionSheet.numberOfButtons > 1) [snActionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
@@ -1477,7 +1474,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 
 	NSLog(@"SMSNinja: PhoneApplication | openURL: | number = %@", number);
 
-	if ( ([[settings objectForKey:@"appIsOn"] boolValue] && [number isEqualToString:[settings objectForKey:@"launchCode"]]) || ([[settings objectForKey:@"shouldHideIcon"] boolValue] && [[settings objectForKey:@"launchCode"] length] == 0 && [number isEqualToString:@"666666"]) )
+	if ( ([settings[@"appIsOn"] boolValue] && [number isEqualToString:settings[@"launchCode"]]) || ([settings[@"shouldHideIcon"] boolValue] && [settings[@"launchCode"] length] == 0 && [number isEqualToString:@"666666"]) )
 	{
 		PhoneTabBarController *tabBarController = [self currentViewController];
 		DialerController *dialerController = tabBarController.keypadViewController;
@@ -1511,6 +1508,50 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 }
 %end
 
+%hook TUCallServicesRecentsController
+- (void)_callHistoryChanged:(NSConcreteNotification *)arg1 // delete call history in callservicesd
+{
+	// TODO: 导致callservicesd崩溃，貌似挂断后就会出现。继续测试！
+	%orig;
+	CHManager *recentsManager = [self recentsManager];
+	NSArray *recentCalls = recentsManager.recentCalls;
+	if ([recentCalls count] > 0)
+	{
+		CHRecentCall *recentCall = recentCalls[0];
+		NSString *address = recentCall.callerId;
+		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+		[address release];
+
+		NSLog(@"SMSNinja: TUCallServicesRecentsController | _callHistoryChanged: | address = %@", tempAddress);
+
+		if ([settings[@"appIsOn"] boolValue])
+		{
+			BOOL isOutgoing = recentCall.read;
+			BOOL shouldClearSpam = NO;
+			NSUInteger index = NSNotFound;
+			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+			{
+				if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
+			}
+			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			{
+				if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+			}
+			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+			{
+				if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+			}
+			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
+			{
+			}
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+
+			if (shouldClearSpam) [recentsManager deleteCall:recentCall];
+		}
+	}
+}
+%end
+
 %end // end of SNGeneralHook_8
 
 %ctor
@@ -1532,11 +1573,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 				MSHookFunction(&CMFBlockListIsItemBlocked, &new_CMFBlockListIsItemBlocked, &old_CMFBlockListIsItemBlocked);
 				%init(SNGeneralHook_7_8);
 				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNGeneralHook_7);
-				else
-				{
-					// TODO: 删通话记录
-					%init(SNGeneralHook_8);
-				}
+				else %init(SNGeneralHook_8);
 			}
 
 			LoadAllLists(nil, nil, nil, nil, nil);

@@ -410,7 +410,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface IMAVChatParticipantProxy : NSObject // 8
-@property (readonly, retain, nonatomic) IMAVChat *avChat;
+@property (readonly, retain, nonatomic) IMAVChatProxy *avChat;
 @end
 
 // CoreTelephony
@@ -496,7 +496,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface TUFaceTimeCall : TUCall // 8
-@property(retain, nonatomic) IMAVChat *chat;
+@property (retain, nonatomic) IMAVChatProxy *chat;
 @end
 
 @interface TUFaceTimeVideoCall : TUFaceTimeCall // 8
@@ -542,4 +542,9 @@ typedef struct __CTCall* CTCallRef;
 
 @interface CHManager : NSObject
 @property (retain, nonatomic) NSArray *recentCalls;
+- (void)deleteCall:(CHRecentCall *)arg1;
+@end
+
+@interface TUCallServicesRecentsController : NSObject
+@property (retain, nonatomic) CHManager *recentsManager;
 @end

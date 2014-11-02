@@ -1,13 +1,16 @@
 {
 	Filter = {
+		Executables = (
+			callservicesd,
+			imagent,
+			identityservicesd,
+		);
 		Bundles = (
-			"com.apple.identityservicesd",
 			"com.apple.Preferences",
 			"com.apple.facetime",
 			"com.apple.springboard",
 			"com.apple.mobilephone",
 			"com.apple.MobileSMS",
-			"com.apple.imagent",
 		);
 	};
 }
