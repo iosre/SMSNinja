@@ -278,6 +278,9 @@ static NSString *chosenKeyword;
 	{
 		IMChat *chat = [[%c(IMChatRegistry) sharedInstance] existingChatWithChatIdentifier:(NSString *)userInfo[@"chatID"]];
 		[chat leave];
+		CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
+		CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+		[conversationList deleteConversation:conversation];
 	}
 	else if ([name isEqualToString:@"RemoveIconFromSwitcher"])
 	{
