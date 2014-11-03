@@ -252,7 +252,7 @@ static int amount;
 			{
 				for (NSIndexPath *chosenRowIndexPath in bulkSet)
 				{
-					NSString *sql = [NSString stringWithFormat:@"delete from blockedcall where number = '%@' and name = '%@' and time = '%@' and content = '%@' and id = '%@'", numberArray[chosenRowIndexPath.row], [nameArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], timeArray[chosenRowIndexPath.row], [contentArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], idArray[chosenRowIndexPath.row]];
+					NSString *sql = [NSString stringWithFormat:@"delete from privatecall where number = '%@' and name = '%@' and time = '%@' and content = '%@' and id = '%@'", numberArray[chosenRowIndexPath.row], [nameArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], timeArray[chosenRowIndexPath.row], [contentArray[chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], idArray[chosenRowIndexPath.row]];
 					int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 					if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 				}

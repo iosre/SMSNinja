@@ -57,7 +57,7 @@ static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef 
 {
 	if ([[NSFileManager defaultManager] fileExistsAtPath:SETTINGS] && [[NSDictionary dictionaryWithContentsOfFile:SETTINGS][@"startPassword"] length] != 0)
 	{
-		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Let me in!", @"Let me in!") otherButtonTitles:NSLocalizedString(@"Never mind", @"Never mind") , nil];
+		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Welcome", @"Welcome") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Let me in!", @"Let me in!") otherButtonTitles:NSLocalizedString(@"Never mind", @"Never mind") , nil];
 		[alertView setAlertViewStyle:UIAlertViewStyleSecureTextInput];
 		[alertView show];
 		[alertView release];

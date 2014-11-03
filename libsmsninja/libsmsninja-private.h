@@ -479,8 +479,13 @@ typedef struct __CTCall* CTCallRef;
 - (void)_removeApplicationFromRecents:(SBApplication *)application;
 @end
 
-@interface SBAppSwitcherModel : NSObject // 7
+@interface SBDisplayItem : NSObject // 8
++ (instancetype)displayItemWithType:(NSString *)arg1 displayIdentifier:(NSString *)arg2;
+@end
+
+@interface SBAppSwitcherModel : NSObject // 7_8
 - (void)remove:(NSString *)bundleIdentifier;
+- (void)removeDisplayItem:(SBDisplayItem *)item;
 @end
 
 // Others

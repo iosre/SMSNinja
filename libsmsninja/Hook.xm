@@ -95,6 +95,9 @@ static NSString *chosenKeyword;
 	{
 		IMChat *chat = [[%c(IMChatRegistry) sharedInstance] existingChatWithChatIdentifier:(NSString *)userInfo[@"chatID"]];
 		[chat leave];
+		CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
+		CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+		[conversationList deleteConversation:conversation];
 	}
 	return nil;
 }
@@ -279,7 +282,8 @@ static NSString *chosenKeyword;
 	else if ([name isEqualToString:@"RemoveIconFromSwitcher"])
 	{
 		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) [[%c(SBAppSwitcherController) sharedInstance] _removeApplicationFromRecents:[[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.naken.smsninja"]];
-		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0) [[%c(SBAppSwitcherModel) sharedInstance] remove:@"com.naken.smsninja"];
+		else if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_0) [[%c(SBAppSwitcherModel) sharedInstance] remove:@"com.naken.smsninja"];
+		else [[%c(SBAppSwitcherModel) sharedInstance] removeDisplayItem:[%c(SBDisplayItem) displayItemWithType:@"App" displayIdentifier:@"com.naken.smsninja"]];
 	}
 	return nil;
 
@@ -390,9 +394,12 @@ static NSString *chosenKeyword;
 			}
 			else
 			{
+				/*
 				IMMessage *imMessage = [%c(IMMessage) messageFromIMMessageItem:message sender:(NSString *)[message sender] subject:[message subject]];
 				NSArray *chatItems = [chat chatItemsForMessages:@[imMessage]];
 				[chat deleteChatItems:chatItems];
+				*/
+				[chat deleteChatItems:@[message]];
 			}
 
 			if (![chat lastMessage] || !success)
@@ -453,9 +460,12 @@ static NSString *chosenKeyword;
 			}
 			else
 			{
+				/*
 				IMMessage *imMessage = [%c(IMMessage) messageFromIMMessageItem:message sender:(NSString *)[message sender] subject:[message subject]];
 				NSArray *chatItems = [chat chatItemsForMessages:@[imMessage]];
 				[chat deleteChatItems:chatItems];
+				*/
+				[chat deleteChatItems:@[message]];
 			}
 
 			if (![chat lastMessage] || !success)

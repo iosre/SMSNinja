@@ -16,13 +16,14 @@ static SNTelephonyManager *sharedManager;
 
 - (int)iMessageAvailabilityOfAddress:(NSString *)address
 {
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) return [[objc_getClass("CKMadridService") sharedMadridService] availabilityForAddress:address checkWithServer:YES];
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) return [[objc_getClass("CKPreferredServiceManager") sharedPreferredServiceManager] availabilityForAddress:address onService:[objc_getClass("IMService") iMessageService] checkWithServer:YES];
+	NSString *lowercaseAddress = [address lowercaseString];
+	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) return [[objc_getClass("CKMadridService") sharedMadridService] availabilityForAddress:lowercaseAddress checkWithServer:YES];
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) return [[objc_getClass("CKPreferredServiceManager") sharedPreferredServiceManager] availabilityForAddress:lowercaseAddress onService:[objc_getClass("IMService") iMessageService] checkWithServer:YES];
 	else
 	{
 		NSString *formattedAddress = @"";
-		if ([address rangeOfString:@"@"].location == NSNotFound) formattedAddress = [@"tel:" stringByAppendingString:address];
-		else formattedAddress = [@"mailto:" stringByAppendingString:address];
+		if ([lowercaseAddress rangeOfString:@"@"].location == NSNotFound) formattedAddress = [@"tel:" stringByAppendingString:lowercaseAddress];
+		else formattedAddress = [@"mailto:" stringByAppendingString:lowercaseAddress];
 		return [[objc_getClass("IDSIDQueryController") sharedInstance] _refreshIDStatusForDestination:formattedAddress service:@"com.apple.madrid" listenerID:@"__kIMChatServiceForSendingIDSQueryControllerListenerID"];
 	}
 	return 0;
@@ -203,8 +204,16 @@ static SNTelephonyManager *sharedManager;
 {
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
 	{
-		if ([self iMessageAvailabilityOfAddress:address] == 1) [self sendIMessageWithText:text address:address];
-		else [self sendSMSWithText:text address:address];
+		if ([self iMessageAvailabilityOfAddress:address] == 1)
+		{
+			[self sendIMessageWithText:text address:address];
+			NSLog(@"SMSNinja: Send %@ to %@ as iMessage.", text, address);
+		}
+		else
+		{
+			[self sendSMSWithText:text address:address];
+			NSLog(@"SMSNinja: Send %@ to %@ as SMS.", text, address);
+		}
 	}
 	else
 	{
