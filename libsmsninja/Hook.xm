@@ -226,7 +226,7 @@ static NSString *chosenKeyword;
 	else if ([name isEqualToString:@"CheckAddressBook"])
 	{
 		NSString *address = userInfo[@"address"];
-		NSNumber *result = [NSNumber numberWithBool:[address isInAddressBook]];
+		NSNumber *result = @[address isInAddressBook];
 		return @{@"result" : result};
 	}
 	else if ([name isEqualToString:@"GetAddressBookName"])
@@ -816,7 +816,7 @@ static NSString *chosenKeyword;
 }
 %end
 
-%group SNBulletinHook_5_6
+%group SNBulletinHook_5_6_7
 
 %hook MPBBDataProvider
 - (void)_handleRecentCallNotification:(NSString *)notification userInfo:(NSDictionary *)info
@@ -855,48 +855,7 @@ static NSString *chosenKeyword;
 }
 %end
 
-%end // end of SNBulletinHook_5_6
-
-%group SNBulletinHook_7
-
-%hook MPBBDataProvider
-- (void)_handleRecentCallNotification:(NSString *)notification userInfo:(NSDictionary *)info
-{
-	if ([notification isEqualToString:@"kCTCallHistoryRecordAddNotification"])
-	{
-		CTCallRef call = (CTCallRef)info[@"kCTCall"];
-		if (!CTCallIsOutgoing(call))
-		{
-			NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
-			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-			[address release];
-
-			NSLog(@"SMSNinja: MPBBDataProvider | _handleRecentCallNotification:userInfo: | address = \"%@\"", tempAddress);
-
-			NSUInteger index = NSNotFound;
-			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
-			{
-				if ([privatePhoneArray[index] intValue] != 0) return;
-			}
-			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
-			{
-				if ([blackPhoneArray[index] intValue] != 0) return;
-			}
-			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-			{
-				if ([blackPhoneArray[index] intValue] != 0) return;
-			}
-			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
-			{
-			}
-			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
-		}
-	}
-	%orig;
-}
-%end
-
-%end // end of SNBulletinHook_7
+%end // end of SNBulletinHook_5_6_7
 
 %group SNBulletinHook_8
 /*
@@ -1163,7 +1122,7 @@ static NSString *chosenKeyword;
 {
 	%orig;
 	NSString *bundleIdentifier = [bundle bundleIdentifier];
-	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_5_6);
+	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_5_6_7);
 }
 %end
 
@@ -1416,12 +1375,12 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 {
 	%orig;
 	NSString *bundleIdentifier = [bundle bundleIdentifier];
-	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_7);
+	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_5_6_7);
 }
 %end
 
 %hook IMDaemonController // grant SpringBoard permission to send messages :P
-- (BOOL)addListenerID:(id)arg1 capabilities:(unsigned)arg2
+- (BOOL)addListenerID:(NSString *)arg1 capabilities:(unsigned)arg2
 {
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [arg1 isEqualToString:@"com.apple.MobileSMS"]) return %orig(arg1, 16647);
 	return %orig;
@@ -1603,22 +1562,22 @@ static int lastRecentsCount;
 	{
 		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0)
 		{
-			%init;
-			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) %init(SNGeneralHook_5);
-			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) %init(SNGeneralHook_5_6);
-			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
-			{
-				MSHookFunction(&CTTelephonyCenterAddObserver, &new_CTTelephonyCenterAddObserver, &old_CTTelephonyCenterAddObserver);
-				%init(SNGeneralHook_5_6_7);
-			}
-			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
-			{
-				MSHookFunction(&CMFBlockListIsItemBlocked, &new_CMFBlockListIsItemBlocked, &old_CMFBlockListIsItemBlocked);
-				%init(SNGeneralHook_7_8);
-				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNGeneralHook_7);
-				else
+			if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"callservicesd"]) %init(SNCallServicesdHook);
+			else
+			{			
+				%init;
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) %init(SNGeneralHook_5);
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) %init(SNGeneralHook_5_6);
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
 				{
-					if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"callservicesd"]) %init(SNCallServicesdHook);
+					MSHookFunction(&CTTelephonyCenterAddObserver, &new_CTTelephonyCenterAddObserver, &old_CTTelephonyCenterAddObserver);
+					%init(SNGeneralHook_5_6_7);
+				}
+				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
+				{
+					MSHookFunction(&CMFBlockListIsItemBlocked, &new_CMFBlockListIsItemBlocked, &old_CMFBlockListIsItemBlocked);
+					%init(SNGeneralHook_7_8);
+					if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNGeneralHook_7);
 					else %init(SNGeneralHook_8);
 				}
 			}
