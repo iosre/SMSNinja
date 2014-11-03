@@ -226,7 +226,7 @@ static NSString *chosenKeyword;
 	else if ([name isEqualToString:@"CheckAddressBook"])
 	{
 		NSString *address = userInfo[@"address"];
-		NSNumber *result = @[address isInAddressBook];
+		NSNumber *result = [NSNumber numberWithBool:[address isInAddressBook]];
 		return @{@"result" : result};
 	}
 	else if ([name isEqualToString:@"GetAddressBookName"])
@@ -589,19 +589,27 @@ static NSString *chosenKeyword;
 	switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
 	{
 		case 0:
-			%orig;
-			break;
+			{
+				%orig;
+				break;
+			}
 		case 1:
-			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) [[self conferenceController] rejectFaceTimeInvitationFrom:inviter conferenceID:conferenceID];
-			else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) [[self conferenceController] declineFaceTimeInvitationForConferenceID:conferenceID fromHandle:handle];
-			else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0) [chatProxy declineInvitation];
-			break;
+			{
+				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) [[self conferenceController] rejectFaceTimeInvitationFrom:inviter conferenceID:conferenceID];
+				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) [[self conferenceController] declineFaceTimeInvitationForConferenceID:conferenceID fromHandle:handle];
+				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0) [chatProxy declineInvitation];
+				break;
+			}
 		case 2:
-			[self stopAudioPlayer];
-			break;
+			{
+				[self stopAudioPlayer];
+				break;
+			}
 		case 3:
-			%orig;
-			break;
+			{
+				%orig;
+				break;
+			}
 	}
 }
 %end
@@ -631,20 +639,26 @@ static NSString *chosenKeyword;
 		switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
 		{
 			case 0:
-				%orig;
-				break;
+				{
+					%orig;
+					break;
+				}
 			case 1:
-				[self stopAudioPlayer];
-				[videoCall setMuted:YES];				
-				[videoCall disconnect];
-				break;
+				{
+					// TODO: 不要播放来电音
+					[videoCall disconnect];
+					break;
+				}
 			case 2:
-				[self stopAudioPlayer];
-				[videoCall setMuted:YES];				
-				break;
+				{
+					// TODO: 不要播放来电音
+					break;
+				}
 			case 3:
-				%orig;
-				break;
+				{
+					%orig;
+					break;
+				}
 		}
 	}
 	else %orig;
@@ -673,28 +687,34 @@ static NSString *chosenKeyword;
 		switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
 		{
 			case 0:
-				%orig;
-				break;
+				{
+					%orig;
+					break;
+				}
 			case 1:
-				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %orig(nil);
-				else
 				{
-					[self stopAudioPlayer];
-					[arg1 setMuted:YES];
+					if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %orig(nil);
+					else
+					{
+						// TODO: 不要播放来电音
+					}
+					CTCallDisconnect(call);
+					break;
 				}
-				CTCallDisconnect(call);
-				break;
 			case 2:
-				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %orig(nil);
-				else
 				{
-					[self stopAudioPlayer];
-					[arg1 setMuted:YES];
+					if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %orig(nil);
+					else
+					{
+						// TODO: 不要播放来电音
+					}
+					break;
 				}
-				break;
 			case 3:
-				%orig;
-				break;
+				{
+					%orig;
+					break;
+				}
 		}
 	}
 	else %orig;
@@ -816,7 +836,7 @@ static NSString *chosenKeyword;
 }
 %end
 
-%group SNBulletinHook_5_6_7
+%group SNBulletinHook_5_6
 
 %hook MPBBDataProvider
 - (void)_handleRecentCallNotification:(NSString *)notification userInfo:(NSDictionary *)info
@@ -855,7 +875,48 @@ static NSString *chosenKeyword;
 }
 %end
 
-%end // end of SNBulletinHook_5_6_7
+%end // end of SNBulletinHook_5_6
+
+%group SNBulletinHook_7
+
+%hook MPBBDataProvider
+- (void)_handleRecentCallNotification:(NSString *)notification userInfo:(NSDictionary *)info
+{
+	if ([notification isEqualToString:@"kCTCallHistoryRecordAddNotification"])
+	{
+		CTCallRef call = (CTCallRef)info[@"kCTCall"];
+		if (!CTCallIsOutgoing(call))
+		{
+			NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
+			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+			[address release];
+
+			NSLog(@"SMSNinja: MPBBDataProvider | _handleRecentCallNotification:userInfo: | address = \"%@\"", tempAddress);
+
+			NSUInteger index = NSNotFound;
+			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+			{
+				if ([privatePhoneArray[index] intValue] != 0) return;
+			}
+			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			{
+				if ([blackPhoneArray[index] intValue] != 0) return;
+			}
+			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+			{
+				if ([blackPhoneArray[index] intValue] != 0) return;
+			}
+			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
+			{
+			}
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
+		}
+	}
+	%orig;
+}
+%end
+
+%end // end of SNBulletinHook_7
 
 %group SNBulletinHook_8
 /*
@@ -1122,7 +1183,7 @@ static NSString *chosenKeyword;
 {
 	%orig;
 	NSString *bundleIdentifier = [bundle bundleIdentifier];
-	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_5_6_7);
+	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_5_6);
 }
 %end
 
@@ -1375,7 +1436,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 {
 	%orig;
 	NSString *bundleIdentifier = [bundle bundleIdentifier];
-	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_5_6_7);
+	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_7);
 }
 %end
 
@@ -1505,52 +1566,57 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 
 %group SNCallServicesdHook
 
-static int lastRecentsCount;
+// static int lastRecentsCount;
 
 %hook TUCallServicesRecentsController
 - (void)_callHistoryChanged:(NSConcreteNotification *)arg1 // delete call history in callservicesd
 {
-	// TODO: 会导致callservicesd崩溃，貌似挂断后就会出现。继续测试！
+	// TODO: 会导致callservicesd崩溃，貌似挂断后就会出现。继续测试！换函数
 	%orig;
+	NSLog(@"SMSNinjaDebug: %@", arg1);
+	/*
+	   CHManager *recentsManager = [self recentsManager];
+	   if ([recentsManager respondsToSelector:@selector(recentCalls)])
+	   {
+	   NSArray *recentCalls = recentsManager.recentCalls;
+	   if ([recentCalls count] > 0 && [recentCalls count] > lastRecentsCount)
+	   {
+	   lastRecentsCount = [recentCalls count];
+	   CHRecentCall *recentCall = recentCalls[0];
+	   NSString *address = recentCall.callerId;
+	   NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+	   [address release];
 
-	CHManager *recentsManager = [self recentsManager];
-	NSArray *recentCalls = recentsManager.recentCalls;
-	if ([recentCalls count] > 0 && [recentCalls count] > lastRecentsCount)
-	{
-		lastRecentsCount = [recentCalls count];
-		CHRecentCall *recentCall = recentCalls[0];
-		NSString *address = recentCall.callerId;
-		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-		[address release];
+	   NSLog(@"SMSNinja: TUCallServicesRecentsController | _callHistoryChanged: | address = \"%@\"", tempAddress);
 
-		NSLog(@"SMSNinja: TUCallServicesRecentsController | _callHistoryChanged: | address = \"%@\"", tempAddress);
+	   if ([settings[@"appIsOn"] boolValue] && recentCall.callType == 1)
+	   {
+	   BOOL isOutgoing = recentCall.read;
+	   BOOL shouldClearSpam = NO;
+	   NSUInteger index = NSNotFound;
+	   if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+	   {
+	   if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
+	   }
+	   else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+	   {
+	   if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+	   }
+	   else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+	   {
+	   if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+	   }
+	   else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
+	   {
+	   }
+	   else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
 
-		if ([settings[@"appIsOn"] boolValue] && recentCall.callType == 1)
-		{
-			BOOL isOutgoing = recentCall.read;
-			BOOL shouldClearSpam = NO;
-			NSUInteger index = NSNotFound;
-			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
-			{
-				if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
-			}
-			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
-			{
-				if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-			}
-			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-			{
-				if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-			}
-			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
-			{
-			}
-			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-
-			if (shouldClearSpam) [recentsManager deleteCall:recentCall];
-		}
-	}
-	else lastRecentsCount = [recentCalls count];
+	   if (shouldClearSpam) [recentsManager deleteCall:recentCall];
+	   }
+	   }
+	   else lastRecentsCount = [recentCalls count];
+	   }
+	 */
 }
 %end
 

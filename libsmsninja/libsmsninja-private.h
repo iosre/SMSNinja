@@ -499,6 +499,7 @@ typedef struct __CTCall* CTCallRef;
 
 // Others
 @interface TUCall : NSObject
+@property (nonatomic) int transitionStatus;
 - (void)disconnect;
 - (BOOL)setMuted:(BOOL)arg1;
 @end
@@ -565,4 +566,8 @@ typedef struct __CTCall* CTCallRef;
 
 @interface TUCallServicesRecentsController : NSObject
 @property (retain, nonatomic) CHManager *recentsManager;
+@end
+
+@interface TUAudioPlayer : NSObject
+- (void)stop;
 @end
