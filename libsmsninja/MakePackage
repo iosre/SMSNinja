@@ -3,4 +3,6 @@ cd `dirname $0`
 make clean
 make package
 rm *.deb
+mv ./_/Library/MobileSubstrate/DynamicLibraries/* ../layout/Library/MobileSubstrate/DynamicLibraries/
+../MakePackageInstall
 exit 0

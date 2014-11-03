@@ -394,12 +394,9 @@ static NSString *chosenKeyword;
 			}
 			else
 			{
-				/*
 				IMMessage *imMessage = [%c(IMMessage) messageFromIMMessageItem:message sender:(NSString *)[message sender] subject:[message subject]];
 				NSArray *chatItems = [chat chatItemsForMessages:@[imMessage]];
 				[chat deleteChatItems:chatItems];
-				*/
-				[chat deleteChatItems:@[message]];
 			}
 
 			if (![chat lastMessage] || !success)
@@ -460,12 +457,9 @@ static NSString *chosenKeyword;
 			}
 			else
 			{
-				/*
 				IMMessage *imMessage = [%c(IMMessage) messageFromIMMessageItem:message sender:(NSString *)[message sender] subject:[message subject]];
 				NSArray *chatItems = [chat chatItemsForMessages:@[imMessage]];
 				[chat deleteChatItems:chatItems];
-				*/
-				[chat deleteChatItems:@[message]];
 			}
 
 			if (![chat lastMessage] || !success)
