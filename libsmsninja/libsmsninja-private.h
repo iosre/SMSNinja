@@ -159,8 +159,11 @@ typedef struct __CTCall* CTCallRef;
 @interface IMChat : NSObject
 @property (readonly, nonatomic) NSArray *participants;
 @property (readonly, assign, nonatomic) IMMessage* lastMessage;
+@property (readonly, nonatomic) unsigned int messageCount;
+@property (readonly, nonatomic) BOOL hasMoreMessagesToLoad;
 - (IMChatItem *)chatItemForMessage:(IMMessage *)message;
 - (NSArray *)chatItemsForMessages:(NSArray *)arg1; // 8
+- (NSArray *)chatItemsForItems:(NSArray *)arg1; // 8
 - (void)leave;
 - (BOOL)deleteChatItem:(IMChatItem *)item;
 - (void)deleteChatItems:(NSArray *)arg1; // 8
@@ -401,6 +404,11 @@ typedef struct __CTCall* CTCallRef;
 
 @interface MPConferenceManager : NSObject
 @property (readonly, assign) CNFConferenceController* conferenceController;
+- (void)stopAudioPlayer; // 5_6_7
+@end
+
+@interface MPTelephonyManager : NSObject
+- (void)stopAudioPlayer; // 8
 @end
 
 @interface IMAVChatProxy : NSObject // 7_8
@@ -491,6 +499,8 @@ typedef struct __CTCall* CTCallRef;
 
 // Others
 @interface TUCall : NSObject
+- (void)disconnect;
+- (BOOL)setMuted:(BOOL)arg1;
 @end
 
 @interface TUTelephonyCall : TUCall
@@ -541,6 +551,7 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface CHRecentCall : NSObject
+@property unsigned int callType; // 1 for call, 8 for facetime
 @property (copy) NSString *callerId;
 @property (nonatomic) BOOL read;
 - (NSString *)callerNameForDisplay;
@@ -549,6 +560,7 @@ typedef struct __CTCall* CTCallRef;
 @interface CHManager : NSObject
 @property (retain, nonatomic) NSArray *recentCalls;
 - (void)deleteCall:(CHRecentCall *)arg1;
+- (void)deleteCallAtIndex:(unsigned int)arg1;
 @end
 
 @interface TUCallServicesRecentsController : NSObject

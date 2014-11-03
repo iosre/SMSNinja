@@ -129,7 +129,7 @@
 				[formatter setDateFormat:@"yyyy-MM-dd HH:mm"];
 				NSString *dateString = [formatter stringFromDate:date];
 				[formatter release];
-				NSLog(@"SMSNinjaDebug: date = %@, participants = %@, address = %@, text = %@", dateString, [[conversation chat] participants], [[imMessage subject] ID], [[imMessage text] string]);
+				NSLog(@"SMSNinja: date = \"%@\", participants = \"%@\", address = \"%@\", text = \"%@\"", dateString, [[conversation chat] participants], [[imMessage subject] ID], [[imMessage text] string]);
 			}
 		}
 	}
@@ -165,7 +165,7 @@
 	NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 	[address release];
 
-	NSLog(@"SMSNinja: PARecentsManager | callHistoryRecordAddedNotification: | address = %@", tempAddress);
+	NSLog(@"SMSNinja: PARecentsManager | callHistoryRecordAddedNotification: | address = \"%@\"", tempAddress);
 
 	if ([[settings objectForKey:@"appIsOn"] boolValue])
 	{
@@ -198,7 +198,7 @@
 	NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 	[address release];
 
-	NSLog(@"SMSNinja: PARecentsManager | callHistoryRecordAddedNotification: | address = %@", tempAddress);
+	NSLog(@"SMSNinja: PARecentsManager | callHistoryRecordAddedNotification: | address = \"%@\"", tempAddress);
 
 	if ([[settings objectForKey:@"appIsOn"] boolValue])
 	{
@@ -254,7 +254,7 @@
 	}
 	text = [text length] != 0 ? [text substringToIndex:([text length] - 1)] : @" ";
 
-	NSLog(@"SMSNinja: SMSServiceSession | _processReceivedMessage: | address = %@, text = %@, with %lu attachments", address, text, (unsigned long)[pictureArray count]);
+	NSLog(@"SMSNinja: SMSServiceSession | _processReceivedMessage: | address = \"%@\", text = \"%@\", with %lu attachments", address, text, (unsigned long)[pictureArray count]);
 
 	if (ActionOfTextFunctionWithInfo(addressArray, text, pictureArray, NO) == 0) %orig;
 }

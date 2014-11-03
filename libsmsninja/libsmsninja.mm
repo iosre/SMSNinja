@@ -99,11 +99,11 @@ void LoadBlacklist(CFNotificationCenterRef center, void *observer, CFStringRef n
 					}
 					sqlite3_finalize(statement);
 				}
-				else NSLog(@"SMSNinja: Failed to prepare %@, error %d", sql, prepareResult);
+				else NSLog(@"SMSNinja: Failed to prepare \"%@\", error %d", sql, prepareResult);
 
 				sqlite3_close(database);
 			}
-			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+			else NSLog(@"SMSNinja: Failed to open \"%@\", error %d", DATABASE, openResult);
 		}
 	});
 }
@@ -195,11 +195,11 @@ void LoadWhitelist(CFNotificationCenterRef center, void *observer, CFStringRef n
 					}
 					sqlite3_finalize(statement);
 				}
-				else NSLog(@"SMSNinja: Failed to prepare %@, error %d", sql, prepareResult);
+				else NSLog(@"SMSNinja: Failed to prepare \"%@\", error %d", sql, prepareResult);
 
 				sqlite3_close(database);
 			}
-			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+			else NSLog(@"SMSNinja: Failed to open \"%@\", error %d", DATABASE, openResult);
 		}
 	});
 }
@@ -292,11 +292,11 @@ void LoadPrivatelist(CFNotificationCenterRef center, void *observer, CFStringRef
 					}
 					sqlite3_finalize(statement);
 				}
-				else NSLog(@"SMSNinja: Failed to prepare %@, error %d", sql, prepareResult);
+				else NSLog(@"SMSNinja: Failed to prepare \"%@\", error %d", sql, prepareResult);
 
 				sqlite3_close(database);
 			}
-			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+			else NSLog(@"SMSNinja: Failed to open \"%@\", error %d", DATABASE, openResult);
 		}
 	});
 }
@@ -458,7 +458,7 @@ void UpdateBadge(void)
 					}
 					sqlite3_finalize(statement);
 				}
-				else NSLog(@"SMSNinja: Failed to prepare %@, error %d", sql, prepareResult);
+				else NSLog(@"SMSNinja: Failed to prepare \"%@\", error %d", sql, prepareResult);
 
 				sql = @"select count(*) from blockedcall where read = '0'";
 				prepareResult = sqlite3_prepare_v2(database, [sql UTF8String], -1, &statement, NULL);
@@ -471,7 +471,7 @@ void UpdateBadge(void)
 					}
 					sqlite3_finalize(statement);
 				}
-				else NSLog(@"SMSNinja: Failed to prepare %@, error %d", sql, prepareResult);
+				else NSLog(@"SMSNinja: Failed to prepare \"%@\", error %d", sql, prepareResult);
 
 				SBIconModel *iconModel = nil;
 				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) iconModel = [objc_getClass("SBIconModel") sharedInstance];
@@ -560,7 +560,7 @@ static void PersistentSave(const char *actionType, const char *infoType, NSStrin
 				}
 				sqlite3_finalize(statement);
 			}
-			else NSLog(@"SMSNinja: Failed to prepare %@, error %d", sql, prepareResult);
+			else NSLog(@"SMSNinja: Failed to prepare \"%@\", error %d", sql, prepareResult);
 
 			if ([name length] == 0) name = [address nameInAddressBook];
 			else if ([name hasSuffix:@"*"])
@@ -572,7 +572,7 @@ static void PersistentSave(const char *actionType, const char *infoType, NSStrin
 
 			sql = [NSString stringWithFormat:@"insert into %s%s (id, content, name, number, time, pictures, read) values ('%@', '%@', '%@', '%@', '%@', '%lu', '0')", actionType, infoType, idString, [text stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [name length] == 0 ? [address stringByReplacingOccurrencesOfString:@"'" withString:@"''"] : [name stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [address stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [CurrentTime() stringByAppendingString:isFromMe ? @" ↗" : @" ↙"], (unsigned long)[pictureArray count]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
-			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
+			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec \"%@\", error %d", sql, execResult);
 
 			// save attachments
 			for (UIImage *image in pictureArray)
@@ -591,7 +591,7 @@ static void PersistentSave(const char *actionType, const char *infoType, NSStrin
 		}
 		UpdateBadge();
 	}
-	else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+	else NSLog(@"SMSNinja: Failed to open \"%@\", error %d", DATABASE, openResult);
 }
 
 NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) // 0 for off, 1 for disconnect, 2 for ignore, 3 for let go
@@ -755,21 +755,19 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		NSUInteger numberOfMatches = [regex numberOfMatchesInString:self options:0 range:NSMakeRange(0, [self length])];
 		if (numberOfMatches > 0)
 		{
-			NSLog(@"SMSNinja: %@ matches regex %@ (%@)", self, pattern, stringInList);
+			NSLog(@"SMSNinja: \"%@\" matches regex \"%@\" (\"%@\")", self, pattern, stringInList);
 			return YES;
 		}
 		else return NO;
 	}
-	else if (error) NSLog(@"SMSNinja: Failed to generate regex from pattern %@, error %@", pattern, [error localizedDescription]);
+	else if (error) NSLog(@"SMSNinja: Failed to generate regex from pattern \"%@\", error \"%@\"", pattern, [error localizedDescription]);
 	return NO;
 }
 
 - (NSString *)stringByRemovingCharacters
 {
 	NSString *text = self;
-	for (NSString *character in @[@" ", @"~", @"`", @"!", @"@", @"#", @"$", @"%", @"^", @"&", @"*", @"(", @")", @"-", @"=", @"_", @"+", @"{", @"}", @"[", @"]", @"|", @"\\", @":", @";", @"\"", @"'", @"<", @">", @",", @".", @"?", @"/", @"·", @"！", @"￥", @"⋯⋯", @"（", @"）", @"——", @"【", @"】", @"、", @"：", @"；", @"“", @"”", @"‘", @"’", @"《", @"》", @"，", @"。", @"？"])
-		text = [text stringByReplacingOccurrencesOfString:character withString:@""];
-	NSLog(@"SMSNinja: %@ becomes %@ after unpack", self, text);
+	for (NSString *character in @[@" ", @"~", @"`", @"!", @"@", @"#", @"$", @"%", @"^", @"&", @"*", @"(", @")", @"-", @"=", @"_", @"+", @"{", @"}", @"[", @"]", @"|", @"\\", @":", @";", @"\"", @"'", @"<", @">", @",", @".", @"?", @"/", @"·", @"！", @"￥", @"⋯⋯", @"（", @"）", @"——", @"【", @"】", @"、", @"：", @"；", @"“", @"”", @"‘", @"’", @"《", @"》", @"，", @"。", @"？"]) text = [text stringByReplacingOccurrencesOfString:character withString:@""];
 	return text;
 }
 
@@ -783,7 +781,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [privateKeywordArray indexOfObject:address];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:privateTypeArray[index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
-				NSLog(@"SMSNinja: %@ as address is in privatelist", self);
+				NSLog(@"SMSNinja: \"%@\" as address is in privatelist", self);
 				return index;
 			}
 		}			
@@ -795,12 +793,12 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [privateKeywordArray indexOfObject:keyword];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:privateTypeArray[index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
 			{
-				NSLog(@"SMSNinja: %@ contains keyword %@ in privatelist", self, keyword);
+				NSLog(@"SMSNinja: \"%@\" contains keyword \"%@\" in privatelist", self, keyword);
 				return index;
 			}
 		}
 	}
-	NSLog(@"SMSNinja: %@ is NOT in privatelist", self);
+	NSLog(@"SMSNinja: \"%@\" is NOT in privatelist", self);
 	return NSNotFound;
 }
 
@@ -814,7 +812,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [blackKeywordArray indexOfObject:address];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:blackTypeArray[index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
-				NSLog(@"SMSNinja: %@ as address is in blacklist", self);
+				NSLog(@"SMSNinja: \"%@\" as address is in blacklist", self);
 				return index;
 			}
 		}	
@@ -826,7 +824,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [blackKeywordArray indexOfObject:keyword];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:blackTypeArray[index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
 			{
-				NSLog(@"SMSNinja: %@ contains keyword %@ in blacklist", self, keyword);
+				NSLog(@"SMSNinja: \"%@\" contains keyword \"%@\" in blacklist", self, keyword);
 				return index;
 			}
 		}
@@ -844,13 +842,13 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 
 				if( (([endTime intValue] > [startTime intValue] && [currentTime intValue] > [startTime intValue] && [currentTime intValue] < [endTime intValue]) || ([endTime intValue] < [startTime intValue] && ([currentTime intValue] > [startTime intValue] || [currentTime intValue] < [endTime intValue])) || ([currentTime intValue] == [startTime intValue] || [currentTime intValue] == [endTime intValue])) )
 				{
-					NSLog(@"SMSNinja: %@ as time is in blacklist", self);
+					NSLog(@"SMSNinja: \"%@\" as time is in blacklist", self);
 					return index;
 				}
 			}
 		}
 	}
-	NSLog(@"SMSNinja: %@ is NOT in blacklist", self);
+	NSLog(@"SMSNinja: \"%@\" is NOT in blacklist", self);
 	return NSNotFound;
 }
 
@@ -864,7 +862,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [whiteKeywordArray indexOfObject:address];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:whiteTypeArray[index]] && [[[self stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""] isRegularlyEqualTo:[[address stringByReplacingOccurrencesOfString:countryCode withString:@""] stringByReplacingOccurrencesOfString:@"+" withString:@""]])
 			{
-				NSLog(@"SMSNinja: %@ as address is in whitelist", self);
+				NSLog(@"SMSNinja: \"%@\" as address is in whitelist", self);
 				return index;
 			}
 		}	
@@ -876,12 +874,12 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			NSUInteger index = [whiteKeywordArray indexOfObject:keyword];
 			if ([[NSString stringWithFormat:@"%d", type] isEqualToString:whiteTypeArray[index]] && ([self rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound || [[self stringByRemovingCharacters] rangeOfString:keyword options:NSCaseInsensitiveSearch].location != NSNotFound))
 			{
-				NSLog(@"SMSNinja: %@ contains keyword %@ in whitelist", self, keyword);
+				NSLog(@"SMSNinja: \"%@\" contains keyword \"%@\" in whitelist", self, keyword);
 				return index;
 			}
 		}
 	}
-	NSLog(@"SMSNinja: %@ is NOT in whitelist", self);
+	NSLog(@"SMSNinja: \"%@\" is NOT in whitelist", self);
 	return NSNotFound;
 }
 
@@ -929,8 +927,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"CheckAddressBook" userInfo:@{@"address" : self}];
 		result = [(NSNumber *)[reply objectForKey:@"result"] boolValue];
 	}
-	if (result) NSLog(@"SMSNinja: %@ as address is in addressbook", self);
-	else NSLog(@"SMSNinja: %@ is NOT in addressbook", self);
+	if (result) NSLog(@"SMSNinja: \"%@\" as address is in addressbook", self);
+	else NSLog(@"SMSNinja: \"%@\" is NOT in addressbook", self);
 	return result;
 }
 
@@ -985,8 +983,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"GetAddressBookName" userInfo:@{@"address" : self}];
 		name = (NSString *)[reply objectForKey:@"result"];
 	}
-	if ([name length] != 0) NSLog(@"SMSNinja: Address %@ matches name %@ in addressbook", self, name);
-	else NSLog(@"SMSNinja: Address %@ doesn't match any name in addressbook", self);
+	if ([name length] != 0) NSLog(@"SMSNinja: Address \"%@\" matches name \"%@\" in addressbook", self, name);
+	else NSLog(@"SMSNinja: Address \"%@\" doesn't match any name in addressbook", self);
 	return name;
 }
 @end

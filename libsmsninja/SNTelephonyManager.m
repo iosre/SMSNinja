@@ -207,12 +207,12 @@ static SNTelephonyManager *sharedManager;
 		if ([self iMessageAvailabilityOfAddress:address] == 1)
 		{
 			[self sendIMessageWithText:text address:address];
-			NSLog(@"SMSNinja: Send %@ to %@ as iMessage.", text, address);
+			NSLog(@"SMSNinja: Send \"%@\" to \"%@\" as iMessage.", text, address);
 		}
 		else
 		{
 			[self sendSMSWithText:text address:address];
-			NSLog(@"SMSNinja: Send %@ to %@ as SMS.", text, address);
+			NSLog(@"SMSNinja: Send \"%@\" to \"%@\" as SMS.", text, address);
 		}
 	}
 	else

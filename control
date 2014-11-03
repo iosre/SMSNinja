@@ -1,11 +1,13 @@
 Package: com.naken.smsninja
 Name: SMSNinja
 Depends: mobilesubstrate, firmware (>= 5.0)
-Version: 1.5
+Version: 1.6
 Architecture: iphoneos-arm
 Description: SMSNinja 
 Maintainer: snakeninny
 Author: snakeninny
 Section: Applications
+Homepage: http://ying.lu/smsninja-faq/
+Depiction: http://ying.lu/smsninja-faq/
 Conflicts: com.sogou.sogouhaomatong, com.qq.qqcontactsbreak, iblacklist, net.qihoo.360safe
 Replaces: com.sogou.sogouhaomatong, com.qq.qqcontactsbreak, iblacklist, net.qihoo.360safe
