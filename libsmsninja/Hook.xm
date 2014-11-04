@@ -1579,6 +1579,96 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 
 %group SNCallServicesdHook
 
+%hook NSManagedObjectContext
+- (void)insertObject:(NSManagedObject *)object
+{
+	if ([object isKindOfClass:NSClassFromString(@"CallRecord")])
+	{
+		CallRecord *record = (CallRecord *)object;
+		NSString *address = record.address;
+		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+		[address release];
+
+		NSLog(@"SMSNinja: NSManagedObjectContext | insertObject: | address = \"%@\"", tempAddress);
+
+		if ([settings[@"appIsOn"] boolValue]) // when calltype is 1 i.e. telephony, everything is fine; when it's 8 i.e. facetime, callservicesd crashes
+		{
+			BOOL isOutgoing = [record.originated boolValue];
+			BOOL shouldClearSpam = NO;
+			NSUInteger index = NSNotFound;
+			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+			{
+				if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
+			}
+			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			{
+				if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+			}
+			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+			{
+				if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+			}
+			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
+			{
+			}
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+
+			if (!shouldClearSpam) %orig;
+		}
+		else %orig;
+	}
+	else %orig;
+}
+/*
+- (BOOL)save:(NSError **)error
+{
+	if ([self hasChanges])
+	{
+		NSSet *allInsertedRecords = self.insertedObjects;
+		if ([allInsertedRecords count] != 0)
+		{
+			// NSMutableArray *deadRecords = [NSMutableArray arrayWithCapacity:6];
+			for (CallRecord *record in allInsertedRecords)
+			{
+				NSString *address = record.address;
+				NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+				[address release];
+
+				NSLog(@"SMSNinja: NSManagedObjectContext | save: | address = \"%@\"", tempAddress);
+
+				if ([settings[@"appIsOn"] boolValue]) // when calltype is 1 i.e. telephony, everything is fine; when it's 8 i.e. facetime, callservicesd crashes
+				{
+					BOOL isOutgoing = [record.originated boolValue];
+					BOOL shouldClearSpam = NO;
+					NSUInteger index = NSNotFound;
+					if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+					{
+						if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
+					}
+					else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+					{
+						if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+					}
+					else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+					{
+						if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+					}
+					else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
+					{
+					}
+					else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+
+					if (shouldClearSpam) return NO; // [deadRecords addObject:record.unique_id];
+				}
+			}
+			// if ([deadRecords count] != 0) [[[%c(DBHandleManager) instance] dbHandle] deleteObjectsWithUniqueIds:deadRecords];
+		}
+	}
+	return %orig;
+}
+*/
+%end
+
 %hook CallHistoryDBHandle
 /*
 - (void)updateCallDBProperties

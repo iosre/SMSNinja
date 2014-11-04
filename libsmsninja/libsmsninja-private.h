@@ -1,4 +1,5 @@
 #import <CoreTelephony/CTCall.h>
+#import <CoreData/CoreData.h>
 
 // MobilePhone
 typedef struct __CTCall* CTCallRef;
@@ -587,7 +588,7 @@ typedef struct __CTCall* CTCallRef;
 - (void)stop;
 @end
 
-@interface CallRecord : NSObject
+@interface CallRecord : NSManagedObject
 @property (retain, nonatomic) NSString *address;
 @property (retain, nonatomic) NSNumber *read;
 @property (retain, nonatomic) NSString *unique_id;
