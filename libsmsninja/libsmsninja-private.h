@@ -594,8 +594,34 @@ typedef struct __CTCall* CTCallRef;
 
 @interface CallHistoryDBHandle : NSObject
 - (void)deleteObjectWithUniqueId:(NSString *)arg1;
+- (void)deleteObjectsWithUniqueIds:(NSArray *)arg1;
 @end
 
 @interface CallHistoryDBClientHandle : NSObject
 - (NSArray *)convertToCHRecentCalls_sync:(NSArray *)arg1;
+- (void)deleteObjectWithUniqueId:(NSString *)arg1;
+- (void)deleteObjectsWithUniqueIds:(NSArray *)arg1;
+@end
+
+@interface DBHandleManager : NSObject
++ (instancetype)instance;
+- (CallHistoryDBClientHandle *)dbHandle;
+@end
+
+@interface Transaction : NSObject
+- (instancetype)initWithType:(unsigned int)arg1 andRecord:(id)arg2;
+@end
+
+@interface TransactionManager : NSObject
++ (instancetype)instance;
+- (void)appendTransactions:(id)arg1;
+@end
+
+@interface SyncManager : NSObject
+{
+    TransactionManager *_transactionManager;
+}
+@property(readonly, nonatomic) DBHandleManager *handleManager; // @synthesize handleManager=_handleManager;
+- (NSData *)archiveCallObject:(id)arg1;
+- (void)deleteObjectWithUniqueId:(id)arg1;
 @end

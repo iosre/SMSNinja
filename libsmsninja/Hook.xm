@@ -1505,69 +1505,73 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 %hook TUCallCenter
 - (void)handleCallStatusChanged:(TUCall *)arg1 userInfo:(NSDictionary *)arg2 // incoming call & facetime inside SpringBoard
 {
-	NSMutableArray *addressArray = nil;
-	if ([arg1 isKindOfClass:NSClassFromString(@"TUFaceTimeCall")]) // facetime audio or video
+	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
 	{
-		IMAVChatProxy *avChatProxy = [(TUFaceTimeVideoCall *)arg1 chat];
-		if ([avChatProxy state] == 1)
+		NSMutableArray *addressArray = nil;
+		if ([arg1 isKindOfClass:NSClassFromString(@"TUFaceTimeCall")]) // facetime audio or video
 		{
-			addressArray = [NSMutableArray arrayWithCapacity:6];
-			for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
+			IMAVChatProxy *avChatProxy = [(TUFaceTimeVideoCall *)arg1 chat];
+			if ([avChatProxy state] == 1)
 			{
-				IMHandle *handle = [participantProxy.avChat otherIMHandle];
-				NSString *address = [handle normalizedID];
-				address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-				[addressArray addObject:address];
+				addressArray = [NSMutableArray arrayWithCapacity:6];
+				for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
+				{
+					IMHandle *handle = [participantProxy.avChat otherIMHandle];
+					NSString *address = [handle normalizedID];
+					address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+					[addressArray addObject:address];
+				}
 			}
-		}
-		else
-		{
-			%orig;
-			return;
-		}
-	}
-	else if ([arg1 isKindOfClass:NSClassFromString(@"TUTelephonyCall")])
-	{
-		CTCallRef call = [(TUTelephonyCall *)arg1 call];
-		if (CTCallGetStatus(call) == 4)
-		{
-			addressArray = [NSMutableArray arrayWithCapacity:6];
-			NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
-			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-			addressArray = (NSMutableArray *)@[tempAddress];	
-			[address release];
-		}
-		else
-		{
-			%orig;
-			return;
-		}
-	}
-
-	NSLog(@"SMSNinja: TUCallCenter | handleCallStatusChanged:userInfo: | addressArray = \"%@\"", addressArray);
-
-	switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
-	{
-		case 0:
+			else
 			{
 				%orig;
-				break;
+				return;
 			}
-		case 1:
+		}
+		else if ([arg1 isKindOfClass:NSClassFromString(@"TUTelephonyCall")])
+		{
+			CTCallRef call = [(TUTelephonyCall *)arg1 call];
+			if (CTCallGetStatus(call) == 4)
 			{
-				[self disconnectCall:arg1];
-				break;
+				addressArray = [NSMutableArray arrayWithCapacity:6];
+				NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
+				NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+				addressArray = (NSMutableArray *)@[tempAddress];	
+				[address release];
 			}
-		case 2:
-			{
-				break;
-			}
-		case 3:
+			else
 			{
 				%orig;
-				break;
+				return;
 			}
+		}
+
+		NSLog(@"SMSNinja: TUCallCenter | handleCallStatusChanged:userInfo: | addressArray = \"%@\"", addressArray);
+
+		switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
+		{
+			case 0:
+				{
+					%orig;
+					break;
+				}
+			case 1:
+				{
+					[self disconnectCall:arg1];
+					break;
+				}
+			case 2:
+				{
+					break;
+				}
+			case 3:
+				{
+					%orig;
+					break;
+				}
+		}
 	}
+	else %orig;
 }
 %end
 
@@ -1627,9 +1631,39 @@ else lastRecentsCount = [recentCalls count];
 %end
  */
 
+%hook TUCallServicesDaemon
+%new
+- (NSDictionary *)snHandleMessageNamed:(NSString *)name withUserInfo:(NSDictionary *)userInfo
+{
+	if ([name isEqualToString:@"DeleteCallHistory"])
+	{
+		[[[%c(DBHandleManager) instance] dbHandle] deleteObjectWithUniqueId:(NSString *)userInfo[@"UniqueID"]];
+	}
+	return nil;
+}
+
+- (void)dealloc
+{
+	CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.callservicesd"];
+	[messagingCenter stopServer];
+	%orig;
+}
+
+- (id)init
+{
+	id result = %orig;
+	CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.callservicesd"];
+	[messagingCenter runServerOnCurrentThread];
+	[messagingCenter registerForMessageName:@"DeleteCallHistory" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
+	return result;
+}
+%end
+
 %hook CallHistoryDBHandle
 - (void)handleCallRecordContextDidSaveNotification:(NSDictionary *)arg1
 {
+	// TODO: 测试还崩不崩，如果还崩，把删除操作放在SpringBoard里试试
+	%orig;
 	NSArray *allKeys = [arg1 allKeys];
 	if ([allKeys indexOfObject:@"inserted"] != NSNotFound)
 	{
@@ -1638,26 +1672,6 @@ else lastRecentsCount = [recentCalls count];
 		{
 			for (CallRecord *record in allInsertedRecords)
 			{
-				// 到此，manager.recentCalls异常
-				CallHistoryDBClientHandle *handle = [[CallHistoryDBClientHandle alloc] init];
-				NSArray *recentCalls = [handle convertToCHRecentCalls_sync:[allInsertedRecords allObjects]];
-				NSLog(@"SMSNinjaDebug1: %@, %@", recentCalls, [recentCalls class]);
-				CHManager *manager = [[CHManager alloc] init];
-				NSLog(@"SMSNinjaDebug2: %@", manager.recentCalls);
-				// for (int i = 0; i < [recentCalls count]; i++)
-				// {
-				NSLog(@"SMSNinjaDebug3: %@", manager.recentCalls);
-				[manager deleteCall:recentCalls[0]];
-				//}
-				NSLog(@"SMSNinjaDebug4");
-				[manager release];
-				NSLog(@"SMSNinjaDebug5");
-				[handle release];
-				NSLog(@"SMSNinjaDebug6");
-
-
-
-
 				NSString *address = record.address;
 				NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 				[address release];
@@ -1686,12 +1700,16 @@ else lastRecentsCount = [recentCalls count];
 					}
 					else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
 
-					if (shouldClearSpam) [self deleteObjectWithUniqueId:record.unique_id];
+					if (shouldClearSpam)
+					{
+						NSLog(@"SMSNinja: fuck");
+						CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.callservicesd"];
+						[messagingCenter sendMessageName:@"DeleteCallHistory" userInfo:@{@"UniqueID" : record.unique_id}];
+					}
 				}
 			}
 		}
 	}
-	%orig;
 }
 %end
 
