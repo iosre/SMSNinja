@@ -563,8 +563,7 @@ static NSString *chosenKeyword;
 		inviter = [invitation userInfo][@"kCNFConferenceControllerInviterKey"];
 		conferenceID = [invitation userInfo][@"kCNFConferenceControllerConferenceIDKey"];	
 		address = [inviter absoluteString];
-		if ([address hasPrefix:@"facetime://"])
-			address = [[address substringFromIndex:11] normalizedPhoneNumber];
+		if ([address hasPrefix:@"facetime://"]) address = [[address substringFromIndex:11] normalizedPhoneNumber];
 		[addressArray addObject:address];
 	}
 	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
@@ -575,7 +574,7 @@ static NSString *chosenKeyword;
 		address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 		[addressArray addObject:address];
 	}
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
 	{
 		chatProxy = [invitation object];
 		handle = [chatProxy otherIMHandle];
@@ -616,58 +615,7 @@ static NSString *chosenKeyword;
 
 %end // end of SNIncomingFaceTimeHook_5_6_7
 
-%group SNIncomingFaceTimeHook_8
-
-%hook MPTelephonyManager
-- (void)handleVideoCallStatusChanged:(NSConcreteNotification *)arg1 // incoming FaceTime
-{
-	TUFaceTimeVideoCall *videoCall = [arg1 object];
-	IMAVChatProxy *avChatProxy = [videoCall chat];
-	if ([avChatProxy state] == 1)
-	{
-		NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
-		for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
-		{
-			IMHandle *handle = [participantProxy.avChat otherIMHandle];
-			NSString *address = [handle normalizedID];
-			address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-			[addressArray addObject:address];
-		}
-
-		NSLog(@"SMSNinja: MPTelephonyManager | handleVideoCallStatusChanged: | addressArray = \"%@\"", addressArray);
-
-		switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
-		{
-			case 0:
-				{
-					%orig;
-					break;
-				}
-			case 1:
-				{
-					// TODO: 不要播放来电音
-					[videoCall disconnect];
-					break;
-				}
-			case 2:
-				{
-					// TODO: 不要播放来电音
-					break;
-				}
-			case 3:
-				{
-					%orig;
-					break;
-				}
-		}
-	}
-	else %orig;
-}
-%end
-
-%end // end of SNIncomingFaceTimeHook_8
-
-%group SNIncomingCallHook_5_6_7_8
+%group SNIncomingCallHook_5_6_7
 
 %hook MPTelephonyManager
 - (void)displayAlertForCall:(id)arg1 // incoming call
@@ -693,21 +641,13 @@ static NSString *chosenKeyword;
 				}
 			case 1:
 				{
-					if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %orig(nil);
-					else
-					{
-						// TODO: 不要播放来电音
-					}
+					%orig(nil);
 					CTCallDisconnect(call);
 					break;
 				}
 			case 2:
 				{
-					if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %orig(nil);
-					else
-					{
-						// TODO: 不要播放来电音
-					}
+					%orig(nil);
 					break;
 				}
 			case 3:
@@ -721,22 +661,7 @@ static NSString *chosenKeyword;
 }
 %end
 
-%end // end of SNIncomingCallHook_5_6_7_8
-
-%hook SBPluginManager
-- (Class)loadPluginBundle:(NSBundle *)bundle
-{
-	Class result = %orig;
-	NSString *bundleIdentifier = [bundle bundleIdentifier];
-	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.incomingcall"])
-	{
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNIncomingFaceTimeHook_5_6_7);
-		else %init(SNIncomingFaceTimeHook_8);
-		%init(SNIncomingCallHook_5_6_7_8);
-	}
-	return result;
-}
-%end
+%end // end of SNIncomingCallHook_5_6_7
 
 %group SNIncomingMessageHook_5_6_7_8
 
@@ -919,10 +844,11 @@ static NSString *chosenKeyword;
 %end // end of SNBulletinHook_7
 
 %group SNBulletinHook_8
-/*
+
 %hook MPBBDataProvider
 - (void)_handleCallHistoryDatabaseChangedNotification:(id)arg1
 {
+	// TODO: 有时会崩溃！
 	CHManager *recentsManager = MSHookIvar<CHManager *>(self, "_recentsManager");
 	NSArray *recentCalls = recentsManager.recentCalls;
 	if ([recentCalls count] > 0)
@@ -960,7 +886,7 @@ static NSString *chosenKeyword;
 	else %orig;
 }
 %end
-*/
+
 %end // end of SNBulletinHook_8
 
 %group SNGeneralHook_5
@@ -1316,6 +1242,20 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 }
 %end
 
+%hook SBPluginManager
+- (Class)loadPluginBundle:(NSBundle *)bundle
+{
+	Class result = %orig;
+	NSString *bundleIdentifier = [bundle bundleIdentifier];
+	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.incomingcall"])
+	{
+		%init(SNIncomingFaceTimeHook_5_6_7);
+		%init(SNIncomingCallHook_5_6_7);
+	}
+	return result;
+}
+%end
+
 %end // end of SNGeneralHook_5_6_7
 
 %group SNGeneralHook_7_8
@@ -1562,64 +1502,178 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 }
 %end
 
-%end // end of SNGeneralHook_8
-
-%group SNCallServicesdHook
-
-// static int lastRecentsCount;
-
-%hook TUCallServicesRecentsController
-- (void)_callHistoryChanged:(NSConcreteNotification *)arg1 // delete call history in callservicesd
+%hook TUCallCenter
+- (void)handleCallStatusChanged:(TUCall *)arg1 userInfo:(NSDictionary *)arg2 // incoming call & facetime inside SpringBoard
 {
-	// TODO: 会导致callservicesd崩溃，貌似挂断后就会出现。继续测试！换函数
-	%orig;
-	NSLog(@"SMSNinjaDebug: %@", arg1);
-	/*
-	   CHManager *recentsManager = [self recentsManager];
-	   if ([recentsManager respondsToSelector:@selector(recentCalls)])
-	   {
-	   NSArray *recentCalls = recentsManager.recentCalls;
-	   if ([recentCalls count] > 0 && [recentCalls count] > lastRecentsCount)
-	   {
-	   lastRecentsCount = [recentCalls count];
-	   CHRecentCall *recentCall = recentCalls[0];
-	   NSString *address = recentCall.callerId;
-	   NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-	   [address release];
+	NSMutableArray *addressArray = nil;
+	if ([arg1 isKindOfClass:NSClassFromString(@"TUFaceTimeCall")]) // facetime audio or video
+	{
+		IMAVChatProxy *avChatProxy = [(TUFaceTimeVideoCall *)arg1 chat];
+		if ([avChatProxy state] == 1)
+		{
+			addressArray = [NSMutableArray arrayWithCapacity:6];
+			for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
+			{
+				IMHandle *handle = [participantProxy.avChat otherIMHandle];
+				NSString *address = [handle normalizedID];
+				address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+				[addressArray addObject:address];
+			}
+		}
+		else
+		{
+			%orig;
+			return;
+		}
+	}
+	else if ([arg1 isKindOfClass:NSClassFromString(@"TUTelephonyCall")])
+	{
+		CTCallRef call = [(TUTelephonyCall *)arg1 call];
+		if (CTCallGetStatus(call) == 4)
+		{
+			addressArray = [NSMutableArray arrayWithCapacity:6];
+			NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
+			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+			addressArray = (NSMutableArray *)@[tempAddress];	
+			[address release];
+		}
+		else
+		{
+			%orig;
+			return;
+		}
+	}
 
-	   NSLog(@"SMSNinja: TUCallServicesRecentsController | _callHistoryChanged: | address = \"%@\"", tempAddress);
+	NSLog(@"SMSNinja: TUCallCenter | handleCallStatusChanged:userInfo: | addressArray = \"%@\"", addressArray);
 
-	   if ([settings[@"appIsOn"] boolValue] && recentCall.callType == 1)
-	   {
-	   BOOL isOutgoing = recentCall.read;
-	   BOOL shouldClearSpam = NO;
-	   NSUInteger index = NSNotFound;
-	   if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
-	   {
-	   if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
-	   }
-	   else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
-	   {
-	   if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-	   }
-	   else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-	   {
-	   if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-	   }
-	   else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
-	   {
-	   }
-	   else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-
-	   if (shouldClearSpam) [recentsManager deleteCall:recentCall];
-	   }
-	   }
-	   else lastRecentsCount = [recentCalls count];
-	   }
-	 */
+	switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
+	{
+		case 0:
+			{
+				%orig;
+				break;
+			}
+		case 1:
+			{
+				[self disconnectCall:arg1];
+				break;
+			}
+		case 2:
+			{
+				break;
+			}
+		case 3:
+			{
+				%orig;
+				break;
+			}
+	}
 }
 %end
 
+%end // end of SNGeneralHook_8
+
+%group SNCallServicesdHook
+/*
+   static int lastRecentsCount;
+
+   %hook TUCallServicesRecentsController
+   - (void)_callHistoryChanged:(NSConcreteNotification *)arg1 // delete call history in callservicesd
+   {
+// TODO: 会导致callservicesd崩溃，貌似挂断后就会出现。继续测试！换函数
+%orig;
+CHManager *recentsManager = [self recentsManager];
+if ([recentsManager respondsToSelector:@selector(recentCalls)])
+{
+NSArray *recentCalls = recentsManager.recentCalls;
+if ([recentCalls count] > 0 && [recentCalls count] > lastRecentsCount)
+{
+lastRecentsCount = [recentCalls count];
+CHRecentCall *recentCall = recentCalls[0];
+NSString *address = recentCall.callerId;
+NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+[address release];
+
+NSLog(@"SMSNinja: TUCallServicesRecentsController | _callHistoryChanged: | address = \"%@\"", tempAddress);
+
+if ([settings[@"appIsOn"] boolValue] && recentCall.callType == 1)
+{
+BOOL isOutgoing = recentCall.read;
+BOOL shouldClearSpam = NO;
+NSUInteger index = NSNotFound;
+if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+{
+if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
+}
+else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+{
+if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+}
+else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+{
+if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+}
+else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
+{
+}
+else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+
+if (shouldClearSpam) [recentsManager deleteCall:recentCall];
+}
+}
+else lastRecentsCount = [recentCalls count];
+}
+}
+%end
+ */
+/*
+%hook CallHistoryDBHandle
+- (void)handleCallRecordContextDidSaveNotification:(NSDictionary *)arg1
+{
+	NSArray *allKeys = [arg1 allKeys];
+	if ([allKeys indexOfObject:@"inserted"] != NSNotFound)
+	{
+		NSSet *allInsertedRecords = arg1[@"inserted"];
+		for (CallRecord *record in allInsertedRecords)
+		{
+			NSString *address = record.address;
+			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+			[address release];
+
+			NSLog(@"SMSNinja: CallHistoryDBHandle | handleCallRecordContextDidSaveNotification: | address = \"%@\"", tempAddress);
+
+			if ([settings[@"appIsOn"] boolValue])
+			{
+				BOOL isOutgoing = [record.read boolValue];
+				BOOL shouldClearSpam = NO;
+				NSUInteger index = NSNotFound;
+				if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+				{
+					if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
+				}
+				else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+				{
+					if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+				}
+				else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+				{
+					if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+				}
+				else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
+				{
+				}
+				else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+
+				if (shouldClearSpam) [self deleteObjectWithUniqueId:record.unique_id];
+				else %orig;
+			}
+			else %orig;
+		}
+	}
+	else %orig;
+}
+%end
+*/
 %end // end of SNCallServicesdHook
 
 %ctor

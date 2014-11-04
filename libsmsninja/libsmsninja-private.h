@@ -500,16 +500,27 @@ typedef struct __CTCall* CTCallRef;
 // Others
 @interface TUCall : NSObject
 @property (nonatomic) int transitionStatus;
+@property (readonly, nonatomic) BOOL isVideo;
 - (void)disconnect;
 - (BOOL)setMuted:(BOOL)arg1;
 @end
 
-@interface TUTelephonyCall : TUCall
-- (CTCallRef)call;
+@interface TUCallCenterCallsCache : NSObject
+- (void)stopTrackingCall:(TUCall *)arg1;
+@end
+
+@interface TUCallCenter : NSObject
++ (id)sharedInstance;
+@property (retain, nonatomic) TUCallCenterCallsCache *callsCache; // @synthesize callsCache=_callsCache;
+- (void)disconnectCall:(TUCall *)arg1;
 @end
 
 @interface TUPhoneNumber : NSObject
 - (NSString *)digits;
+@end
+
+@interface TUTelephonyCall : TUCall
+- (CTCallRef)call;
 @end
 
 @interface TUFaceTimeCall : TUCall // 8
@@ -517,6 +528,9 @@ typedef struct __CTCall* CTCallRef;
 @end
 
 @interface TUFaceTimeVideoCall : TUFaceTimeCall // 8
+@end
+
+@interface TUFaceTimeAudioCall : TUFaceTimeCall // 8
 @end
 
 @interface CommunicationFilterItem : NSObject
@@ -570,4 +584,14 @@ typedef struct __CTCall* CTCallRef;
 
 @interface TUAudioPlayer : NSObject
 - (void)stop;
+@end
+
+@interface CallRecord : NSObject
+@property (retain, nonatomic) NSString *address;
+@property (retain, nonatomic) NSNumber *read;
+@property (retain, nonatomic) NSString *unique_id;
+@end
+
+@interface CallHistoryDBHandle : NSObject
+- (void)deleteObjectWithUniqueId:(NSString *)arg1;
 @end
