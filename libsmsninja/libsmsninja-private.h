@@ -595,3 +595,7 @@ typedef struct __CTCall* CTCallRef;
 @interface CallHistoryDBHandle : NSObject
 - (void)deleteObjectWithUniqueId:(NSString *)arg1;
 @end
+
+@interface CallHistoryDBClientHandle : NSObject
+- (NSArray *)convertToCHRecentCalls_sync:(NSArray *)arg1;
+@end

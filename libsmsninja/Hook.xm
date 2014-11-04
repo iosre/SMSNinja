@@ -844,7 +844,7 @@ static NSString *chosenKeyword;
 %end // end of SNBulletinHook_7
 
 %group SNBulletinHook_8
-
+/*
 %hook MPBBDataProvider
 - (void)_handleCallHistoryDatabaseChangedNotification:(id)arg1
 {
@@ -860,7 +860,7 @@ static NSString *chosenKeyword;
 			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 			[address release];
 
-			NSLog(@"SMSNinja: MPBBDataProvider | _handleCallHistoryDatabaseChangedNotification: | address = \"%@\"", tempAddress);
+			NSLog(@"SMSNinja: MPBBDataProvider | _handleCallHistoryDatabaseChangedNotification: | arg1 = \"%@\", call = \"%@\", address = \"%@\"", arg1, recentCall, tempAddress);
 
 			NSUInteger index = NSNotFound;
 			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
@@ -886,7 +886,7 @@ static NSString *chosenKeyword;
 	else %orig;
 }
 %end
-
+*/
 %end // end of SNBulletinHook_8
 
 %group SNGeneralHook_5
@@ -1626,7 +1626,7 @@ else lastRecentsCount = [recentCalls count];
 }
 %end
  */
-/*
+
 %hook CallHistoryDBHandle
 - (void)handleCallRecordContextDidSaveNotification:(NSDictionary *)arg1
 {
@@ -1634,46 +1634,67 @@ else lastRecentsCount = [recentCalls count];
 	if ([allKeys indexOfObject:@"inserted"] != NSNotFound)
 	{
 		NSSet *allInsertedRecords = arg1[@"inserted"];
-		for (CallRecord *record in allInsertedRecords)
+		if ([allInsertedRecords count] != 0)
 		{
-			NSString *address = record.address;
-			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-			[address release];
-
-			NSLog(@"SMSNinja: CallHistoryDBHandle | handleCallRecordContextDidSaveNotification: | address = \"%@\"", tempAddress);
-
-			if ([settings[@"appIsOn"] boolValue])
+			for (CallRecord *record in allInsertedRecords)
 			{
-				BOOL isOutgoing = [record.read boolValue];
-				BOOL shouldClearSpam = NO;
-				NSUInteger index = NSNotFound;
-				if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
-				{
-					if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
-				}
-				else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
-				{
-					if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-				}
-				else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-				{
-					if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-				}
-				else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
-				{
-				}
-				else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+				// 到此，manager.recentCalls异常
+				CallHistoryDBClientHandle *handle = [[CallHistoryDBClientHandle alloc] init];
+				NSArray *recentCalls = [handle convertToCHRecentCalls_sync:[allInsertedRecords allObjects]];
+				NSLog(@"SMSNinjaDebug1: %@, %@", recentCalls, [recentCalls class]);
+				CHManager *manager = [[CHManager alloc] init];
+				NSLog(@"SMSNinjaDebug2: %@", manager.recentCalls);
+				// for (int i = 0; i < [recentCalls count]; i++)
+				// {
+				NSLog(@"SMSNinjaDebug3: %@", manager.recentCalls);
+				[manager deleteCall:recentCalls[0]];
+				//}
+				NSLog(@"SMSNinjaDebug4");
+				[manager release];
+				NSLog(@"SMSNinjaDebug5");
+				[handle release];
+				NSLog(@"SMSNinjaDebug6");
 
-				if (shouldClearSpam) [self deleteObjectWithUniqueId:record.unique_id];
-				else %orig;
+
+
+
+				NSString *address = record.address;
+				NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+				[address release];
+
+				NSLog(@"SMSNinja: CallHistoryDBHandle | handleCallRecordContextDidSaveNotification: | address = \"%@\"", tempAddress);
+
+				if ([settings[@"appIsOn"] boolValue])
+				{
+					BOOL isOutgoing = [record.read boolValue];
+					BOOL shouldClearSpam = NO;
+					NSUInteger index = NSNotFound;
+					if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+					{
+						if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
+					}
+					else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+					{
+						if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+					}
+					else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+					{
+						if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+					}
+					else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
+					{
+					}
+					else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
+
+					if (shouldClearSpam) [self deleteObjectWithUniqueId:record.unique_id];
+				}
 			}
-			else %orig;
 		}
 	}
-	else %orig;
+	%orig;
 }
 %end
-*/
+
 %end // end of SNCallServicesdHook
 
 %ctor
