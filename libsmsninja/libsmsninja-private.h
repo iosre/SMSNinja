@@ -13,9 +13,10 @@ typedef struct __CTCall* CTCallRef;
 - (id)callAtTableViewIndex:(int)tableViewIndex; // 6
 @end
 
-@interface PHRecentsViewController : UIViewController // 7
+@interface PHRecentsViewController : UIViewController // 7_8
 - (id)table;
 - (id)callAtTableViewIndex:(int)tableViewIndex;
++ (id)sharedRecentsManager; // 8
 @end
 
 @interface RecentCall : NSObject // 5_6
@@ -590,11 +591,14 @@ typedef struct __CTCall* CTCallRef;
 @property (retain, nonatomic) NSString *address;
 @property (retain, nonatomic) NSNumber *read;
 @property (retain, nonatomic) NSString *unique_id;
+@property (retain, nonatomic) NSNumber *calltype;
+@property (retain, nonatomic) NSNumber *originated;
 @end
 
 @interface CallHistoryDBHandle : NSObject
 - (void)deleteObjectWithUniqueId:(NSString *)arg1;
 - (void)deleteObjectsWithUniqueIds:(NSArray *)arg1;
+- (NSManagedObjectContext *)callRecordContext;
 @end
 
 @interface CallHistoryDBClientHandle : NSObject

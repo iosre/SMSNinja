@@ -2,4 +2,5 @@
 killall -9 imagent &> /dev/null
 killall -9 identityservicesd &> /dev/null
 killall -9 callservicesd &> /dev/null
+killall -9 CallHistorySyncHelper &> /dev/null
 exit 0;
