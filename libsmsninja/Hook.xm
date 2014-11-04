@@ -1582,6 +1582,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 %hook NSManagedObjectContext
 - (void)insertObject:(NSManagedObject *)object
 {
+	// TODO: 这里获取不到完整的CallRecord
 	if ([object isKindOfClass:NSClassFromString(@"CallRecord")])
 	{
 		CallRecord *record = (CallRecord *)object;
