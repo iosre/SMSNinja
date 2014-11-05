@@ -107,6 +107,9 @@ typedef struct __CTCall* CTCallRef;
 @property (readonly, assign, nonatomic) NSString* mimeType;
 @end
 
+@interface IMFileManager : NSFileManager
+@end
+
 @interface IMDFileTransferCenter : NSObject
 + (instancetype)sharedInstance;
 - (IMFileTransfer *)transferForGUID:(NSString *)arg1;
