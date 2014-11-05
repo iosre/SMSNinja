@@ -1465,7 +1465,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 %end
 
 %hook TUCallCenter
-- (void)handleCallStatusChanged:(TUCall *)arg1 userInfo:(NSDictionary *)arg2 // incoming call & facetime inside SpringBoard, TUCallCenterCallStatusChangedNotification
+- (void)handleCallStatusChanged:(TUCall *)arg1 userInfo:(NSDictionary *)arg2 // incoming call & facetime inside SpringBoard, TUCallCenterCallStatusChangedNotification comes from kCTCallStatusChangeNotification in TelephonyUtilities
 {
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
 	{
@@ -1539,16 +1539,142 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 %end
 
 %hook PHAudioInterruptionController
-- (void)_callStatusChanged:(NSConcreteNotification *)arg1 // TUCallCenterCallStatusChangedNotification
+- (void)_callStatusChanged:(NSConcreteNotification *)arg1 // stop ringtone and vibration, TUCallCenterCallStatusChangedNotification comes from CTTelephonyCenterAddObserver(kCTCallStatusChangeNotification) in TelephonyUtilities
 {
-	%orig;
-	// TODO: 不要响铃和振动
+	NSMutableArray *addressArray = nil;
+	TUCall *tuCall = arg1.object;
+	if ([tuCall isKindOfClass:NSClassFromString(@"TUFaceTimeCall")]) // facetime audio or video
+	{
+		IMAVChatProxy *avChatProxy = [(TUFaceTimeVideoCall *)tuCall chat];
+		if ([avChatProxy state] == 1)
+		{
+			addressArray = [NSMutableArray arrayWithCapacity:6];
+			for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
+			{
+				IMHandle *handle = [participantProxy.avChat otherIMHandle];
+				NSString *address = [handle normalizedID];
+				address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+				[addressArray addObject:address];
+			}
+		}
+		else
+		{
+			%orig;
+			return;
+		}
+	}
+	else if ([tuCall isKindOfClass:NSClassFromString(@"TUTelephonyCall")])
+	{
+		CTCallRef call = [(TUTelephonyCall *)tuCall call];
+		if (CTCallGetStatus(call) == 4)
+		{
+			addressArray = [NSMutableArray arrayWithCapacity:6];
+			NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
+			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+			addressArray = (NSMutableArray *)@[tempAddress];	
+			[address release];
+		}
+		else
+		{
+			%orig;
+			return;
+		}
+	}
+
+	NSLog(@"SMSNinja: PHAudioInterruptionController | _callStatusChanged: | addressArray = \"%@\"", addressArray);
+
+	switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
+	{
+		case 0:
+			{
+				%orig;
+				break;
+			}
+		case 1:
+			{
+				// disconnect
+				break;
+			}
+		case 2:
+			{
+				// ignore
+				break;
+			}
+		case 3:
+			{
+				%orig;
+				break;
+			}
+	}
 }
 
-- (void)_videoCallStatusChanged:(NSConcreteNotification *)arg1 // TUCallCenterVideoCallStatusChangedNotification
+- (void)_videoCallStatusChanged:(NSConcreteNotification *)arg1 // stop ringtone and vibration, TUCallCenterVideoCallStatusChangedNotification comes from CTTelephonyCenterAddObserver(kCTCallStatusChangeNotification) in TelephonyUtilities
 {
-	%orig;
-	// TODO: 不要响铃和振动
+	NSMutableArray *addressArray = nil;
+	TUCall *tuCall = arg1.object;
+	if ([tuCall isKindOfClass:NSClassFromString(@"TUFaceTimeCall")]) // facetime audio or video
+	{
+		IMAVChatProxy *avChatProxy = [(TUFaceTimeVideoCall *)tuCall chat];
+		if ([avChatProxy state] == 1)
+		{
+			addressArray = [NSMutableArray arrayWithCapacity:6];
+			for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
+			{
+				IMHandle *handle = [participantProxy.avChat otherIMHandle];
+				NSString *address = [handle normalizedID];
+				address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+				[addressArray addObject:address];
+			}
+		}
+		else
+		{
+			%orig;
+			return;
+		}
+	}
+	else if ([tuCall isKindOfClass:NSClassFromString(@"TUTelephonyCall")])
+	{
+		CTCallRef call = [(TUTelephonyCall *)tuCall call];
+		if (CTCallGetStatus(call) == 4)
+		{
+			addressArray = [NSMutableArray arrayWithCapacity:6];
+			NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
+			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+			addressArray = (NSMutableArray *)@[tempAddress];	
+			[address release];
+		}
+		else
+		{
+			%orig;
+			return;
+		}
+	}
+
+	NSLog(@"SMSNinja: PHAudioInterruptionController | _videoCallStatusChanged: | addressArray = \"%@\"", addressArray);
+
+	switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
+	{
+		case 0:
+			{
+				%orig;
+				break;
+			}
+		case 1:
+			{
+				// disconnect
+				break;
+			}
+		case 2:
+			{
+				// ignore
+				break;
+			}
+		case 3:
+			{
+				%orig;
+				break;
+			}
+	}
 }
 %end
 

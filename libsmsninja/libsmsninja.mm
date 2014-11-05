@@ -68,34 +68,34 @@ void LoadBlacklist(CFNotificationCenterRef center, void *observer, CFStringRef n
 					while (sqlite3_step(statement) == SQLITE_ROW)
 					{
 						char *keyword = (char *)sqlite3_column_text(statement, 0);
-						[blackKeywordArray addObject:keyword ? [NSString stringWithUTF8String:keyword] : @""];
+						[blackKeywordArray addObject:keyword ? @(keyword) : @""];
 
 						char *type = (char *)sqlite3_column_text(statement, 1);
-						[blackTypeArray addObject:type ? [NSString stringWithUTF8String:type] : @""];
+						[blackTypeArray addObject:type ? @(type) : @""];
 
 						char *name = (char *)sqlite3_column_text(statement, 2);
-						[blackNameArray addObject:name ? [NSString stringWithUTF8String:name] : @""];
+						[blackNameArray addObject:name ? @(name) : @""];
 
 						char *phone = (char *)sqlite3_column_text(statement, 3);
-						[blackPhoneArray addObject:phone ? [NSString stringWithUTF8String:phone] : @""];
+						[blackPhoneArray addObject:phone ? @(phone) : @""];
 
 						char *sms = (char *)sqlite3_column_text(statement, 4);
-						[blackSmsArray addObject:sms ? [NSString stringWithUTF8String:sms] : @""];
+						[blackSmsArray addObject:sms ? @(sms) : @""];
 
 						char *reply = (char *)sqlite3_column_text(statement, 5);
-						[blackReplyArray addObject:reply ? [NSString stringWithUTF8String:reply] : @""];
+						[blackReplyArray addObject:reply ? @(reply) : @""];
 
 						char *message = (char *)sqlite3_column_text(statement, 6);
-						[blackMessageArray addObject:message ? [NSString stringWithUTF8String:message] : @""];
+						[blackMessageArray addObject:message ? @(message) : @""];
 
 						char *forward = (char *)sqlite3_column_text(statement, 7);
-						[blackForwardArray addObject:forward ? [NSString stringWithUTF8String:forward] : @""];
+						[blackForwardArray addObject:forward ? @(forward) : @""];
 
 						char *number = (char *)sqlite3_column_text(statement, 8);
-						[blackNumberArray addObject:number ? [NSString stringWithUTF8String:number] : @""];
+						[blackNumberArray addObject:number ? @(number) : @""];
 
 						char *sound = (char *)sqlite3_column_text(statement, 9);
-						[blackSoundArray addObject:sound ? [NSString stringWithUTF8String:sound] : @""];
+						[blackSoundArray addObject:sound ? @(sound) : @""];
 					}
 					sqlite3_finalize(statement);
 				}
@@ -164,34 +164,34 @@ void LoadWhitelist(CFNotificationCenterRef center, void *observer, CFStringRef n
 					while (sqlite3_step(statement) == SQLITE_ROW)
 					{
 						char *keyword = (char *)sqlite3_column_text(statement, 0);
-						[whiteKeywordArray addObject:keyword ? [NSString stringWithUTF8String:keyword] : @""];
+						[whiteKeywordArray addObject:keyword ? @(keyword) : @""];
 
 						char *type = (char *)sqlite3_column_text(statement, 1);
-						[whiteTypeArray addObject:type ? [NSString stringWithUTF8String:type] : @""];
+						[whiteTypeArray addObject:type ? @(type) : @""];
 
 						char *name = (char *)sqlite3_column_text(statement, 2);
-						[whiteNameArray addObject:name ? [NSString stringWithUTF8String:name] : @""];
+						[whiteNameArray addObject:name ? @(name) : @""];
 
 						char *phone = (char *)sqlite3_column_text(statement, 3);
-						[whitePhoneArray addObject:phone ? [NSString stringWithUTF8String:phone] : @""];
+						[whitePhoneArray addObject:phone ? @(phone) : @""];
 
 						char *sms = (char *)sqlite3_column_text(statement, 4);
-						[whiteSmsArray addObject:sms ? [NSString stringWithUTF8String:sms] : @""];
+						[whiteSmsArray addObject:sms ? @(sms) : @""];
 
 						char *reply = (char *)sqlite3_column_text(statement, 5);
-						[whiteReplyArray addObject:reply ? [NSString stringWithUTF8String:reply] : @""];
+						[whiteReplyArray addObject:reply ? @(reply) : @""];
 
 						char *message = (char *)sqlite3_column_text(statement, 6);
-						[whiteMessageArray addObject:message ? [NSString stringWithUTF8String:message] : @""];
+						[whiteMessageArray addObject:message ? @(message) : @""];
 
 						char *forward = (char *)sqlite3_column_text(statement, 7);
-						[whiteForwardArray addObject:forward ? [NSString stringWithUTF8String:forward] : @""];
+						[whiteForwardArray addObject:forward ? @(forward) : @""];
 
 						char *number = (char *)sqlite3_column_text(statement, 8);
-						[whiteNumberArray addObject:number ? [NSString stringWithUTF8String:number] : @""];
+						[whiteNumberArray addObject:number ? @(number) : @""];
 
 						char *sound = (char *)sqlite3_column_text(statement, 9);
-						[whiteSoundArray addObject:sound ? [NSString stringWithUTF8String:sound] : @""];
+						[whiteSoundArray addObject:sound ? @(sound) : @""];
 					}
 					sqlite3_finalize(statement);
 				}
@@ -261,34 +261,34 @@ void LoadPrivatelist(CFNotificationCenterRef center, void *observer, CFStringRef
 					while (sqlite3_step(statement) == SQLITE_ROW)
 					{
 						char *keyword = (char *)sqlite3_column_text(statement, 0);
-						[privateKeywordArray addObject:keyword ? [NSString stringWithUTF8String:keyword] : @""];
+						[privateKeywordArray addObject:keyword ? @(keyword) : @""];
 
 						char *type = (char *)sqlite3_column_text(statement, 1);
-						[privateTypeArray addObject:type ? [NSString stringWithUTF8String:type] : @""];
+						[privateTypeArray addObject:type ? @(type) : @""];
 
 						char *name = (char *)sqlite3_column_text(statement, 2);
-						[privateNameArray addObject:name ? [NSString stringWithUTF8String:name] : @""];
+						[privateNameArray addObject:name ? @(name) : @""];
 
 						char *phone = (char *)sqlite3_column_text(statement, 3);
-						[privatePhoneArray addObject:phone ? [NSString stringWithUTF8String:phone] : @""];
+						[privatePhoneArray addObject:phone ? @(phone) : @""];
 
 						char *sms = (char *)sqlite3_column_text(statement, 4);
-						[privateSmsArray addObject:sms ? [NSString stringWithUTF8String:sms] : @""];
+						[privateSmsArray addObject:sms ? @(sms) : @""];
 
 						char *reply = (char *)sqlite3_column_text(statement, 5);
-						[privateReplyArray addObject:reply ? [NSString stringWithUTF8String:reply] : @""];
+						[privateReplyArray addObject:reply ? @(reply) : @""];
 
 						char *message = (char *)sqlite3_column_text(statement, 6);
-						[privateMessageArray addObject:message ? [NSString stringWithUTF8String:message] : @""];
+						[privateMessageArray addObject:message ? @(message) : @""];
 
 						char *forward = (char *)sqlite3_column_text(statement, 7);
-						[privateForwardArray addObject:forward ? [NSString stringWithUTF8String:forward] : @""];
+						[privateForwardArray addObject:forward ? @(forward) : @""];
 
 						char *number = (char *)sqlite3_column_text(statement, 8);
-						[privateNumberArray addObject:number ? [NSString stringWithUTF8String:number] : @""];
+						[privateNumberArray addObject:number ? @(number) : @""];
 
 						char *sound = (char *)sqlite3_column_text(statement, 9);
-						[privateSoundArray addObject:sound ? [NSString stringWithUTF8String:sound] : @""];
+						[privateSoundArray addObject:sound ? @(sound) : @""];
 					}
 					sqlite3_finalize(statement);
 				}
@@ -334,8 +334,7 @@ static NSString *CurrentCountryCode(void)
 	CFStringRef activeCountryCode = CPPhoneNumberCopyActiveCountryCode(kCFAllocatorDefault);
 	CFStringRef formattedPhoneNumber = UIFormattedPhoneNumberFromStringWithCountry(myPhoneNumber, activeCountryCode);
 	NSString *countryCode = @"";
-	if ([(NSString *)formattedPhoneNumber hasPrefix:@"+"])
-		countryCode = [[(NSString *)formattedPhoneNumber substringToIndex:[(NSString *)formattedPhoneNumber rangeOfString:@" "].location] stringByReplacingOccurrencesOfString:@"+" withString:@""];
+	if ([(NSString *)formattedPhoneNumber hasPrefix:@"+"]) countryCode = [[(NSString *)formattedPhoneNumber substringToIndex:[(NSString *)formattedPhoneNumber rangeOfString:@" "].location] stringByReplacingOccurrencesOfString:@"+" withString:@""];
 	if (myPhoneNumber != nil) CFRelease(myPhoneNumber);
 	if (activeCountryCode != nil) CFRelease(activeCountryCode);
 	return countryCode;
@@ -347,6 +346,7 @@ static void PlaySound(const char *type)
 	SystemSoundID sound;
 	AudioServicesCreateSystemSoundID(url, &sound);
 	AudioServicesPlayAlertSound(sound);
+	AudioServicesDisposeSystemSoundID(sound);
 }
 
 void PlayFilterSound(void)
@@ -435,7 +435,7 @@ void ShowIcon(void)
 
 void UpdateBadge(void)
 {
-	if ([[settings objectForKey:@"appIsOn"] boolValue])
+	if ([settings[@"appIsOn"] boolValue])
 	{
 		if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
 		{
@@ -454,7 +454,7 @@ void UpdateBadge(void)
 					while (sqlite3_step(statement) == SQLITE_ROW)
 					{
 						char *count = (char *)sqlite3_column_text(statement, 0);
-						messageCount = count ? [NSString stringWithUTF8String:count] : @"";
+						messageCount = count ? @(count) : @"";
 					}
 					sqlite3_finalize(statement);
 				}
@@ -467,7 +467,7 @@ void UpdateBadge(void)
 					while (sqlite3_step(statement) == SQLITE_ROW)
 					{
 						char *count = (char *)sqlite3_column_text(statement, 0);
-						callCount = count ? [NSString stringWithUTF8String:count] : @"";
+						callCount = count ? @(count) : @"";
 					}
 					sqlite3_finalize(statement);
 				}
@@ -492,11 +492,11 @@ void UpdateBadge(void)
 				{
 					NSFileManager *fileManager = [NSFileManager defaultManager];
 					NSString *badge = nil;
-					if ([[settings objectForKey:@"shouldShowSemicolon"] boolValue] && [fileManager fileExistsAtPath:@"/var/mobile/Library/SMSNinja/UnreadPrivateInfo"]) badge = [NSString stringWithFormat:@"%@;%@", callCount, messageCount];
+					if ([settings[@"shouldShowSemicolon"] boolValue] && [fileManager fileExistsAtPath:@"/var/mobile/Library/SMSNinja/UnreadPrivateInfo"]) badge = [NSString stringWithFormat:@"%@;%@", callCount, messageCount];
 					else badge = [NSString stringWithFormat:@"%@,%@", callCount, messageCount];
-					if ([[settings objectForKey:@"shouldShowIconBadge"] boolValue]) [icon setBadge:badge];
+					if ([settings[@"shouldShowIconBadge"] boolValue]) [icon setBadge:badge];
 					else [icon setBadge:nil];
-					if ([[settings objectForKey:@"shouldShowStatusBarBadge"] boolValue])
+					if ([settings[@"shouldShowStatusBarBadge"] boolValue])
 					{
 						[centerItem release];
 						centerItem = nil;
@@ -520,12 +520,12 @@ void UpdateBadge(void)
 			[messagingCenter sendMessageName:@"UpdateBadge" userInfo:nil];
 		}
 	}
-	else if (![[settings objectForKey:@"appIsOn"] boolValue] && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
+	else if (![settings[@"appIsOn"] boolValue] && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
 	{
 		SBIconModel *iconModel = nil;
 		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) iconModel = [objc_getClass("SBIconModel") sharedInstance];
 		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) iconModel = [(SBIconController *)[objc_getClass("SBIconController") sharedInstance] model];
-		SBIcon *icon;
+		SBIcon *icon = nil;
 		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) icon = [iconModel applicationIconForDisplayIdentifier:@"com.naken.smsninja"];
 		else icon = [iconModel applicationIconForBundleIdentifier:@"com.naken.smsninja"];
 
@@ -555,7 +555,7 @@ static void PersistentSave(const char *actionType, const char *infoType, NSStrin
 				while (sqlite3_step(statement) == SQLITE_ROW)
 				{
 					char *identifier = (char *)sqlite3_column_text(statement, 0);
-					idString = identifier ? [NSString stringWithUTF8String:identifier] : @"";
+					idString = identifier ? @(identifier) : @"";
 					idString = [NSString stringWithFormat:@"%d", ([idString intValue] + 1)];
 				}
 				sqlite3_finalize(statement);
@@ -587,7 +587,7 @@ static void PersistentSave(const char *actionType, const char *infoType, NSStrin
 		if (!isFromMe && strcmp(actionType, "private") == 0 && ![fileManager fileExistsAtPath:@"/var/mobile/Library/SMSNinja/UnreadPrivateInfo"])
 		{
 			[fileManager createFileAtPath:@"/var/mobile/Library/SMSNinja/UnreadPrivateInfo" contents:nil attributes:nil];
-			if ([[settings objectForKey:@"appIsOn"] boolValue] && [[settings objectForKey:@"shouldShowPurpleSquare"] boolValue]) ShowPurpleSquare();
+			if ([settings[@"appIsOn"] boolValue] && [settings[@"shouldShowPurpleSquare"] boolValue]) ShowPurpleSquare();
 		}
 		UpdateBadge();
 	}
@@ -596,7 +596,7 @@ static void PersistentSave(const char *actionType, const char *infoType, NSStrin
 
 NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) // 0 for off, 1 for disconnect, 2 for ignore, 3 for let go
 {
-	if ([[settings objectForKey:@"appIsOn"] boolValue])
+	if ([settings[@"appIsOn"] boolValue])
 	{	
 		NSString *text = isFromMe ? @"1" : @"0";
 		NSString *time = CurrentTime();
@@ -617,7 +617,7 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 			{
 				return 0;
 			}
-			else if ([address isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+			else if ([address isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
 				return 0;
 			}
@@ -637,9 +637,9 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 				if (!isFromMe && [blackPhoneArray[index] intValue] != 0) PersistentSave("blocked", "call", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
 				if ([blackPhoneArray[index] intValue] != 0) return [blackPhoneArray[index] intValue];
 			}
-			else if ((index = [address indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue]))
+			else if ((index = [address indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue]))
 			{
-				if (!isFromMe && [[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue]) PlayBlockSound();
+				if (!isFromMe && [settings[@"whitelistCallsOnlyWithBeep"] boolValue]) PlayBlockSound();
 				if (!isFromMe) PersistentSave("blocked", "call", text, [address stringByAppendingString:@"*"], addressArray, isFromMe, pictureArray);
 				return 1;
 			}
@@ -650,7 +650,7 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 
 NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, NSArray *pictureArray, BOOL isFromMe) // 0 for off, 1 for filter, 2 for block
 {
-	if ([[settings objectForKey:@"appIsOn"] boolValue])
+	if ([settings[@"appIsOn"] boolValue])
 	{
 		NSString *time = CurrentTime();
 		for (NSString *address in addressArray)
@@ -681,7 +681,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			{
 				return 0;
 			}
-			else if ([address isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+			else if ([address isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
 				return 0;
 			}
@@ -718,9 +718,9 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 					return 2;
 				}
 			}
-			else if ((index = [address indexInWhiteListWithType:0]) == NSNotFound && (index = [text indexInWhiteListWithType:1]) == NSNotFound && ([[settings objectForKey:@"whitelistMessagesOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistMessagesOnlyWithoutBeep"] boolValue]))
+			else if ((index = [address indexInWhiteListWithType:0]) == NSNotFound && (index = [text indexInWhiteListWithType:1]) == NSNotFound && ([settings[@"whitelistMessagesOnlyWithBeep"] boolValue] || [settings[@"whitelistMessagesOnlyWithoutBeep"] boolValue]))
 			{
-				if (!isFromMe && [[settings objectForKey:@"whitelistMessagesOnlyWithBeep"] boolValue]) PlayBlockSound();
+				if (!isFromMe && [settings[@"whitelistMessagesOnlyWithBeep"] boolValue]) PlayBlockSound();
 				if (!isFromMe) PersistentSave("blocked", "sms", text, [address stringByAppendingString:@"*"], addressArray, isFromMe, pictureArray);
 				return 2;
 			}
@@ -733,12 +733,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 - (NSString *)normalizedPhoneNumber
 {
 	if ([self rangeOfString:@"@"].location == NSNotFound)
-	{
-		self = [self stringByReplacingOccurrencesOfString:@" " withString:@""];
-		self = [self stringByReplacingOccurrencesOfString:@"-" withString:@""];
-		self = [self stringByReplacingOccurrencesOfString:@"(" withString:@""];
-		self = [self stringByReplacingOccurrencesOfString:@")" withString:@""];
-	}
+		for (NSString *toBeReplaced in @[@" ", @"-", @"(", @")"])
+			self = [self stringByReplacingOccurrencesOfString:toBeReplaced withString:@""];
 	return self;
 }
 
@@ -840,7 +836,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 				NSString *endTime = [[time substringFromIndex:([time rangeOfString:@"~"].location + 1)] stringByReplacingOccurrencesOfString:@":" withString:@""];
 				NSString *currentTime = [[self substringFromIndex:11] stringByReplacingOccurrencesOfString:@":" withString:@""];
 
-				if( (([endTime intValue] > [startTime intValue] && [currentTime intValue] > [startTime intValue] && [currentTime intValue] < [endTime intValue]) || ([endTime intValue] < [startTime intValue] && ([currentTime intValue] > [startTime intValue] || [currentTime intValue] < [endTime intValue])) || ([currentTime intValue] == [startTime intValue] || [currentTime intValue] == [endTime intValue])) )
+				if ((([endTime intValue] > [startTime intValue] && [currentTime intValue] > [startTime intValue] && [currentTime intValue] < [endTime intValue]) || ([endTime intValue] < [startTime intValue] && ([currentTime intValue] > [startTime intValue] || [currentTime intValue] < [endTime intValue])) || ([currentTime intValue] == [startTime intValue] || [currentTime intValue] == [endTime intValue])))
 				{
 					NSLog(@"SMSNinja: \"%@\" as time is in blacklist", self);
 					return index;
@@ -925,7 +921,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 	{
 		CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
 		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"CheckAddressBook" userInfo:@{@"address" : self}];
-		result = [(NSNumber *)[reply objectForKey:@"result"] boolValue];
+		result = [(NSNumber *)reply[@"result"] boolValue];
 	}
 	if (result) NSLog(@"SMSNinja: \"%@\" as address is in addressbook", self);
 	else NSLog(@"SMSNinja: \"%@\" is NOT in addressbook", self);
@@ -981,7 +977,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 	{
 		CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
 		NSDictionary *reply = [messagingCenter sendMessageAndReceiveReplyName:@"GetAddressBookName" userInfo:@{@"address" : self}];
-		name = (NSString *)[reply objectForKey:@"result"];
+		name = reply[@"result"];
 	}
 	if ([name length] != 0) NSLog(@"SMSNinja: Address \"%@\" matches name \"%@\" in addressbook", self, name);
 	else NSLog(@"SMSNinja: Address \"%@\" doesn't match any name in addressbook", self);

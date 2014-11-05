@@ -49,7 +49,7 @@
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
+	[super viewDidLoad];
 	[self updateDatabase];
 
 	CGRect appFrame = [[UIScreen mainScreen] applicationFrame];
@@ -247,10 +247,8 @@ static void (^CreateDatabase)(void) = ^(void)
 {
 	NSMutableArray *labelArray = [NSMutableArray arrayWithCapacity:5];
 	for (UIView *view in alertView.subviews)
-	{
 		if ([view isKindOfClass:[UILabel class]])
 			[labelArray addObject:view];
-	}
 
 	for (UILabel *label in labelArray)
 		if ([[label text] length] > 20)
