@@ -7,7 +7,7 @@
 	NSMutableArray *nameArray;
 	NSMutableArray *timeArray;
 	NSMutableArray *typeArray;
-    NSMutableSet *keywordSet;
+  	NSMutableSet *keywordSet;
 	int chosenRow;
 }
 @property (nonatomic, retain) NSString *flag;

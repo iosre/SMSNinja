@@ -105,7 +105,7 @@
 			fakePasswordField.delegate = self;
 			fakePasswordField.secureTextEntry = YES;
 			fakePasswordField.placeholder = NSLocalizedString(@"Input fake password", @"Input fake password");
-			fakePasswordField.text = dictionary[@"fakePassword"];
+			fakePasswordField.text = [dictionary objectForKey:@"fakePassword"];
 			fakePasswordField.clearButtonMode = UITextFieldViewModeWhileEditing;
 			[cell.contentView addSubview:fakePasswordField];
 
@@ -117,7 +117,7 @@
 					cell.textLabel.text = NSLocalizedString(@"Purple Square", @"Purple Square");
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.accessoryView = purpleSwitch;
-					purpleSwitch.on = [dictionary[@"shouldShowPurpleSquare"] boolValue];
+					purpleSwitch.on = [[dictionary objectForKey:@"shouldShowPurpleSquare"] boolValue];
 					[purpleSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
@@ -125,7 +125,7 @@
 					cell.textLabel.text = NSLocalizedString(@"Show Semicolon", @"Show Semicolon");
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.accessoryView = semicolonSwitch;
-					semicolonSwitch.on = [dictionary[@"shouldShowSemicolon"] boolValue];
+					semicolonSwitch.on = [[dictionary objectForKey:@"shouldShowSemicolon"] boolValue];
 					[semicolonSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
@@ -133,7 +133,7 @@
 					cell.textLabel.text = NSLocalizedString(@"Reveal Privatelist", @"Reveal Privatelist");
 					cell.selectionStyle = UITableViewCellSelectionStyleNone;
 					cell.accessoryView = revealSwitch;
-					revealSwitch.on = [dictionary[@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue];
+					revealSwitch.on = [[dictionary objectForKey:@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue];
 					[revealSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
 
 					break;
@@ -182,9 +182,9 @@
 	}
 
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:SETTINGS];
-	dictionary[@"shouldShowPurpleSquare"] = @(purpleSwitch.on);
-	dictionary[@"shouldShowSemicolon"] = @(semicolonSwitch.on);
-	dictionary[@"shouldRevealPrivatelistOutsideSMSNinja"] = @(revealSwitch.on);
+	[dictionary setObject:[NSNumber numberWithBool:purpleSwitch.on] forKey:@"shouldShowPurpleSquare"];
+	[dictionary setObject:[NSNumber numberWithBool:semicolonSwitch.on] forKey:@"shouldShowSemicolon"];
+	[dictionary setObject:[NSNumber numberWithBool:revealSwitch.on] forKey:@"shouldRevealPrivatelistOutsideSMSNinja"];
 	[dictionary writeToFile:SETTINGS atomically:YES];
 	notify_post("com.naken.smsninja.settingschanged");	
 }
@@ -200,7 +200,7 @@
 - (void)textFieldDidEndEditing:(UITextField *)textField
 {
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:SETTINGS];
-	dictionary[@"fakePassword"] = textField.text ? textField.text : @"";
+	[dictionary setObject:textField.text ? textField.text : @"" forKey:@"fakePassword"];
 	[dictionary writeToFile:SETTINGS atomically:YES];
 	notify_post("com.naken.smsninja.settingschanged");	
 	[textField resignFirstResponder];

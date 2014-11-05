@@ -55,7 +55,7 @@ static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef 
 
 - (void)showPasswordAlert
 {
-	if ([[NSFileManager defaultManager] fileExistsAtPath:SETTINGS] && [[NSDictionary dictionaryWithContentsOfFile:SETTINGS][@"startPassword"] length] != 0)
+	if ([[NSFileManager defaultManager] fileExistsAtPath:SETTINGS] && [[[NSDictionary dictionaryWithContentsOfFile:SETTINGS] objectForKey:@"startPassword"] length] != 0)
 	{
 		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Welcome", @"Welcome") message:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Let me in!", @"Let me in!") otherButtonTitles:NSLocalizedString(@"Never mind", @"Never mind") , nil];
 		[alertView setAlertViewStyle:UIAlertViewStyleSecureTextInput];
@@ -76,12 +76,12 @@ static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef 
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:SETTINGS];
 	CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
 	[messagingCenter sendMessageName:@"UpdateBadge" userInfo:nil];
-	if ([dictionary[@"appIsOn"] boolValue])
+	if ([[dictionary objectForKey:@"appIsOn"] boolValue])
 	{
 		NSFileManager *fileManager = [NSFileManager defaultManager];
-		if ([dictionary[@"shouldShowPurpleSquare"] boolValue] && [fileManager fileExistsAtPath:@"/var/mobile/Library/SMSNinja/UnreadPrivateInfo"]) [messagingCenter sendMessageName:@"ShowPurpleSquare" userInfo:nil];
+		if ([[dictionary objectForKey:@"shouldShowPurpleSquare"] boolValue] && [fileManager fileExistsAtPath:@"/var/mobile/Library/SMSNinja/UnreadPrivateInfo"]) [messagingCenter sendMessageName:@"ShowPurpleSquare" userInfo:nil];
 		else [messagingCenter sendMessageName:@"HidePurpleSquare" userInfo:nil];
-		if ([dictionary[@"shouldHideIcon"] boolValue]) [messagingCenter sendMessageName:@"HideIcon" userInfo:nil];
+		if ([[dictionary objectForKey:@"shouldHideIcon"] boolValue]) [messagingCenter sendMessageName:@"HideIcon" userInfo:nil];
 		else [messagingCenter sendMessageName:@"ShowIcon" userInfo:nil];
 	}
 	else
@@ -105,14 +105,14 @@ static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef 
 	if (buttonIndex == 0)
 	{
 		NSDictionary *dictionary = [NSDictionary dictionaryWithContentsOfFile:SETTINGS];
-		if ([dictionary[@"startPassword"] isEqualToString:password] && [password length] != 0)
+		if ([[dictionary objectForKey:@"startPassword"] isEqualToString:password] && [password length] != 0)
 		{
 			_viewController.fake = nil;
 			_viewController.fake = @NO;
 			self.window.rootViewController = navigationController;
 			[_window makeKeyAndVisible];
 		}
-		else if ([dictionary[@"fakePassword"] isEqualToString:password] && [password length] != 0)
+		else if ([[dictionary objectForKey:@"fakePassword"] isEqualToString:password] && [password length] != 0)
 		{
 			_viewController.fake = nil;
 			_viewController.fake = @YES;

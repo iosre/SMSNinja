@@ -167,7 +167,7 @@ static void (^CreateDatabase)(void) = ^(void)
 
 				cell.accessoryView = appSwitch;
 				NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:SETTINGS];
-				appSwitch.on = [dictionary[@"appIsOn"] boolValue];
+				appSwitch.on = [[dictionary objectForKey:@"appIsOn"] boolValue];
 				[appSwitch addTarget:self action:@selector(saveSettings) forControlEvents:UIControlEventValueChanged];
 				break;
 			}
@@ -229,7 +229,7 @@ static void (^CreateDatabase)(void) = ^(void)
 - (void)saveSettings
 {
 	NSMutableDictionary *dictionary = [NSMutableDictionary dictionaryWithContentsOfFile:SETTINGS];
-	dictionary[@"appIsOn"] = @(appSwitch.on);
+	[dictionary setObject:[NSNumber numberWithBool:appSwitch.on] forKey:@"appIsOn"];
 	[dictionary writeToFile:SETTINGS atomically:YES];
 
 	notify_post("com.naken.smsninja.settingschanged");	
@@ -247,8 +247,10 @@ static void (^CreateDatabase)(void) = ^(void)
 {
 	NSMutableArray *labelArray = [NSMutableArray arrayWithCapacity:5];
 	for (UIView *view in alertView.subviews)
+	{
 		if ([view isKindOfClass:[UILabel class]])
 			[labelArray addObject:view];
+	}
 
 	for (UILabel *label in labelArray)
 		if ([[label text] length] > 20)

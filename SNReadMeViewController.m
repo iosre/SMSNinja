@@ -36,7 +36,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-	NSString *language = [NSLocale preferredLanguages][0];
+	NSString *language = [[NSLocale preferredLanguages] objectAtIndex:0];
 	NSString *filePath = nil;
 	filePath = [self.fake boolValue] ? [[NSBundle mainBundle] pathForResource:[language stringByAppendingString:@"_fake"] ofType:@"html"] : [[NSBundle mainBundle] pathForResource:language ofType:@"html"];
 	if (![[NSFileManager defaultManager] fileExistsAtPath:filePath]) filePath = [self.fake boolValue] ? [[NSBundle mainBundle] pathForResource:@"en_fake" ofType:@"html"] : [[NSBundle mainBundle] pathForResource:@"en" ofType:@"html"];

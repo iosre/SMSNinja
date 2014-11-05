@@ -1,8 +1,10 @@
 #import <CoreTelephony/CTCall.h>
 #import <CoreData/CoreData.h>
+
 #ifndef kCFCoreFoundationVersionNumber_iOS_8_0
 #define kCFCoreFoundationVersionNumber_iOS_8_0 1140.10
 #endif
+
 // MobilePhone
 typedef struct __CTCall* CTCallRef;
 

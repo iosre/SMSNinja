@@ -9,7 +9,7 @@
 	NSMutableArray *timeArray;
 	NSMutableArray *readArray;
 	NSMutableSet *bulkSet;
-	int chosenRow;
+	NSUInteger chosenRow;
 }
 - (void)loadDatabaseSegment;
 - (void)selectAll:(UIBarButtonItem *)buttonItem;

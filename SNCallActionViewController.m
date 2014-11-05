@@ -102,7 +102,7 @@
 		self.phoneAction = [NSString stringWithFormat:@"%ld", (long)(indexPath.row + 1)];
 	}
 
-	id viewController = (self.navigationController.viewControllers)[([self.navigationController.viewControllers count] - 2)];
+	id viewController = [self.navigationController.viewControllers objectAtIndex:([self.navigationController.viewControllers count] - 2)];
 	[viewController setPhoneAction:self.phoneAction];
 	if ([viewController isKindOfClass:[SNTimeViewController class]]) [((SNTimeViewController *)viewController)->settingsTableView reloadData];
 	else [((UITableViewController *)viewController).tableView reloadData];

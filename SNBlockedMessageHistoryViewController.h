@@ -10,7 +10,7 @@
 	NSMutableArray *readArray;
 	NSMutableArray *picturesArray;
 	NSMutableSet *bulkSet;
-	int chosenRow;
+	NSUInteger chosenRow;
 }
 - (void)loadDatabaseSegment;
 - (void)selectAll:(UIBarButtonItem *)buttonItem;
