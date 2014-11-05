@@ -44,7 +44,7 @@ static SNActionSheetDelegate *snActionSheetDelegate;
 static NSString *chosenName;
 static NSString *chosenKeyword;
 
-@implementation SNActionSheetDelegate
+@implementation SNActionSheetDelegate // UIActionSheetDelegate for stock MobilePhone, MobileSMS and FaceTime Apps
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex
 {
 	if (buttonIndex != snActionSheet.cancelButtonIndex)
@@ -86,7 +86,7 @@ static NSString *chosenKeyword;
 }
 @end
 
-%hook SMSApplication
+%hook SMSApplication // delete conversations in MobileSMS.app
 %new
 - (NSDictionary *)snHandleMessageNamed:(NSString *)name withUserInfo:(NSDictionary *)userInfo
 {
@@ -97,7 +97,7 @@ static NSString *chosenKeyword;
 		if (chat)
 		{
 			[chat leave];
-			CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
+			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
 			CKConversation *conversation = [conversationList conversationForExistingChat:chat];
 			if (conversation) [conversationList deleteConversation:conversation];
 		}
@@ -123,7 +123,7 @@ static NSString *chosenKeyword;
 }
 %end
 
-%hook CKConversationListController
+%hook CKConversationListController // add long press gesture to MobileSMS.app
 %new
 - (void)snLongPress:(UILongPressGestureRecognizer *)gesture
 {
@@ -214,7 +214,7 @@ static NSString *chosenKeyword;
 
 %hook SpringBoard
 %new
-- (NSDictionary *)snHandleMessageNamed:(NSString *)name withUserInfo:(NSDictionary *)userInfo
+- (NSDictionary *)snHandleMessageNamed:(NSString *)name withUserInfo:(NSDictionary *)userInfo // SpringBoard does a lot of work for other processes because of sandbox
 {
 	if ([name isEqualToString:@"UpdateBadge"]) UpdateBadge();
 	else if ([name isEqualToString:@"ShowPurpleSquare"]) ShowPurpleSquare();
@@ -283,7 +283,7 @@ static NSString *chosenKeyword;
 		if (chat)
 		{
 			[chat leave];
-			CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
+			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
 			CKConversation *conversation = [conversationList conversationForExistingChat:chat];
 			if (conversation) [conversationList deleteConversation:conversation];
 		}
@@ -296,11 +296,11 @@ static NSString *chosenKeyword;
 	}
 	return nil;
 
-	NSLog(@"SMSNinja: Come to http://bbs.iosre.com for more c00l shit :) ");
+	NSLog(@"SMSNinja: You also wanna check http://bbs.iosre.com");
 }
 
 %new
-- (void)snHandleNSNotification:(NSNotification *)notification
+- (void)snHandleNSNotification:(NSNotification *)notification // tell SMSNinja.app when device locks on iOS 6
 {
 	notify_post("com.naken.smsninja.willlock");
 }
@@ -342,7 +342,7 @@ static NSString *chosenKeyword;
 	%orig;
 	if ([(NSNumber *)arg3[@"kCTCallStatus"] intValue] == 3 && ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"]) || (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])))
 	{
-		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // this is dirty on iOS 7 :(
+		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // the same call makes this method get called twice on iOS 7, with different call id, so we do some dirty work :(
 
 		CTCallRef call = (CTCallRef)arg3[@"kCTCall"];
 		NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
@@ -355,7 +355,7 @@ static NSString *chosenKeyword;
 		switch (ActionOfAudioFunctionWithInfo(addressArray, YES))
 		{
 			default:
-				// take a rest!
+				// nothing but recording
 				break;
 		}
 	}
@@ -414,7 +414,13 @@ static NSString *chosenKeyword;
 			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1))
 			{
 				[chat leave];
-				CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.mobilesms"];
+				if (chat)
+				{
+					CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
+					CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+					if (conversation) [conversationList deleteConversation:conversation];
+				}
+				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
 				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:@{@"chatID" : chatID}];
 			}
 		}
@@ -480,7 +486,13 @@ static NSString *chosenKeyword;
 			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1))
 			{
 				[chat leave];
-				CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.mobilesms"];
+				if (chat)
+				{
+					CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
+					CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+					if (conversation) [conversationList deleteConversation:conversation];
+				}
+				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
 				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:@{@"chatID" : chatID}];
 			}
 		}
@@ -489,10 +501,9 @@ static NSString *chosenKeyword;
 %end
 
 %hook IMAVTelephonyManager
-- (void)_chatStateChanged:(NSConcreteNotification *)arg1 // outgoing FaceTime, state 5: 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7_8: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
+- (void)_chatStateChanged:(NSConcreteNotification *)arg1 // outgoing FaceTime, iOS 5: state 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7_8: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
 {
 	%orig;
-
 	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
 	{
 		IMAVChat *avChat = [arg1 object];
@@ -741,9 +752,9 @@ static NSString *chosenKeyword;
 					if ([store respondsToSelector:@selector(deleteChat:)]) [store deleteChat:chat];
 					else if ([store respondsToSelector:@selector(deleteChatWithGUID:)]) [store deleteChatWithGUID:[chat guid]];
 				}
-				CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.mobilesms"];
+				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
 				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:@{@"chatID" : arg2}];
-				messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
+				messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.springboard"];
 				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:@{@"chatID" : arg2}];					
 			}
 		}
@@ -792,6 +803,7 @@ static NSString *chosenKeyword;
 			}
 			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
+				// let it go
 			}
 			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
 		}
@@ -833,6 +845,7 @@ static NSString *chosenKeyword;
 			}
 			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
+				// let it go
 			}
 			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
 		}
@@ -842,52 +855,6 @@ static NSString *chosenKeyword;
 %end
 
 %end // end of SNBulletinHook_7
-
-%group SNBulletinHook_8
-/*
-%hook MPBBDataProvider
-- (void)_handleCallHistoryDatabaseChangedNotification:(id)arg1
-{
-	// TODO: 有时会崩溃！
-	CHManager *recentsManager = MSHookIvar<CHManager *>(self, "_recentsManager");
-	NSArray *recentCalls = recentsManager.recentCalls;
-	if ([recentCalls count] > 0)
-	{
-		CHRecentCall *recentCall = recentCalls[0];
-		if (![recentCall.originated boolValue])
-		{
-			NSString *address = recentCall.callerId;
-			NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-			[address release];
-
-			NSLog(@"SMSNinja: MPBBDataProvider | _handleCallHistoryDatabaseChangedNotification: | arg1 = \"%@\", call = \"%@\", address = \"%@\"", arg1, recentCall, tempAddress);
-
-			NSUInteger index = NSNotFound;
-			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
-			{
-				if ([privatePhoneArray[index] intValue] != 0) return;
-			}
-			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
-			{
-				if ([blackPhoneArray[index] intValue] != 0) return;
-			}
-			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-			{
-				if ([blackPhoneArray[index] intValue] != 0) return;
-			}
-			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
-			{
-			}
-			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
-			%orig;
-		}
-		else %orig;
-	}
-	else %orig;
-}
-%end
-*/
-%end // end of SNBulletinHook_8
 
 %group SNGeneralHook_5
 
@@ -1020,7 +987,7 @@ static NSString *chosenKeyword;
 
 %hook RecentsViewController
 %new
-- (void)snLongPress:(UILongPressGestureRecognizer *)gesture
+- (void)snLongPress:(UILongPressGestureRecognizer *)gesture // add long press gesture to MobilePhone.app
 {
 	if (gesture.state == UIGestureRecognizerStateBegan && [settings[@"appIsOn"] boolValue])
 	{
@@ -1148,6 +1115,7 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 		}
 		else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
 		{
+			// let it go
 		}
 		else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
 
@@ -1234,7 +1202,7 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 			[numberLabel setText:@""];
 		}
 
-		CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
+		CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.springboard"];
 		[messagingCenter sendMessageName:@"LaunchSMSNinja" userInfo:nil];
 		return NO;
 	}
@@ -1262,7 +1230,7 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 
 %hook PHRecentsViewController // MobilePhone & FaceTime on 7, MobilePhone only on 8
 %new
-- (void)snLongPress:(UILongPressGestureRecognizer *)gesture
+- (void)snLongPress:(UILongPressGestureRecognizer *)gesture // add long press gesture to Apps
 {
 	if (gesture.state == UIGestureRecognizerStateBegan && [settings[@"appIsOn"] boolValue])
 	{
@@ -1349,12 +1317,14 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 %hook TUPrivacyManager // take over stock blocklist, only allows removal
 - (void)setBlockIncomingCommunication:(BOOL)arg1 forPhoneNumber:(TUPhoneNumber *)arg2 // arg1: YES for add, NO for remove
 {
-	if (!arg1) %orig;
+	if (![settings[@"appIsOn"] boolValue]) %orig;
+	else if (!arg1) %orig;
 }
 
 - (void)setBlockIncomingCommunication:(BOOL)arg1 forEmailAddress:(TUPhoneNumber *)arg2
 {
-	if (!arg1) %orig;
+	if (![settings[@"appIsOn"] boolValue]) %orig;
+	else if (!arg1) %orig;
 }
 %end
 
@@ -1364,7 +1334,8 @@ BOOL (*old_CMFBlockListIsItemBlocked)(CommunicationFilterItem *);
 
 BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable stock blocklist check
 {
-	return NO;
+	if ([settings[@"appIsOn"] boolValue]) return NO;
+	return old_CMFBlockListIsItemBlocked(item);
 }
 
 %end // end of SNGeneralHook_7_8
@@ -1477,20 +1448,11 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 		UILabel* numberLabel = [lcdView numberLabel];
 		[numberLabel setText:@""];
 
-		CPDistributedMessagingCenter *messagingCenter = [objc_getClass("CPDistributedMessagingCenter") centerNamed:@"com.naken.smsninja.springboard"];
+		CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.springboard"];
 		[messagingCenter sendMessageName:@"LaunchSMSNinja" userInfo:nil];
 		return NO;
 	}
 	return %orig;
-}
-%end
-
-%hook BBLocalDataProviderStore
-- (void)_loadDataProviderPluginBundle:(NSBundle *)bundle
-{
-	%orig;
-	NSString *bundleIdentifier = [bundle bundleIdentifier];
-	if ([bundleIdentifier isEqualToString:@"com.apple.mobilephone.bbplugin"]) %init(SNBulletinHook_8);
 }
 %end
 
@@ -1562,6 +1524,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 				}
 			case 2:
 				{
+					// ignore
 					break;
 				}
 			case 3:
@@ -1579,23 +1542,41 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 
 %group SNCallServicesdHook
 
-%hook NSManagedObjectContext
-- (void)insertObject:(NSManagedObject *)object
+%hook TUCallServicesRecentsController
+- (void)_callHistoryReady:(NSConcreteNotification *)notification // delete call history
 {
-	// TODO: 这里获取不到完整的CallRecord
-	if ([object isKindOfClass:NSClassFromString(@"CallRecord")])
+	TUCall *arg1 = [notification object];
+	NSMutableArray *addressArray = nil;
+	if ([arg1 isKindOfClass:NSClassFromString(@"TUFaceTimeCall")]) // facetime audio or video
 	{
-		CallRecord *record = (CallRecord *)object;
-		NSString *address = record.address;
-		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-		[address release];
-
-		NSLog(@"SMSNinja: NSManagedObjectContext | insertObject: | address = \"%@\"", tempAddress);
-
-		if ([settings[@"appIsOn"] boolValue]) // when calltype is 1 i.e. telephony, everything is fine; when it's 8 i.e. facetime, callservicesd crashes
+		IMAVChatProxy *avChatProxy = [(TUFaceTimeVideoCall *)arg1 chat];
+		addressArray = [NSMutableArray arrayWithCapacity:6];
+		for (IMAVChatParticipantProxy *participantProxy in [avChatProxy remoteParticipants])
 		{
-			BOOL isOutgoing = [record.originated boolValue];
-			BOOL shouldClearSpam = NO;
+			IMHandle *handle = [participantProxy.avChat otherIMHandle];
+			NSString *address = [handle normalizedID];
+			address = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+			[addressArray addObject:address];
+		}
+	}
+	else if ([arg1 isKindOfClass:NSClassFromString(@"TUTelephonyCall")])
+	{
+		CTCallRef call = [(TUTelephonyCall *)arg1 call];
+		addressArray = [NSMutableArray arrayWithCapacity:6];
+		NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
+		NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
+		addressArray = (NSMutableArray *)@[tempAddress];	
+		[address release];
+	}
+
+	NSLog(@"SMSNinja: TUCallServicesRecentsController | _callHistoryReady: | addressArray = \"%@\"", addressArray);
+
+	if ([settings[@"appIsOn"] boolValue])
+	{
+		BOOL shouldClearSpam = NO;
+		for (NSString *tempAddress in addressArray)
+		{
+			BOOL isOutgoing = arg1.outgoing;
 			NSUInteger index = NSNotFound;
 			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
 			{
@@ -1611,121 +1592,14 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 			}
 			else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
+				// let it go
 			}
 			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-
-			if (!shouldClearSpam) %orig;
 		}
+		if (shouldClearSpam) %orig((NSConcreteNotification *)[NSNotification notificationWithName:notification.name object:nil userInfo:notification.userInfo]);
 		else %orig;
 	}
 	else %orig;
-}
-/*
-- (BOOL)save:(NSError **)error
-{
-	if ([self hasChanges])
-	{
-		NSSet *allInsertedRecords = self.insertedObjects;
-		if ([allInsertedRecords count] != 0)
-		{
-			// NSMutableArray *deadRecords = [NSMutableArray arrayWithCapacity:6];
-			for (CallRecord *record in allInsertedRecords)
-			{
-				NSString *address = record.address;
-				NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-				[address release];
-
-				NSLog(@"SMSNinja: NSManagedObjectContext | save: | address = \"%@\"", tempAddress);
-
-				if ([settings[@"appIsOn"] boolValue]) // when calltype is 1 i.e. telephony, everything is fine; when it's 8 i.e. facetime, callservicesd crashes
-				{
-					BOOL isOutgoing = [record.originated boolValue];
-					BOOL shouldClearSpam = NO;
-					NSUInteger index = NSNotFound;
-					if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
-					{
-						if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
-					}
-					else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
-					{
-						if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-					}
-					else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-					{
-						if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-					}
-					else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
-					{
-					}
-					else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-
-					if (shouldClearSpam) return NO; // [deadRecords addObject:record.unique_id];
-				}
-			}
-			// if ([deadRecords count] != 0) [[[%c(DBHandleManager) instance] dbHandle] deleteObjectsWithUniqueIds:deadRecords];
-		}
-	}
-	return %orig;
-}
-*/
-%end
-
-%hook CallHistoryDBHandle
-/*
-- (void)updateCallDBProperties
-{
-	// %orig;
-	object_setInstanceVariable(self, "fCallRecordContext", NULL);
-	NSLog(@"SMSNinjaDebug: 1");
-}
-*/
-- (void)handleCallRecordContextDidSaveNotification:(NSDictionary *)arg1 // delete call history
-{
-	// TODO: 感觉还是删除操作不到位造成的，貌似要考虑NSManagedObjectContext的保存问题！
-	/*
-	   NSArray *allKeys = [arg1 allKeys];
-	   if ([allKeys indexOfObject:@"inserted"] != NSNotFound)
-	   {
-	   NSSet *allInsertedRecords = arg1[@"inserted"];
-	   if ([allInsertedRecords count] != 0)
-	   {
-	   NSMutableArray *deadRecords = [NSMutableArray arrayWithCapacity:6];
-	   for (CallRecord *record in allInsertedRecords)
-	   {
-	   NSString *address = record.address;
-	   NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
-	   [address release];
-	   if ([settings[@"appIsOn"] boolValue] && [record.calltype intValue] == 1) // when calltype is 8 i.e. facetime, callservicesd crashes
-	   {
-	   NSLog(@"SMSNinja: CallHistoryDBHandle | handleCallRecordContextDidSaveNotification: | address = \"%@\"", tempAddress);
-	   BOOL isOutgoing = [record.originated boolValue];
-	   BOOL shouldClearSpam = NO;
-	   NSUInteger index = NSNotFound;
-	   if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
-	   {
-	   if ([privatePhoneArray[index] intValue] != 0) shouldClearSpam = YES;
-	   }
-	   else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
-	   {
-	   if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-	   }
-	   else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-	   {
-	   if ([blackPhoneArray[index] intValue] != 0) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-	   }
-	   else if ([tempAddress isInAddressBook] && [settings[@"shouldIncludeContactsInWhitelist"] boolValue])
-	   {
-	   }
-	   else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([settings[@"whitelistCallsOnlyWithBeep"] boolValue] || [settings[@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [settings[@"shouldClearSpam"] boolValue] & !isOutgoing;
-
-	   if (shouldClearSpam) [deadRecords addObject:record.unique_id];
-	   }
-	   }
-	   if ([deadRecords count] != 0) [[[%c(DBHandleManager) instance] dbHandle] deleteObjectsWithUniqueIds:deadRecords];
-	   }
-	   }
-	 */
-	%orig;
 }
 %end
 

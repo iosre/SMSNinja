@@ -503,6 +503,7 @@ typedef struct __CTCall* CTCallRef;
 @interface TUCall : NSObject
 @property (nonatomic) int transitionStatus;
 @property (readonly, nonatomic) BOOL isVideo;
+@property (readonly, nonatomic, getter=isOutgoing) BOOL outgoing;
 - (void)disconnect;
 - (BOOL)setMuted:(BOOL)arg1;
 @end
@@ -571,6 +572,7 @@ typedef struct __CTCall* CTCallRef;
 @property unsigned int callType; // 1 for call, 8 for facetime
 @property (copy) NSString *callerId;
 @property (nonatomic) BOOL read;
+@property BOOL mobileOriginated;
 - (NSString *)callerNameForDisplay;
 @end
 
@@ -626,7 +628,7 @@ typedef struct __CTCall* CTCallRef;
 {
     TransactionManager *_transactionManager;
 }
-@property(readonly, nonatomic) DBHandleManager *handleManager; // @synthesize handleManager=_handleManager;
+@property (readonly, nonatomic) DBHandleManager *handleManager; // @synthesize handleManager=_handleManager;
 - (NSData *)archiveCallObject:(id)arg1;
 - (void)deleteObjectWithUniqueId:(id)arg1;
 @end

@@ -4,7 +4,6 @@
 			callservicesd,
 			imagent,
 			identityservicesd,
-			CallHistorySyncHelper,
 		);
 		Bundles = (
 			"com.apple.Preferences",

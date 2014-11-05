@@ -42,7 +42,7 @@ static void QuitApp(CFNotificationCenterRef center, void *observer, CFStringRef 
 	[self showPasswordAlert];
 
 	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, QuitApp, CFSTR("com.naken.smsninja.willlock"), NULL, CFNotificationSuspensionBehaviorCoalesce); // for iOS 6
-	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, QuitApp, CFSTR("com.apple.springboard.lockcomplete"), NULL, CFNotificationSuspensionBehaviorCoalesce); // for iOS 5 & 7
+	CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, QuitApp, CFSTR("com.apple.springboard.lockcomplete"), NULL, CFNotificationSuspensionBehaviorCoalesce); // for iOS 5, 7 & 8
 	currentApplication = self;
 }
 
