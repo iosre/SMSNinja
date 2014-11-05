@@ -103,7 +103,7 @@
 %new
 - (NSDictionary *)snMessageHistory // integrate with stock MobileSMS
 {
-	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_5_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 	{
 		for (id service in [%c(CKService) availableServices])
 		{
@@ -111,7 +111,7 @@
 			// TODO: analyze messages
 		}
 	}
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
 	{
 		IMChatRegistry *registry = [IMChatRegistry sharedInstance];
 		NSArray *chats = [registry allExistingChats];

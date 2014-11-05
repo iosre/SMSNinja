@@ -1,6 +1,10 @@
 // #define SMSNinjaDebug
 #import <UIKit/UIKit.h>
 
+#ifndef kCFCoreFoundationVersionNumber_iOS_8_0
+#define kCFCoreFoundationVersionNumber_iOS_8_0 1140.10
+#endif
+
 @interface UISwitch (private_5_6)
 - (void)setAlternateColors:(BOOL)colors;
 @end

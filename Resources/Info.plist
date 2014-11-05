@@ -14,6 +14,9 @@
 	<string>SMSNinja</string>
 	<key>CFBundleIconFiles</key>
 	<array>
+		<string>Icon-Small@3x.png</string>
+		<string>Icon-60@3x.png</string>
+		<string>Icon-40@3x.png</string>
 		<string>Icon-60.png</string>
 		<string>Icon-Small.png</string>
 		<string>Icon.png</string>

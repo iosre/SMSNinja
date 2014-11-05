@@ -117,7 +117,7 @@ static NSString *chosenKeyword;
 	BOOL result = %orig;
 	CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
 	[messagingCenter runServerOnCurrentThread];
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) [messagingCenter registerForMessageName:@"RefreshConversation" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) [messagingCenter registerForMessageName:@"RefreshConversation" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) [messagingCenter registerForMessageName:@"ClearDeletedChat" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	return result;
 }
@@ -131,7 +131,7 @@ static NSString *chosenKeyword;
 	{
 		CKConversationListCell *cell = (CKConversationListCell *)gesture.view;
 		NSUInteger chosenRow = [(UITableView *)MSHookIvar<UITableView *>(self, "_table") indexPathForCell:((UITableViewCell *)cell)].row;
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+		if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 		{
 			CKConversationList *list = self.conversationList;
 			CKAggregateConversation *conversation = [list activeConversations][chosenRow];
@@ -243,7 +243,7 @@ static NSString *chosenKeyword;
 	}
 	else if ([name isEqualToString:@"LaunchMobilePhone"])
 	{
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+		if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 		{
 			SBApplication *app = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.apple.mobilephone"];
 			[[%c(SBUIController) sharedInstance] activateApplicationFromSwitcher:app];
@@ -255,7 +255,7 @@ static NSString *chosenKeyword;
 	}
 	else if ([name isEqualToString:@"LaunchMobileSMS"])
 	{
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+		if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 		{
 			SBApplication *app = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.apple.MobileSMS"];
 			[[%c(SBUIController) sharedInstance] activateApplicationFromSwitcher:app];
@@ -267,7 +267,7 @@ static NSString *chosenKeyword;
 	}
 	else if ([name isEqualToString:@"LaunchSMSNinja"])
 	{
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+		if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 		{
 			SBApplication *app = [[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.naken.smsninja"];
 			[[%c(SBUIController) sharedInstance] activateApplicationFromSwitcher:app];
@@ -290,8 +290,8 @@ static NSString *chosenKeyword;
 	}
 	else if ([name isEqualToString:@"RemoveIconFromSwitcher"])
 	{
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) [[%c(SBAppSwitcherController) sharedInstance] _removeApplicationFromRecents:[[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.naken.smsninja"]];
-		else if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_0) [[%c(SBAppSwitcherModel) sharedInstance] remove:@"com.naken.smsninja"];
+		if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0) [[%c(SBAppSwitcherController) sharedInstance] _removeApplicationFromRecents:[[%c(SBApplicationController) sharedInstance] applicationWithDisplayIdentifier:@"com.naken.smsninja"]];
+		else if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0) [[%c(SBAppSwitcherModel) sharedInstance] remove:@"com.naken.smsninja"];
 		else [[%c(SBAppSwitcherModel) sharedInstance] removeDisplayItem:[%c(SBDisplayItem) displayItemWithType:@"App" displayIdentifier:@"com.naken.smsninja"]];
 	}
 	return nil;
@@ -340,9 +340,9 @@ static NSString *chosenKeyword;
 - (void)handleNotificationFromConnection:(void *)arg1 ofType:(id)arg2 withInfo:(NSDictionary *)arg3 // outgoing call, 3 for outgoing, 4 for incoming, 5 for disconnect
 {
 	%orig;
-	if ([(NSNumber *)arg3[@"kCTCallStatus"] intValue] == 3 && ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"]) || (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])))
+	if ([(NSNumber *)arg3[@"kCTCallStatus"] intValue] == 3 && ((kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"]) || (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])))
 	{
-		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // the same call makes this method get called twice on iOS 7, with different call id, so we do some dirty work :(
+		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // the same call makes this method get called twice on iOS 7, with different call id, so we do some dirty work :(
 
 		CTCallRef call = (CTCallRef)arg3[@"kCTCall"];
 		NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
@@ -366,12 +366,12 @@ static NSString *chosenKeyword;
 - (void)account:(id)account chat:(NSString *)chatID style:(unsigned char)style chatProperties:(id)properties messageSent:(id)message // outgoing iMessage_5/messages_6_7_8, called in SpringBoard & MobileSMS
 {
 	%orig;
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) message = (FZMessage *)message;
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0) message = (FZMessage *)message;
 	else message = (IMMessageItem *)message;
 	
 	if (![message isFinished]) return;
 	NSArray *transferGUIDArray = [message fileTransferGUIDs];
-	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [transferGUIDArray count] == 0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) // handles text only messages on iOS 5 ~ 7
+	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && [transferGUIDArray count] == 0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0) // handles text only messages on iOS 5 ~ 7
 	{
 		NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
 		IMChat *chat = [self existingChatWithChatIdentifier:chatID];
@@ -399,7 +399,7 @@ static NSString *chosenKeyword;
 		if (ActionOfTextFunctionWithInfo(addressArray, text, pictureArray, YES) == 1)
 		{
 			BOOL success = NO;
-			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
+			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0)
 			{
 				IMMessage *imMessage = [%c(IMMessage) messageFromFZMessage:message sender:(NSString *)[message sender] subject:[message subject]];
 				IMChatItem *chatItem = [chat chatItemForMessage:imMessage];
@@ -411,7 +411,7 @@ static NSString *chosenKeyword;
 				[chat deleteChatItems:chatItems];
 			}
 
-			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1))
+			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0))
 			{
 				[chat leave];
 				if (chat)
@@ -425,7 +425,7 @@ static NSString *chosenKeyword;
 			}
 		}
 	}
-	else if (([[[NSProcessInfo processInfo] processName] isEqualToString:@"MobileSMS"] && [transferGUIDArray count] > 0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) || ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1)) // handles messages with attachments in iOS 5 ~ 7 and all messages in iOS 8
+	else if (([[[NSProcessInfo processInfo] processName] isEqualToString:@"MobileSMS"] && [transferGUIDArray count] > 0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0) || ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"] && kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1)) // handles messages with attachments in iOS 5 ~ 7 and all messages in iOS 8
 	{
 		IMChat *chat = [self existingChatWithChatIdentifier:chatID];
 		NSMutableArray *addressArray = [NSMutableArray arrayWithCapacity:6];
@@ -471,7 +471,7 @@ static NSString *chosenKeyword;
 		if (ActionOfTextFunctionWithInfo(addressArray, text, pictureArray, YES) == 1)
 		{
 			BOOL success = NO;
-			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
+			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0)
 			{
 				IMMessage *imMessage = [%c(IMMessage) messageFromFZMessage:message sender:(NSString *)[message sender] subject:[message subject]];
 				IMChatItem *chatItem = [chat chatItemForMessage:imMessage];
@@ -483,7 +483,7 @@ static NSString *chosenKeyword;
 				[chat deleteChatItems:chatItems];
 			}
 
-			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1))
+			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0))
 			{
 				[chat leave];
 				if (chat)
@@ -504,10 +504,10 @@ static NSString *chosenKeyword;
 - (void)_chatStateChanged:(NSConcreteNotification *)arg1 // outgoing FaceTime, iOS 5: state 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7_8: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
 {
 	%orig;
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0)
 	{
 		IMAVChat *avChat = [arg1 object];
-		if ((kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1 && [avChat state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 2))
+		if ((kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 2))
 		{		
 			NSMutableArray *otherParticipants = [NSMutableArray arrayWithCapacity:6];
 			[otherParticipants addObjectsFromArray:[avChat participants]];
@@ -569,7 +569,7 @@ static NSString *chosenKeyword;
 	NSURL *inviter = nil; // 5
 	IMHandle *handle = nil; // 6_7
 	IMAVChatProxy *chatProxy = nil; // 7
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 	{
 		inviter = [invitation userInfo][@"kCNFConferenceControllerInviterKey"];
 		conferenceID = [invitation userInfo][@"kCNFConferenceControllerConferenceIDKey"];	
@@ -577,7 +577,7 @@ static NSString *chosenKeyword;
 		if ([address hasPrefix:@"facetime://"]) address = [[address substringFromIndex:11] normalizedPhoneNumber];
 		[addressArray addObject:address];
 	}
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
 	{
 		handle = [invitation userInfo][@"kCNFConferenceControllerHandleKey"];
 		conferenceID = [invitation userInfo][@"kCNFConferenceControllerConferenceIDKey"];
@@ -605,8 +605,8 @@ static NSString *chosenKeyword;
 			}
 		case 1:
 			{
-				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) [[self conferenceController] rejectFaceTimeInvitationFrom:inviter conferenceID:conferenceID];
-				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) [[self conferenceController] declineFaceTimeInvitationForConferenceID:conferenceID fromHandle:handle];
+				if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) [[self conferenceController] rejectFaceTimeInvitationFrom:inviter conferenceID:conferenceID];
+				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0) [[self conferenceController] declineFaceTimeInvitationForConferenceID:conferenceID fromHandle:handle];
 				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0) [chatProxy declineInvitation];
 				break;
 			}
@@ -632,7 +632,7 @@ static NSString *chosenKeyword;
 - (void)displayAlertForCall:(id)arg1 // incoming call
 {
 	CTCallRef call = nil;
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) call = (CTCallRef)arg1;
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0) call = (CTCallRef)arg1;
 	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0) call = [(TUTelephonyCall *)arg1 call];
 	if (CTCallGetStatus(call) == 4)
 	{
@@ -679,7 +679,7 @@ static NSString *chosenKeyword;
 %hook IMDServiceSession
 - (void)didReceiveMessage:(id)message forChat:(NSString *)arg2 style:(unsigned char)arg3 // incoming iMessage_5/message_6_7_8
 {	
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) message = (FZMessage *)message;
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0) message = (FZMessage *)message;
 	else message = (IMMessageItem *)message;
 
 	if (![message isFinished]) %orig;
@@ -738,7 +738,7 @@ static NSString *chosenKeyword;
 			if (![chat lastMessage] || deleteChat)
 			{
 				IMDChatStore *store = [%c(IMDChatStore) sharedInstance];
-				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
 				{
 					static NSThread *(*IMDPersistenceDatabaseThread)(void);	
 					void *libHandle = dlopen("/System/Library/PrivateFrameworks/IMDPersistence.framework/IMDPersistence", RTLD_LAZY);
@@ -993,8 +993,8 @@ static NSString *chosenKeyword;
 	{
 		NSUInteger chosenRow = [[self table] indexPathForCell:((UITableViewCell *)gesture.view)].row;
 		id call = nil;
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) call = [self calls][chosenRow];
-		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) call = [self callAtTableViewIndex:chosenRow];
+		if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) call = [self calls][chosenRow];
+		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0) call = [self callAtTableViewIndex:chosenRow];
 		if ([call isKindOfClass:[%c(RecentCall) class]]) // including RecentMultiCall
 		{
 			RecentsTableViewCell *cell = (RecentsTableViewCell *)gesture.view;
@@ -1121,8 +1121,8 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 
 		if (shouldClearSpam)
 		{
-			if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) CTCallDeleteFromCallHistory(call);
-			else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) // this is dirty on iOS 7 :(
+			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0) CTCallDeleteFromCallHistory(call);
+			else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0) // this is dirty on iOS 7 :(
 			{
 				NSArray *callArray = (NSArray *)_CTCallCopyAllCalls();
 				if ([callArray count] != 0)
@@ -1181,13 +1181,13 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 	{
 		PhoneTabBarController *tabBarController = [self currentViewController];
 		DialerController *dialerController = tabBarController.keypadViewController;
-		if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+		if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 		{
 			DialerView *dialerView = MSHookIvar<DialerView *>(dialerController, "_dialerView");
 			DialerLCDField *lcd = [dialerView lcd];
 			[lcd setText:@"" needsFormat:NO];
 		}
-		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+		else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
 		{
 			DialerView *dialerView = MSHookIvar<DialerView *>(dialerController, "_dialerView");
 			DialerLCDView *lcdView = [dialerView lcdView];
@@ -1755,9 +1755,9 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 			else
 			{			
 				%init;
-				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) %init(SNGeneralHook_5);
-				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1) %init(SNGeneralHook_5_6);
-				if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
+				if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) %init(SNGeneralHook_5);
+				if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0) %init(SNGeneralHook_5_6);
+				if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0)
 				{
 					MSHookFunction(&CTTelephonyCenterAddObserver, &new_CTTelephonyCenterAddObserver, &old_CTTelephonyCenterAddObserver);
 					%init(SNGeneralHook_5_6_7);
@@ -1766,7 +1766,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 				{
 					MSHookFunction(&CMFBlockListIsItemBlocked, &new_CMFBlockListIsItemBlocked, &old_CMFBlockListIsItemBlocked);
 					%init(SNGeneralHook_7_8);
-					if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) %init(SNGeneralHook_7);
+					if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0) %init(SNGeneralHook_7);
 					else %init(SNGeneralHook_8);
 				}
 			}

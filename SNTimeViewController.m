@@ -126,7 +126,7 @@
 	[timePickerView selectRow:(4800 + [three intValue]) inComponent:3 animated:YES];
 	[timePickerView selectRow:(4800 + [four intValue]) inComponent:4 animated:YES];
 
-	settingsTableView = [[UITableView alloc] initWithFrame:CGRectMake(self.view.frame.origin.x, timePickerView.bounds.size.height, timePickerView.bounds.size.width, self.view.bounds.size.height - timePickerView.bounds.size.height - (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1 ? self.navigationController.navigationBar.frame.size.height : 0.0f)) style:UITableViewStyleGrouped];
+	settingsTableView = [[UITableView alloc] initWithFrame:CGRectMake(self.view.frame.origin.x, timePickerView.bounds.size.height, timePickerView.bounds.size.width, self.view.bounds.size.height - timePickerView.bounds.size.height - (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0 ? self.navigationController.navigationBar.frame.size.height : 0.0f)) style:UITableViewStyleGrouped];
 	settingsTableView.dataSource = self;
 	settingsTableView.delegate = self;
 	[self.view addSubview:settingsTableView];

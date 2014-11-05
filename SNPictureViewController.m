@@ -56,7 +56,7 @@
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
 	{
 		[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:NO];
 		self.navigationController.navigationBar.barStyle = UIStatusBarStyleDefault;
@@ -68,7 +68,7 @@
     [super viewDidLoad];
 	pictureScrollView.contentSize = CGSizeMake([UIScreen mainScreen].bounds.size.width * picturesCount, pictureScrollView.bounds.size.height);
 
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
 	{
 		[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleBlackTranslucent animated:NO];
 		self.navigationController.navigationBar.barStyle = UIBarStyleBlackTranslucent;

@@ -17,8 +17,8 @@ static SNTelephonyManager *sharedManager;
 - (int)iMessageAvailabilityOfAddress:(NSString *)address
 {
 	NSString *lowercaseAddress = [address lowercaseString];
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1) return [[objc_getClass("CKMadridService") sharedMadridService] availabilityForAddress:lowercaseAddress checkWithServer:YES];
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1) return [[objc_getClass("CKPreferredServiceManager") sharedPreferredServiceManager] availabilityForAddress:lowercaseAddress onService:[objc_getClass("IMService") iMessageService] checkWithServer:YES];
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) return [[objc_getClass("CKMadridService") sharedMadridService] availabilityForAddress:lowercaseAddress checkWithServer:YES];
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0) return [[objc_getClass("CKPreferredServiceManager") sharedPreferredServiceManager] availabilityForAddress:lowercaseAddress onService:[objc_getClass("IMService") iMessageService] checkWithServer:YES];
 	else
 	{
 		NSString *formattedAddress = @"";
@@ -31,7 +31,7 @@ static SNTelephonyManager *sharedManager;
 
 - (void)sendIMessageWithText:(NSString *)text address:(NSString *)address
 {
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 	{
 		CKMadridService *madridService = [objc_getClass("CKMadridService") sharedMadridService];
 		if ([objc_getClass("CKMadridService") isConnectedToDaemon] && [objc_getClass("CKMadridService") isMadridEnabled] && [objc_getClass("CKMadridService") isMadridSupported] && [madridService isAvailable] && [madridService ensureMadridConnection] && [madridService canSendToRecipients:@[[madridService copyEntityForAddressString:address]] withAttachments:nil alertIfUnable:NO] && [madridService isValidAddress:address])
@@ -51,7 +51,7 @@ static SNTelephonyManager *sharedManager;
 			[madridMessage release];
 		}
 	}
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
 	{
 		IMDaemonController *controller = [objc_getClass("IMDaemonController") sharedController];
 		CKIMEntity *imEntity = (CKIMEntity *)[objc_getClass("CKIMEntity") copyEntityForAddressString:address];
@@ -68,7 +68,7 @@ static SNTelephonyManager *sharedManager;
 		}
 		[imEntity release];
 	}
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0)
 	{
 		IMDaemonController *controller = [objc_getClass("IMDaemonController") sharedController];
 		CKEntity *entity = (CKEntity *)[objc_getClass("CKEntity") copyEntityForAddressString:address];			
@@ -122,7 +122,7 @@ static SNTelephonyManager *sharedManager;
 
 - (void)sendSMSWithText:(NSString *)text address:(NSString *)address
 {
-	if (kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_5_1)
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 	{
 		CKSMSService *smsService = [objc_getClass("CKSMSService") sharedSMSService];
 		CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
@@ -137,7 +137,7 @@ static SNTelephonyManager *sharedManager;
 		[smsService sendMessage:smsMessage];
 		[smsMessage release];
 	}
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_6_1)
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
 	{
 		CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
 		CKConversation *conversation = [conversationList conversationForExistingChatWithAddresses:@[address]];
@@ -153,7 +153,7 @@ static SNTelephonyManager *sharedManager;
 		[composition release];
 		[imMessage release];
 	}
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber <= kCFCoreFoundationVersionNumber_iOS_7_1)
+	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0)
 	{
 		CKConversationList *conversationList = [objc_getClass("CKConversationList") sharedConversationList];
 		CKConversation *conversation = [conversationList conversationForExistingChatWithAddresses:@[address]];
