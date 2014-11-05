@@ -310,6 +310,7 @@ typedef struct __CTCall* CTCallRef;
 - (CKConversation *)conversationForHandles:(NSArray *)arg1 create:(BOOL)arg2; // 8
 - (CKConversation *)conversationForExistingChat:(IMChat *)arg1; // 6_7_8
 - (CKConversation *)conversationForExistingChatWithAddresses:(NSArray *)arg1; // 6_7
+- (CKConversation *)_conversationForChat:(IMChat *)arg1;
 - (void)deleteConversation:(CKConversation *)conversation;
 @end
 

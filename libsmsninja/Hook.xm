@@ -98,7 +98,7 @@ static NSString *chosenKeyword;
 		{
 			[chat leave];
 			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-			CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+			CKConversation *conversation = [conversationList _conversationForChat:chat];
 			if (conversation) [conversationList deleteConversation:conversation];
 		}
 	}
@@ -284,7 +284,7 @@ static NSString *chosenKeyword;
 		{
 			[chat leave];
 			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-			CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+			CKConversation *conversation = [conversationList _conversationForChat:chat];
 			if (conversation) [conversationList deleteConversation:conversation];
 		}
 	}
@@ -417,7 +417,7 @@ static NSString *chosenKeyword;
 				if (chat)
 				{
 					CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-					CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+					CKConversation *conversation = [conversationList _conversationForChat:chat];
 					if (conversation) [conversationList deleteConversation:conversation];
 				}
 				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
@@ -489,7 +489,7 @@ static NSString *chosenKeyword;
 				if (chat)
 				{
 					CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-					CKConversation *conversation = [conversationList conversationForExistingChat:chat];
+					CKConversation *conversation = [conversationList _conversationForChat:chat];
 					if (conversation) [conversationList deleteConversation:conversation];
 				}
 				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
@@ -1465,7 +1465,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 %end
 
 %hook TUCallCenter
-- (void)handleCallStatusChanged:(TUCall *)arg1 userInfo:(NSDictionary *)arg2 // incoming call & facetime inside SpringBoard
+- (void)handleCallStatusChanged:(TUCall *)arg1 userInfo:(NSDictionary *)arg2 // incoming call & facetime inside SpringBoard, TUCallCenterCallStatusChangedNotification
 {
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
 	{
@@ -1535,6 +1535,20 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 		}
 	}
 	else %orig;
+}
+%end
+
+%hook PHAudioInterruptionController
+- (void)_callStatusChanged:(NSConcreteNotification *)arg1 // TUCallCenterCallStatusChangedNotification
+{
+	%orig;
+	// TODO: 不要响铃和振动
+}
+
+- (void)_videoCallStatusChanged:(NSConcreteNotification *)arg1 // TUCallCenterVideoCallStatusChangedNotification
+{
+	%orig;
+	// TODO: 不要响铃和振动
 }
 %end
 

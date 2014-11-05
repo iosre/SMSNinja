@@ -150,6 +150,7 @@
 					launchCodeField.delegate = self;
 					launchCodeField.secureTextEntry = YES;
 					launchCodeField.placeholder = NSLocalizedString(@"Numbers only", @"Numbers only");
+					launchCodeField.keyboardType = UIKeyboardTypeNumberPad;
 					launchCodeField.text = dictionary[@"launchCode"];
 					launchCodeField.clearButtonMode = UITextFieldViewModeWhileEditing;
 					[cell.contentView addSubview:launchCodeField];
