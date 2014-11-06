@@ -1,6 +1,6 @@
 Package: com.naken.libsmsninja
 Name: libsmsninja
-Depends: mobilesubstrate, libstatusbar, libhide
+Depends: mobilesubstrate, firmware (>= 5.0)
 Version: 1.0
 Architecture: iphoneos-arm
 Description: libsmsninja

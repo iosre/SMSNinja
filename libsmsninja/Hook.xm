@@ -98,7 +98,9 @@ static NSString *chosenKeyword;
 		{
 			[chat leave];
 			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-			CKConversation *conversation = [conversationList _conversationForChat:chat];
+			CKConversation *conversation = nil;
+			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
+			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [conversationList _conversationForChat:chat];
 			if (conversation) [conversationList deleteConversation:conversation];
 		}
 	}
@@ -117,8 +119,8 @@ static NSString *chosenKeyword;
 	BOOL result = %orig;
 	CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
 	[messagingCenter runServerOnCurrentThread];
-	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) [messagingCenter registerForMessageName:@"RefreshConversation" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
-	else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) [messagingCenter registerForMessageName:@"ClearDeletedChat" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
+	[messagingCenter registerForMessageName:@"RefreshConversation" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
+	[messagingCenter registerForMessageName:@"ClearDeletedChat" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	return result;
 }
 %end
@@ -285,7 +287,9 @@ static NSString *chosenKeyword;
 		{
 			[chat leave];
 			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-			CKConversation *conversation = [conversationList _conversationForChat:chat];
+			CKConversation *conversation = nil;
+			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
+			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [conversationList _conversationForChat:chat];
 			if (conversation) [conversationList deleteConversation:conversation];
 		}
 	}
@@ -419,8 +423,11 @@ static NSString *chosenKeyword;
 				[chat leave];
 				if (chat)
 				{
+					[chat leave];
 					CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-					CKConversation *conversation = [conversationList _conversationForChat:chat];
+					CKConversation *conversation = nil;
+					if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
+					if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [conversationList _conversationForChat:chat];
 					if (conversation) [conversationList deleteConversation:conversation];
 				}
 				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
@@ -491,8 +498,11 @@ static NSString *chosenKeyword;
 				[chat leave];
 				if (chat)
 				{
+					[chat leave];
 					CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-					CKConversation *conversation = [conversationList _conversationForChat:chat];
+					CKConversation *conversation = nil;
+					if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
+					if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [conversationList _conversationForChat:chat];
 					if (conversation) [conversationList deleteConversation:conversation];
 				}
 				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];

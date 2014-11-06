@@ -393,6 +393,7 @@ typedef struct __CTCall* CTCallRef;
 - (BOOL)isAvailable;
 - (void)sendMessage:(CKMessage *)message;
 - (BOOL)isValidAddress:(NSString *)address;
+- (instancetype)_conversationForChat:(IMChat *)arg1;
 - (CKMadridMessage *)newMessageWithComposition:(CKMessageComposition *)composition forConversation:(_CKConversation *)conversation;
 @end
 
