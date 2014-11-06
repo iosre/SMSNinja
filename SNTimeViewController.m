@@ -82,7 +82,7 @@
 	[super dealloc];
 }
 
-- (SNTimeViewController *)init
+- (instance)init
 {
 	if ((self = [super init]))
 	{
@@ -104,7 +104,7 @@
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
+	[super viewDidLoad];
 	timePickerView = [[UIPickerView alloc] initWithFrame:CGRectMake(0.0f, 0.0f, self.view.bounds.size.width, self.view.bounds.size.height / 2.0f)];
 	timePickerView.delegate = self;
 	timePickerView.showsSelectionIndicator = YES;
@@ -141,9 +141,7 @@
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component
 {
-	if (component == 2)
-		return 1;
-
+	if (component == 2) return 1;
 	return 10000;
 }
 
@@ -154,10 +152,8 @@
 
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
-	if (component == 0 || component == 3)
-		return [NSString stringWithFormat:(row % 24 < 10 ? @"0%ld" : @"%ld"), (long)(row % 24)];
-	else if (component == 1 || component == 4)
-		return [NSString stringWithFormat:(row % 60 < 10 ? @"0%ld" : @"%ld"), (long)(row % 60)];
+	if (component == 0 || component == 3) return [NSString stringWithFormat:(row % 24 < 10 ? @"0%ld" : @"%ld"), (long)(row % 24)];
+	else if (component == 1 || component == 4) return [NSString stringWithFormat:(row % 60 < 10 ? @"0%ld" : @"%ld"), (long)(row % 60)];
 	return @"~";
 }
 
@@ -168,8 +164,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-	if (section == 0 || section == 3)
-		return 1;
+	if (section == 0 || section == 3) return 1;
 	return 2;
 }
 
@@ -177,8 +172,7 @@
 {
 	SNTextTableViewCell *cell = [settingsTableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[SNTextTableViewCell alloc] initWithStyle:UITableViewCellStyleValue1 reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews])
-		[subview removeFromSuperview];
+	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.detailTextLabel.text = nil;
 	cell.accessoryView = nil;
@@ -187,66 +181,70 @@
 	switch (indexPath.section)
 	{
 		case 0:
-			cell.textLabel.text = NSLocalizedString(@"Name", @"Name");
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			nameField.delegate = self;
-			nameField.placeholder = NSLocalizedString(@"Input here", @"Input here");
-			nameField.text = self.nameString;
-			nameField.clearButtonMode = UITextFieldViewModeWhileEditing;
-			[cell.contentView addSubview:nameField];
-
-			break;
+			{
+				cell.textLabel.text = NSLocalizedString(@"Name", @"Name");
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+				nameField.delegate = self;
+				nameField.placeholder = NSLocalizedString(@"Input here", @"Input here");
+				nameField.text = self.nameString;
+				nameField.clearButtonMode = UITextFieldViewModeWhileEditing;
+				[cell.contentView addSubview:nameField];
+				break;
+			}
 		case 1:
-			if (indexPath.row == 0)
 			{
-				cell.textLabel.text = NSLocalizedString(@"Call", @"Call");
-				NSString *detailText = @"";
-				if ([self.phoneAction isEqualToString:@"1"]) detailText = NSLocalizedString(@"Disconnect", @"Disconnect");
-				else if ([self.phoneAction isEqualToString:@"2"]) detailText = NSLocalizedString(@"Ignore", @"Ignore");
-				cell.detailTextLabel.text = detailText;
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				if (indexPath.row == 0)
+				{
+					cell.textLabel.text = NSLocalizedString(@"Call", @"Call");
+					NSString *detailText = @"";
+					if ([self.phoneAction isEqualToString:@"1"]) detailText = NSLocalizedString(@"Disconnect", @"Disconnect");
+					else if ([self.phoneAction isEqualToString:@"2"]) detailText = NSLocalizedString(@"Ignore", @"Ignore");
+					cell.detailTextLabel.text = detailText;
+					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				}
+				else if (indexPath.row == 1)
+				{
+					cell.textLabel.text = NSLocalizedString(@"SMS", @"SMS");
+					NSString *detailText = @"";
+					if ([self.messageAction isEqualToString:@"1"]) detailText = [detailText stringByAppendingString:NSLocalizedString(@"Block", @"Block")];
+					if ([self.forwardString isEqualToString:@"1"]) detailText = [detailText stringByAppendingString:NSLocalizedString(@", Forward", @", Forward")];
+					if ([detailText hasPrefix:@", "]) detailText = [detailText substringFromIndex:2];
+					cell.detailTextLabel.text = detailText;
+					cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+				}
+				break;
 			}
-			else if (indexPath.row == 1)
-			{
-				cell.textLabel.text = NSLocalizedString(@"SMS", @"SMS");
-				NSString *detailText = @"";
-				if ([self.messageAction isEqualToString:@"1"]) detailText = [detailText stringByAppendingString:NSLocalizedString(@"Block", @"Block")];
-				if ([self.forwardString isEqualToString:@"1"]) detailText = [detailText stringByAppendingString:NSLocalizedString(@", Forward", @", Forward")];
-				if ([detailText hasPrefix:@", "]) detailText = [detailText substringFromIndex:2];
-				cell.detailTextLabel.text = detailText;
-				cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
-			}
-
-			break;
 		case 2:
-			if (indexPath.row == 0)
 			{
-				cell.textLabel.text = NSLocalizedString(@"Reply", @"Reply");
-				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				cell.accessoryView = replySwitch;
-				replySwitch.on = [self.replyString isEqualToString:@"0"] ? NO : YES;
-				[replySwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
+				if (indexPath.row == 0)
+				{
+					cell.textLabel.text = NSLocalizedString(@"Reply", @"Reply");
+					cell.selectionStyle = UITableViewCellSelectionStyleNone;
+					cell.accessoryView = replySwitch;
+					replySwitch.on = [self.replyString isEqualToString:@"0"] ? NO : YES;
+					[replySwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
+				}
+				else if (indexPath.row == 1)
+				{
+					cell.textLabel.text = NSLocalizedString(@"With", @"With");
+					cell.selectionStyle = UITableViewCellSelectionStyleNone;
+					messageField.delegate = self;
+					messageField.text = self.messageString;
+					messageField.clearButtonMode = UITextFieldViewModeWhileEditing;
+					messageField.placeholder = NSLocalizedString(@"Message here", @"Message here");
+					[cell.contentView addSubview:messageField];
+				}
+				break;
 			}
-			else if (indexPath.row == 1)
-			{
-				cell.textLabel.text = NSLocalizedString(@"With", @"With");
-				cell.selectionStyle = UITableViewCellSelectionStyleNone;
-				messageField.delegate = self;
-				messageField.text = self.messageString;
-				messageField.clearButtonMode = UITextFieldViewModeWhileEditing;
-				messageField.placeholder = NSLocalizedString(@"Message here", @"Message here");
-				[cell.contentView addSubview:messageField];
-			}
-
-			break;
 		case 3:
-			cell.textLabel.text = NSLocalizedString(@"Beep", @"Beep");
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			cell.accessoryView = soundSwitch;
-			soundSwitch.on = [self.soundString isEqualToString:@"0"] ? NO : YES;
-			[soundSwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
-
-			break;
+			{
+				cell.textLabel.text = NSLocalizedString(@"Beep", @"Beep");
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+				cell.accessoryView = soundSwitch;
+				soundSwitch.on = [self.soundString isEqualToString:@"0"] ? NO : YES;
+				[soundSwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
+				break;
+			}
 	}
 	return cell;
 }

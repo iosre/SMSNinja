@@ -82,34 +82,34 @@ static int amount;
 			while (sqlite3_step(statement) == SQLITE_ROW)
 			{
 				char *keyword = (char *)sqlite3_column_text(statement, 0);
-				[keywordArray addObject:keyword ? [NSString stringWithUTF8String:keyword] : @""];
+				[keywordArray addObject:keyword ? @(keyword) : @""];
 
 				char *type = (char *)sqlite3_column_text(statement, 1);
-				[typeArray addObject:type ? [NSString stringWithUTF8String:type] : @""];
+				[typeArray addObject:type ? @(type) : @""];
 
 				char *name = (char *)sqlite3_column_text(statement, 2);
-				[nameArray addObject:name ? [NSString stringWithUTF8String:name] : @""];
+				[nameArray addObject:name ? @(name) : @""];
 
 				char *phone = (char *)sqlite3_column_text(statement, 3);
-				[phoneArray addObject:phone ? [NSString stringWithUTF8String:phone] : @""];
+				[phoneArray addObject:phone ? @(phone) : @""];
 
 				char *sms = (char *)sqlite3_column_text(statement, 4);
-				[smsArray addObject:sms ? [NSString stringWithUTF8String:sms] : @""];
+				[smsArray addObject:sms ? @(sms) : @""];
 
 				char *reply = (char *)sqlite3_column_text(statement, 5);
-				[replyArray addObject:reply ? [NSString stringWithUTF8String:reply] : @""];
+				[replyArray addObject:reply ? @(reply) : @""];
 
 				char *message = (char *)sqlite3_column_text(statement, 6);
-				[messageArray addObject:message ? [NSString stringWithUTF8String:message] : @""];
+				[messageArray addObject:message ? @(message) : @""];
 
 				char *forward = (char *)sqlite3_column_text(statement, 7);
-				[forwardArray addObject:forward ? [NSString stringWithUTF8String:forward] : @""];
+				[forwardArray addObject:forward ? @(forward) : @""];
 
 				char *number = (char *)sqlite3_column_text(statement, 8);
-				[numberArray addObject:number ? [NSString stringWithUTF8String:number] : @""];
+				[numberArray addObject:number ? @(number) : @""];
 
 				char *sound = (char *)sqlite3_column_text(statement, 9);
-				[soundArray addObject:sound ? [NSString stringWithUTF8String:sound] : @""];
+				[soundArray addObject:sound ? @(sound) : @""];
 			}
 			sqlite3_finalize(statement);
 		}
@@ -195,8 +195,7 @@ static int amount;
 {
 	UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews])
-		[subview removeFromSuperview];
+	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -339,23 +338,35 @@ static int amount;
 		switch (buttonIndex)
 		{
 			case 0:
+				{
 				[self gotoNumberView];
 				break;
+				}
 			case 1:
+				{
 				[self gotoContentView];
 				break;
+				}
 			case 2:
+				{
 				[self gotoTimeView];
 				break;
+				}
 			case 3:
+				{
 				[self gotoAddressbook];
 				break;
+				}
 			case 4:
+				{
 				[self gotoSystemCallHistoryView];
 				break;
+				}
 			case 5:
+				{
 				[self gotoSystemMessageHistoryView];
 				break;
+				}
 		}
 	else if (actionSheet.tag == 2)
 	{

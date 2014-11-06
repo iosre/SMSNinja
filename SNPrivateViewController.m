@@ -62,12 +62,9 @@
 {
 	switch (section)
 	{
-		case 0:
-			return 2;
-		case 1:
-			return 1;
-		case 2:
-			return 3;
+		case 0: return 2;
+		case 1:	return 1;
+		case 2:	return 3;
 	}
 	return 0;
 }
@@ -76,8 +73,7 @@
 {
 	SNTextTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[SNTextTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews])
-		[subview removeFromSuperview];
+	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
@@ -91,11 +87,15 @@
 			switch (indexPath.row)
 			{
 				case 0:
-					cell.textLabel.text = NSLocalizedString(@"Private Info", @"Private Info");
-					break;
+					{
+						cell.textLabel.text = NSLocalizedString(@"Private Info", @"Private Info");
+						break;
+					}
 				case 1:
-					cell.textLabel.text = NSLocalizedString(@"Privatelist", @"Privatelist");
-					break;
+					{
+						cell.textLabel.text = NSLocalizedString(@"Privatelist", @"Privatelist");
+						break;
+					}
 			}
 
 			break;
@@ -114,29 +114,32 @@
 			switch (indexPath.row)
 			{
 				case 0:
-					cell.textLabel.text = NSLocalizedString(@"Purple Square", @"Purple Square");
-					cell.selectionStyle = UITableViewCellSelectionStyleNone;
-					cell.accessoryView = purpleSwitch;
-					purpleSwitch.on = [[dictionary objectForKey:@"shouldShowPurpleSquare"] boolValue];
-					[purpleSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
-
-					break;
+					{
+						cell.textLabel.text = NSLocalizedString(@"Purple Square", @"Purple Square");
+						cell.selectionStyle = UITableViewCellSelectionStyleNone;
+						cell.accessoryView = purpleSwitch;
+						purpleSwitch.on = [[dictionary objectForKey:@"shouldShowPurpleSquare"] boolValue];
+						[purpleSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
+						break;
+					}
 				case 1:
-					cell.textLabel.text = NSLocalizedString(@"Show Semicolon", @"Show Semicolon");
-					cell.selectionStyle = UITableViewCellSelectionStyleNone;
-					cell.accessoryView = semicolonSwitch;
-					semicolonSwitch.on = [[dictionary objectForKey:@"shouldShowSemicolon"] boolValue];
-					[semicolonSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
-
-					break;
+					{
+						cell.textLabel.text = NSLocalizedString(@"Show Semicolon", @"Show Semicolon");
+						cell.selectionStyle = UITableViewCellSelectionStyleNone;
+						cell.accessoryView = semicolonSwitch;
+						semicolonSwitch.on = [[dictionary objectForKey:@"shouldShowSemicolon"] boolValue];
+						[semicolonSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
+						break;
+					}
 				case 2:
-					cell.textLabel.text = NSLocalizedString(@"Reveal Privatelist", @"Reveal Privatelist");
-					cell.selectionStyle = UITableViewCellSelectionStyleNone;
-					cell.accessoryView = revealSwitch;
-					revealSwitch.on = [[dictionary objectForKey:@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue];
-					[revealSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
-
-					break;
+					{
+						cell.textLabel.text = NSLocalizedString(@"Reveal Privatelist", @"Reveal Privatelist");
+						cell.selectionStyle = UITableViewCellSelectionStyleNone;
+						cell.accessoryView = revealSwitch;
+						revealSwitch.on = [[dictionary objectForKey:@"shouldRevealPrivatelistOutsideSMSNinja"] boolValue];
+						[revealSwitch addTarget:self action:@selector(saveSettingsFromSource:) forControlEvents:UIControlEventValueChanged];
+						break;
+					}
 			}
 			break;
 	}
@@ -155,7 +158,6 @@
 					SNPrivateMessageHistoryViewController *privateMessageHistoryViewController = [[SNPrivateMessageHistoryViewController alloc] init];
 					[self.navigationController pushViewController:privateMessageHistoryViewController animated:YES];
 					[privateMessageHistoryViewController release];
-
 					break;
 				}
 			case 1:
@@ -163,7 +165,6 @@
 					SNPrivatelistViewController *privatelistViewController = [[SNPrivatelistViewController alloc] init];
 					[self.navigationController pushViewController:privatelistViewController animated:YES];
 					[privatelistViewController release];
-
 					break;
 				}
 		}

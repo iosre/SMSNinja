@@ -34,8 +34,7 @@
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-	if ([self.flag isEqualToString:@"private"])
-		return 3;
+	if ([self.flag isEqualToString:@"private"]) return 3;
 	return 2;
 }
 
@@ -43,8 +42,7 @@
 {
 	UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews])
-		[subview removeFromSuperview];
+	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
@@ -52,20 +50,26 @@
 	switch (indexPath.row)
 	{
 		case 0:
-			cell.textLabel.text = NSLocalizedString(@"Disconnect", @"Disconnect");
-			if ([self.phoneAction isEqualToString:@"1"]) cell.accessoryType = UITableViewCellAccessoryCheckmark;
-			else cell.accessoryType = UITableViewCellAccessoryNone;
-			break;
+			{
+				cell.textLabel.text = NSLocalizedString(@"Disconnect", @"Disconnect");
+				if ([self.phoneAction isEqualToString:@"1"]) cell.accessoryType = UITableViewCellAccessoryCheckmark;
+				else cell.accessoryType = UITableViewCellAccessoryNone;
+				break;
+			}
 		case 1:
-			cell.textLabel.text = NSLocalizedString(@"Ignore", @"Ignore");
-			if ([self.phoneAction isEqualToString:@"2"]) cell.accessoryType = UITableViewCellAccessoryCheckmark;
-			else cell.accessoryType = UITableViewCellAccessoryNone;
-			break;
+			{
+				cell.textLabel.text = NSLocalizedString(@"Ignore", @"Ignore");
+				if ([self.phoneAction isEqualToString:@"2"]) cell.accessoryType = UITableViewCellAccessoryCheckmark;
+				else cell.accessoryType = UITableViewCellAccessoryNone;
+				break;
+			}
 		case 2:
-			cell.textLabel.text = NSLocalizedString(@"Let go", @"Let go");
-			if ([self.phoneAction isEqualToString:@"3"]) cell.accessoryType = UITableViewCellAccessoryCheckmark;
-			else cell.accessoryType = UITableViewCellAccessoryNone;
-			break;
+			{
+				cell.textLabel.text = NSLocalizedString(@"Let go", @"Let go");
+				if ([self.phoneAction isEqualToString:@"3"]) cell.accessoryType = UITableViewCellAccessoryCheckmark;
+				else cell.accessoryType = UITableViewCellAccessoryNone;
+				break;
+			}
 	}
 	return cell;
 }
@@ -77,7 +81,6 @@
 	if ([tableView cellForRowAtIndexPath:indexPath].accessoryType == UITableViewCellAccessoryCheckmark)
 	{
 		[tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryNone;
-
 		self.phoneAction = nil;
 		self.phoneAction = @"0";
 	}
@@ -85,7 +88,6 @@
 	{
 		[tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
 		[tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:(1 - indexPath.row) inSection:0]].accessoryType = UITableViewCellAccessoryNone;
-
 		self.phoneAction = nil;
 		self.phoneAction = [NSString stringWithFormat:@"%ld", (long)(indexPath.row + 1)];
 	}
@@ -93,11 +95,8 @@
 	{
 		[tableView cellForRowAtIndexPath:indexPath].accessoryType = UITableViewCellAccessoryCheckmark;
 		for (int i = 0; i < 3; i++)
-		{
 			if (i != indexPath.row)
 				[tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0]].accessoryType = UITableViewCellAccessoryNone;
-		}
-
 		self.phoneAction = nil;
 		self.phoneAction = [NSString stringWithFormat:@"%ld", (long)(indexPath.row + 1)];
 	}

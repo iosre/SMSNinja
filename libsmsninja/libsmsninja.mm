@@ -607,8 +607,8 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 
 			if ((index = [address indexInPrivateListWithType:0]) != NSNotFound)
 			{
-				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:privateMessageArray[index]];
-				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:privateNumberArray[index]];
+				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[privateMessageArray objectAtIndex:index]];
+				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[privateNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[privateSoundArray objectAtIndex:index] intValue] == 1) PlayFilterSound();
 				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0)
 				{
@@ -626,16 +626,16 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 			}
 			else if ((index = [address indexInBlackListWithType:0]) != NSNotFound)
 			{
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
+				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
 				if (!isFromMe && [[blackPhoneArray objectAtIndex:index] intValue] != 0) PersistentSave("blocked", "call", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
 				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return [[blackPhoneArray objectAtIndex:index] intValue];
 			}
 			else if ((index = [time indexInBlackListWithType:2]) != NSNotFound)
 			{
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
+				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
 				if (!isFromMe && [[blackPhoneArray objectAtIndex:index] intValue] != 0) PersistentSave("blocked", "call", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
 				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return [[blackPhoneArray objectAtIndex:index] intValue];
@@ -662,8 +662,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 
 			if ((index = [address indexInPrivateListWithType:0]) != NSNotFound)
 			{
-				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:privateMessageArray[index]];
-				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:privateNumberArray[index]];
+				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[privateMessageArray objectAtIndex:index]];
+				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[privateNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[privateSoundArray objectAtIndex:index] intValue] == 1) PlayFilterSound();
 				if ([[privateSmsArray objectAtIndex:index] intValue] != 0)
 				{
@@ -673,8 +673,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			}
 			else if ((index = [text indexInPrivateListWithType:1]) != NSNotFound)
 			{
-				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:privateMessageArray[index]];
-				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:privateNumberArray[index]];
+				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[privateMessageArray objectAtIndex:index]];
+				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[privateNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[privateSoundArray objectAtIndex:index] intValue] == 1) PlayFilterSound();
 				if ([[privateSmsArray objectAtIndex:index] intValue] != 0)
 				{
@@ -696,8 +696,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			}
 			else if ((index = [address indexInBlackListWithType:0]) != NSNotFound)
 			{
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
+				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
 				if (!isFromMe && [[blackSmsArray objectAtIndex:index] intValue] == 1)
 				{
@@ -707,8 +707,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			}
 			else if ((index = [text indexInBlackListWithType:1]) != NSNotFound)
 			{
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
+				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
 				if (!isFromMe && [[blackSmsArray objectAtIndex:index] intValue] == 1)
 				{
@@ -718,8 +718,8 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 			}
 			else if ((index = [time indexInBlackListWithType:2]) != NSNotFound)
 			{
-				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:blackMessageArray[index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:blackNumberArray[index]];
+				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
+				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
 				if (!isFromMe && [[blackSmsArray objectAtIndex:index] intValue] == 1)
 				{
@@ -893,38 +893,38 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 	BOOL result = NO;
 	if ([[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])
 	{
-			ABAddressBookRef addressbook = ABAddressBookCreate();
-			ABRecordRef record = nil;
-			NSUInteger unknown = NSNotFound;
-			if ([self rangeOfString:@"@"].location == NSNotFound) // number
+		ABAddressBookRef addressbook = ABAddressBookCreate();
+		ABRecordRef record = nil;
+		NSUInteger unknown = NSNotFound;
+		if ([self rangeOfString:@"@"].location == NSNotFound) // number
+		{
+			NSString *countryCode = CurrentCountryCode();
+			if ([countryCode length] != 0)
 			{
-				NSString *countryCode = CurrentCountryCode();
-				if ([countryCode length] != 0)
-				{
-					CFStringRef internationalCode = NULL;
-					void *libHandle = NULL;
-					if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
-					{		
-						static CFStringRef (*UICountryCodeForInternationalCode)(CFStringRef);
-						libHandle = dlopen("/System/Library/Frameworks/UIKit.framework/UIKit", RTLD_LAZY);
-						UICountryCodeForInternationalCode = (CFStringRef (*)(CFStringRef))dlsym(libHandle, "UICountryCodeForInternationalCode");
-						internationalCode = UICountryCodeForInternationalCode((CFStringRef)countryCode);
-					}
-					else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
-					{
-						static CFStringRef (*TUISOCountryCodeForMCC)(CFStringRef);
-						libHandle = dlopen("/System/Library/PrivateFrameworks/TelephonyUtilities.framework/TelephonyUtilities", RTLD_LAZY);
-						TUISOCountryCodeForMCC = (CFStringRef (*)(CFStringRef))dlsym(libHandle, "TUISOCountryCodeForMCC");
-						internationalCode = TUISOCountryCodeForMCC((CFStringRef)countryCode);
-					}
-					record = ABAddressBookFindPersonMatchingPhoneNumberWithCountry(addressbook, (CFStringRef)self, internationalCode, &unknown, 0);
-					dlclose(libHandle);
+				CFStringRef internationalCode = NULL;
+				void *libHandle = NULL;
+				if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
+				{		
+					static CFStringRef (*UICountryCodeForInternationalCode)(CFStringRef);
+					libHandle = dlopen("/System/Library/Frameworks/UIKit.framework/UIKit", RTLD_LAZY);
+					UICountryCodeForInternationalCode = (CFStringRef (*)(CFStringRef))dlsym(libHandle, "UICountryCodeForInternationalCode");
+					internationalCode = UICountryCodeForInternationalCode((CFStringRef)countryCode);
 				}
-				if (!record) record = ABAddressBookFindPersonMatchingPhoneNumber(addressbook, (CFStringRef)self, &unknown, 0);
+				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
+				{
+					static CFStringRef (*TUISOCountryCodeForMCC)(CFStringRef);
+					libHandle = dlopen("/System/Library/PrivateFrameworks/TelephonyUtilities.framework/TelephonyUtilities", RTLD_LAZY);
+					TUISOCountryCodeForMCC = (CFStringRef (*)(CFStringRef))dlsym(libHandle, "TUISOCountryCodeForMCC");
+					internationalCode = TUISOCountryCodeForMCC((CFStringRef)countryCode);
+				}
+				record = ABAddressBookFindPersonMatchingPhoneNumberWithCountry(addressbook, (CFStringRef)self, internationalCode, &unknown, 0);
+				dlclose(libHandle);
 			}
-			else record = ABAddressBookFindPersonMatchingEmailAddress(addressbook, (CFStringRef)self, &unknown); // email
-			result = record ? YES : NO;
-			if (addressbook != nil) CFRelease(addressbook);			
+			if (!record) record = ABAddressBookFindPersonMatchingPhoneNumber(addressbook, (CFStringRef)self, &unknown, 0);
+		}
+		else record = ABAddressBookFindPersonMatchingEmailAddress(addressbook, (CFStringRef)self, &unknown); // email
+		result = record ? YES : NO;
+		if (addressbook != nil) CFRelease(addressbook);			
 	}
 	else
 	{

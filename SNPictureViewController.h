@@ -2,10 +2,8 @@
 
 @interface SNPictureViewController : UIViewController <UIScrollViewDelegate>
 {
-@public
-    int picturesCount;
-@private
-    UIScrollView *pictureScrollView;
+	int picturesCount;
+	UIScrollView *pictureScrollView;
 }
 @property (nonatomic, retain) NSString *idString;
 @property (nonatomic, retain) NSString *flag;

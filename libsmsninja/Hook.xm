@@ -197,7 +197,8 @@ static NSString *chosenKeyword;
 					}
 					completion:NULL
 					];
-				}];
+				}
+			];
 		}
 	}
 }
@@ -355,8 +356,10 @@ static NSString *chosenKeyword;
 		switch (ActionOfAudioFunctionWithInfo(addressArray, YES))
 		{
 			default:
-				// nothing but recording
-				break;
+				{
+					// nothing but recording
+					break;
+				}
 		}
 	}
 }
@@ -526,8 +529,10 @@ static NSString *chosenKeyword;
 			switch (ActionOfAudioFunctionWithInfo(addressArray, YES))
 			{
 				default:
-					// take a rest!
-					break;
+					{
+						// take a rest!
+						break;
+					}
 			}
 		}
 	}
@@ -550,8 +555,10 @@ static NSString *chosenKeyword;
 			switch (ActionOfAudioFunctionWithInfo(addressArray, YES))
 			{
 				default:
-					// take a rest!
-					break;
+					{
+						// take a rest!
+						break;
+					}
 			}
 		}
 	}
@@ -1012,7 +1019,7 @@ static NSString *chosenKeyword;
 			NSArray *ctCalls = [call underlyingCTCalls];
 			for (NSUInteger i = 0; i < [ctCalls count]; i++)
 			{
-				CTCallRef ctCall = (CTCallRef)[ctCalls objectAtIndex:i];
+				CTCallRef ctCall = [ctCalls objectAtIndex:i];
 				NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, ctCall);
 				if (![[tempString componentsSeparatedByString:@"  "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@"  "];
 				[address release];
@@ -1055,7 +1062,8 @@ static NSString *chosenKeyword;
 					}
 					completion:NULL
 		   			];
-				}];
+				}
+			];
 		}
 	}
 }
@@ -1126,7 +1134,7 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 				NSArray *callArray = (NSArray *)_CTCallCopyAllCalls();
 				if ([callArray count] != 0)
 				{
-					CTCallRef historyCall = (CTCallRef)[callArray objectAtIndex:0];
+					CTCallRef historyCall = [callArray objectAtIndex:0];
 					NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
 					NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 					NSString *historyAddress = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, historyCall);
@@ -1245,7 +1253,7 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 			NSArray *ctCalls = [call underlyingCTCalls];
 			for (NSUInteger i = 0; i < [ctCalls count]; i++)
 			{
-				CTCallRef ctCall = (CTCallRef)[ctCalls objectAtIndex:i];
+				CTCallRef ctCall = [ctCalls objectAtIndex:i];
 				NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, ctCall);
 				if (![[tempString componentsSeparatedByString:@"  "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@"  "];
 				[address release];
@@ -1298,7 +1306,8 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 			   		}
 					completion:NULL
 		   			];
-	   			}];
+	   			}
+			];
 		}
 	}
 }
@@ -1411,7 +1420,8 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 					}
 					completion:NULL
 		   			];
-	   			}];
+	   			}
+			];
 		}
 	}
 }

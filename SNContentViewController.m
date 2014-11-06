@@ -115,15 +115,13 @@
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-	if ([self.flag isEqualToString:@"white"])
-		return 1;
+	if ([self.flag isEqualToString:@"white"]) return 1;
 	return 4;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-	if (section == 3)
-		return 1;
+	if (section == 3) return 1;
 	return 2;
 }
 
@@ -132,8 +130,7 @@
 	SNTextTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[SNTextTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
 	cell.selectionStyle = UITableViewCellSelectionStyleNone;
-	for (UIView *subview in [cell.contentView subviews])
-		[subview removeFromSuperview];
+	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
@@ -141,71 +138,75 @@
 	switch (indexPath.section)
 	{
 		case 0:
-			if (indexPath.row == 0)
 			{
-				cell.textLabel.text = NSLocalizedString(@"Name", @"Name");
-				nameField.delegate = self;
-				nameField.placeholder = NSLocalizedString(@"Input here", @"Input here");
-				nameField.text = self.nameString;
-				nameField.clearButtonMode = UITextFieldViewModeWhileEditing;
-				[cell.contentView addSubview:nameField];
+				if (indexPath.row == 0)
+				{
+					cell.textLabel.text = NSLocalizedString(@"Name", @"Name");
+					nameField.delegate = self;
+					nameField.placeholder = NSLocalizedString(@"Input here", @"Input here");
+					nameField.text = self.nameString;
+					nameField.clearButtonMode = UITextFieldViewModeWhileEditing;
+					[cell.contentView addSubview:nameField];
+				}
+				else if (indexPath.row == 1)
+				{
+					cell.textLabel.text = NSLocalizedString(@"Keyword", @"Keyword");
+					keywordField.delegate = self;
+					keywordField.placeholder = NSLocalizedString(@"Input here", @"Input here");
+					keywordField.text = self.keywordString;
+					keywordField.clearButtonMode = UITextFieldViewModeWhileEditing;
+					[cell.contentView addSubview:keywordField];
+				}
+				break;
 			}
-			else if (indexPath.row == 1)
-			{
-				cell.textLabel.text = NSLocalizedString(@"Keyword", @"Keyword");
-				keywordField.delegate = self;
-				keywordField.placeholder = NSLocalizedString(@"Input here", @"Input here");
-				keywordField.text = self.keywordString;
-				keywordField.clearButtonMode = UITextFieldViewModeWhileEditing;
-				[cell.contentView addSubview:keywordField];
-			}
-
-			break;
 		case 1:
-			if (indexPath.row == 0)
 			{
-				cell.textLabel.text = NSLocalizedString(@"Forward", @"Forward");
-				cell.accessoryView = forwardSwitch;
-				forwardSwitch.on = [self.forwardString isEqualToString:@"0"] ? NO : YES;
-				[forwardSwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
+				if (indexPath.row == 0)
+				{
+					cell.textLabel.text = NSLocalizedString(@"Forward", @"Forward");
+					cell.accessoryView = forwardSwitch;
+					forwardSwitch.on = [self.forwardString isEqualToString:@"0"] ? NO : YES;
+					[forwardSwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
+				}
+				else if (indexPath.row == 1)
+				{
+					cell.textLabel.text = NSLocalizedString(@"To", @"To");
+					numberField.delegate = self;
+					numberField.text = self.numberString;
+					numberField.clearButtonMode = UITextFieldViewModeWhileEditing;
+					numberField.placeholder = NSLocalizedString(@"Number here", @"Number here");
+					[cell.contentView addSubview:numberField];
+				}
+				break;
 			}
-			else if (indexPath.row == 1)
-			{
-				cell.textLabel.text = NSLocalizedString(@"To", @"To");
-				numberField.delegate = self;
-				numberField.text = self.numberString;
-				numberField.clearButtonMode = UITextFieldViewModeWhileEditing;
-				numberField.placeholder = NSLocalizedString(@"Number here", @"Number here");
-				[cell.contentView addSubview:numberField];
-			}
-
-			break;
 		case 2:
-			if (indexPath.row == 0)
 			{
-				cell.textLabel.text = NSLocalizedString(@"Reply", @"Reply");
-				cell.accessoryView = replySwitch;
-				replySwitch.on = [self.replyString isEqualToString:@"0"] ? NO : YES;
-				[replySwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
+				if (indexPath.row == 0)
+				{
+					cell.textLabel.text = NSLocalizedString(@"Reply", @"Reply");
+					cell.accessoryView = replySwitch;
+					replySwitch.on = [self.replyString isEqualToString:@"0"] ? NO : YES;
+					[replySwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
+				}
+				else if (indexPath.row == 1)
+				{
+					cell.textLabel.text = NSLocalizedString(@"With", @"With");
+					messageField.delegate = self;
+					messageField.text = self.messageString;
+					messageField.clearButtonMode = UITextFieldViewModeWhileEditing;
+					messageField.placeholder = NSLocalizedString(@"Message here", @"Message here");
+					[cell.contentView addSubview:messageField];
+				}
+				break;
 			}
-			else if (indexPath.row == 1)
-			{
-				cell.textLabel.text = NSLocalizedString(@"With", @"With");
-				messageField.delegate = self;
-				messageField.text = self.messageString;
-				messageField.clearButtonMode = UITextFieldViewModeWhileEditing;
-				messageField.placeholder = NSLocalizedString(@"Message here", @"Message here");
-				[cell.contentView addSubview:messageField];
-			}
-
-			break;
 		case 3:
-			cell.textLabel.text = NSLocalizedString(@"Beep", @"Beep");
-			cell.accessoryView = soundSwitch;
-			soundSwitch.on = [self.soundString isEqualToString:@"0"] ? NO : YES;
-			[soundSwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
-
-			break;
+			{
+				cell.textLabel.text = NSLocalizedString(@"Beep", @"Beep");
+				cell.accessoryView = soundSwitch;
+				soundSwitch.on = [self.soundString isEqualToString:@"0"] ? NO : YES;
+				[soundSwitch addTarget:self action:@selector(saveSwitchValues) forControlEvents:UIControlEventValueChanged];
+				break;
+			}
 	}
 
 	return cell;

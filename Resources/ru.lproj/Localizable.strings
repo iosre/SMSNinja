@@ -99,8 +99,8 @@
 	<string>Вписать</string>
 	<key>Input here</key>
 	<string>Вписать сюда</string>
-	<key>It seems that you have installed SMSNinja before. To activate version 1.5, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in "/var/mobile/Library/SMSNinja", it's highly recommended that you make a backup of the files first. Are you sure to convert now?</key>
-	<string>It seems that you have installed SMSNinja before. To activate version 1.5, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in "/var/mobile/Library/SMSNinja", it's highly recommended that you make a backup of the files first. Are you sure to convert now?</string>
+	<key>It seems that you have installed SMSNinja before. To activate version 1.6, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in "/var/mobile/Library/SMSNinja", it's highly recommended that you make a backup of the files first. Are you sure to convert now?</key>
+	<string>It seems that you have installed SMSNinja before. To activate version 1.6, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in "/var/mobile/Library/SMSNinja", it's highly recommended that you make a backup of the files first. Are you sure to convert now?</string>
 	<key>Keyword</key>
 	<string>Ключевое слово</string>
 	<key>Launch Code</key>

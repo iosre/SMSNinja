@@ -194,8 +194,7 @@ static int amount;
 {
 	UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews])
-		[subview removeFromSuperview];
+	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -243,45 +242,53 @@ static int amount;
 	switch (buttonIndex)
 	{
 		case 0:
-			[bulkSet removeAllObjects];
-			[bulkSet addObject:[NSIndexPath indexPathForRow:chosenRow inSection:0]];
-
-			sqlite3 *database;
-			int openResult = sqlite3_open([DATABASE UTF8String], &database);
-			if (openResult == SQLITE_OK)
 			{
-				for (NSIndexPath *chosenRowIndexPath in bulkSet)
+				[bulkSet removeAllObjects];
+				[bulkSet addObject:[NSIndexPath indexPathForRow:chosenRow inSection:0]];
+
+				sqlite3 *database;
+				int openResult = sqlite3_open([DATABASE UTF8String], &database);
+				if (openResult == SQLITE_OK)
 				{
-					NSString *sql = [NSString stringWithFormat:@"delete from blockedcall where number = '%@' and name = '%@' and time = '%@' and content = '%@' and id = '%@'", [numberArray objectAtIndex:chosenRowIndexPath.row], [[nameArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [timeArray objectAtIndex:chosenRowIndexPath.row], [[contentArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [idArray objectAtIndex:chosenRowIndexPath.row]];
-					int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
-					if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
+					for (NSIndexPath *chosenRowIndexPath in bulkSet)
+					{
+						NSString *sql = [NSString stringWithFormat:@"delete from blockedcall where number = '%@' and name = '%@' and time = '%@' and content = '%@' and id = '%@'", [numberArray objectAtIndex:chosenRowIndexPath.row], [[nameArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [timeArray objectAtIndex:chosenRowIndexPath.row], [[contentArray objectAtIndex:chosenRowIndexPath.row] stringByReplacingOccurrencesOfString:@"'" withString:@"''"], [idArray objectAtIndex:chosenRowIndexPath.row]];
+						int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
+						if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
+					}
+					sqlite3_close(database);
 				}
-				sqlite3_close(database);
+				else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+
+				NSMutableIndexSet *discardedItems = [NSMutableIndexSet indexSet];
+				for (NSIndexPath *chosenRowIndexPath in bulkSet) [discardedItems addIndex:chosenRowIndexPath.row];
+
+				[idArray removeObjectsAtIndexes:discardedItems];
+				[nameArray removeObjectsAtIndexes:discardedItems];
+				[contentArray removeObjectsAtIndexes:discardedItems];
+				[timeArray removeObjectsAtIndexes:discardedItems];
+				[numberArray removeObjectsAtIndexes:discardedItems];
+
+				[self.tableView beginUpdates];
+				[self.tableView deleteRowsAtIndexPaths:[bulkSet allObjects] withRowAnimation:UITableViewRowAnimationFade];
+				[self.tableView endUpdates];
+				break;
 			}
-			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
-
-			NSMutableIndexSet *discardedItems = [NSMutableIndexSet indexSet];
-			for (NSIndexPath *chosenRowIndexPath in bulkSet) [discardedItems addIndex:chosenRowIndexPath.row];
-
-			[idArray removeObjectsAtIndexes:discardedItems];
-			[nameArray removeObjectsAtIndexes:discardedItems];
-			[contentArray removeObjectsAtIndexes:discardedItems];
-			[timeArray removeObjectsAtIndexes:discardedItems];
-			[numberArray removeObjectsAtIndexes:discardedItems];
-
-			[self.tableView beginUpdates];
-			[self.tableView deleteRowsAtIndexPaths:[bulkSet allObjects] withRowAnimation:UITableViewRowAnimationFade];
-			[self.tableView endUpdates];
-			break;
 		case 1:
-			[[UIPasteboard generalPasteboard] setValue:[numberArray objectAtIndex:chosenRow] forPasteboardType:@"public.utf8-plain-text"];
-			break;
+			{
+				[[UIPasteboard generalPasteboard] setValue:[numberArray objectAtIndex:chosenRow] forPasteboardType:@"public.utf8-plain-text"];
+				break;
+			}
 		case 2:
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"sms:%@", [numberArray objectAtIndex:chosenRow]]]];
-			break;
+			{
+				[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"sms:%@", [numberArray objectAtIndex:chosenRow]]]];
+				break;
+			}
 		case 3:
-			[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"tel:%@", [numberArray objectAtIndex:chosenRow]]]];
-			break;
+			{
+				[[UIApplication sharedApplication] openURL:[NSURL URLWithString:[NSString stringWithFormat:@"tel:%@", [numberArray objectAtIndex:chosenRow]]]];
+				break;
+			}
 	}
 }
 
@@ -332,17 +339,14 @@ static int amount;
 	if ([buttonItem.title isEqualToString:NSLocalizedString(@"All", @"All")])
 	{
 		buttonItem.title = NSLocalizedString(@"None", @"None");
-		for (int i = 0; i < [idArray count]; i++)
-			[self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
+		for (int i = 0; i < [idArray count]; i++) [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0] animated:NO scrollPosition:UITableViewScrollPositionNone];
 		[bulkSet removeAllObjects];
-		for (int i = 0; i < [idArray count]; i++)
-			[bulkSet addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+		for (int i = 0; i < [idArray count]; i++) [bulkSet addObject:[NSIndexPath indexPathForRow:i inSection:0]];
 	}
 	else if ([buttonItem.title isEqualToString:NSLocalizedString(@"None", @"None")])
 	{
 		buttonItem.title = NSLocalizedString(@"All", @"All");
-		for (int i = 0; i < [idArray count]; i++)
-			[self.tableView deselectRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0] animated:NO];
+		for (int i = 0; i < [idArray count]; i++) [self.tableView deselectRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:0] animated:NO];
 		[bulkSet removeAllObjects];
 	}
 }
@@ -353,14 +357,12 @@ static int amount;
 	[self.navigationController setToolbarHidden:!editing animated:animate];
 	if (editing)
 	{
-		for (UITableViewCell *cell in [self.tableView visibleCells])
-			cell.selectionStyle = UITableViewCellSelectionStyleGray;
+		for (UITableViewCell *cell in [self.tableView visibleCells]) cell.selectionStyle = UITableViewCellSelectionStyleGray;
 		[self.navigationItem setLeftBarButtonItem:[[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"All", @"All") style:UIBarButtonItemStylePlain target:self action:@selector(selectAll:)] autorelease] animated:animate];
 	}
 	else
 	{
-		for (UITableViewCell *cell in [self.tableView visibleCells])
-			cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+		for (UITableViewCell *cell in [self.tableView visibleCells]) cell.selectionStyle = UITableViewCellSelectionStyleBlue;
 		[self.navigationItem setLeftBarButtonItem:nil animated:animate];
 	}
 	[super setEditing:editing animated:animate];

@@ -61,8 +61,7 @@
 {
 	SNTextTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[SNTextTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews])
-		[subview removeFromSuperview];
+	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
@@ -70,29 +69,32 @@
 	switch (indexPath.row)
 	{
 		case 0:
-			cell.textLabel.text = NSLocalizedString(@"Block", @"Block");
-			if ([self.messageAction isEqualToString:@"1"]) cell.accessoryType = UITableViewCellAccessoryCheckmark;
-			else cell.accessoryType = UITableViewCellAccessoryNone;
-
-			break;
+			{
+				cell.textLabel.text = NSLocalizedString(@"Block", @"Block");
+				if ([self.messageAction isEqualToString:@"1"]) cell.accessoryType = UITableViewCellAccessoryCheckmark;
+				else cell.accessoryType = UITableViewCellAccessoryNone;
+				break;
+			}
 		case 1:
-			cell.textLabel.text = NSLocalizedString(@"Forward", @"Forward");
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			cell.accessoryView = forwardSwitch;
-			forwardSwitch.on = [self.forwardString isEqualToString:@"0"] ? NO : YES;
-
-			break;
+			{
+				cell.textLabel.text = NSLocalizedString(@"Forward", @"Forward");
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+				cell.accessoryView = forwardSwitch;
+				forwardSwitch.on = [self.forwardString isEqualToString:@"0"] ? NO : YES;
+				break;
+			}
 		case 2:
-			cell.textLabel.text = NSLocalizedString(@"To", @"To");
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
+			{
+				cell.textLabel.text = NSLocalizedString(@"To", @"To");
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
 
-			numberField.delegate = self;
-			numberField.text = self.numberString;
-			numberField.clearButtonMode = UITextFieldViewModeWhileEditing;
-			numberField.placeholder = NSLocalizedString(@"Number here", @"Number here");
-			[cell.contentView addSubview:numberField];
-
-			break;
+				numberField.delegate = self;
+				numberField.text = self.numberString;
+				numberField.clearButtonMode = UITextFieldViewModeWhileEditing;
+				numberField.placeholder = NSLocalizedString(@"Number here", @"Number here");
+				[cell.contentView addSubview:numberField];
+				break;
+			}
 	}
 	return cell;
 }

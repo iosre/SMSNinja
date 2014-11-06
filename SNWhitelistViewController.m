@@ -59,13 +59,13 @@ static int amount;
 			while (sqlite3_step(statement) == SQLITE_ROW)
 			{
 				char *keyword = (char *)sqlite3_column_text(statement, 0);
-				[keywordArray addObject:keyword ? [NSString stringWithUTF8String:keyword] : @""];
+				[keywordArray addObject:keyword ? @(keyword) : @""];
 
 				char *type = (char *)sqlite3_column_text(statement, 1);
-				[typeArray addObject:type ? [NSString stringWithUTF8String:type] : @""];
+				[typeArray addObject:type ? @(type) : @""];
 
 				char *name = (char *)sqlite3_column_text(statement, 2);
-				[nameArray addObject:name ? [NSString stringWithUTF8String:name] : @""];
+				[nameArray addObject:name ? @(name) : @""];
 			}
 			sqlite3_finalize(statement);
 		}
@@ -89,7 +89,7 @@ static int amount;
 	else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
 }
 
-- (SNWhitelistViewController *)init
+- (instancetype)init
 {
 	if ((self = [super initWithStyle:UITableViewStylePlain]))
 	{
@@ -120,7 +120,7 @@ static int amount;
 
 - (void)viewDidLoad
 {
-    [super viewDidLoad];
+	[super viewDidLoad];
 	UISegmentedControl *segmentedControl = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:NSLocalizedString(@"White", @"White"), NSLocalizedString(@"Black", @"Black"), nil]];
 	segmentedControl.selectedSegmentIndex = 0;
 	segmentedControl.segmentedControlStyle = UISegmentedControlStyleBar;
@@ -180,8 +180,7 @@ static int amount;
 {
 	UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews])
-		[subview removeFromSuperview];
+	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -299,20 +298,30 @@ static int amount;
 	switch (buttonIndex)
 	{
 		case 0:
-			[self gotoNumberView];
-			break;
+			{
+				[self gotoNumberView];
+				break;
+			}
 		case 1:
-			[self gotoContentView];
-			break;
+			{
+				[self gotoContentView];
+				break;
+			}
 		case 2:
-			[self gotoAddressbook];
-			break;
+			{
+				[self gotoAddressbook];
+				break;
+			}
 		case 3:
-			[self gotoSystemCallHistoryView];
-			break;
+			{
+				[self gotoSystemCallHistoryView];
+				break;
+			}
 		case 4:
-			[self gotoSystemMessageHistoryView];
-			break;
+			{
+				[self gotoSystemMessageHistoryView];
+				break;
+			}
 	}
 }
 

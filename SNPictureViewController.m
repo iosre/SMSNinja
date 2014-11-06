@@ -45,9 +45,7 @@
 		pictureScrollView.userInteractionEnabled = YES;
 		pictureScrollView.backgroundColor = [UIColor whiteColor];
 		self.wantsFullScreenLayout = YES;
-		if ([self respondsToSelector:@selector(setAutomaticallyAdjustsScrollViewInsets:)])
-			self.automaticallyAdjustsScrollViewInsets = NO;
-
+		if ([self respondsToSelector:@selector(setAutomaticallyAdjustsScrollViewInsets:)]) self.automaticallyAdjustsScrollViewInsets = NO;
 		[self.navigationItem setRightBarButtonItem:[[[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Save", @"Save") style:UIBarButtonItemStyleBordered target:self action:@selector(saveToAlbum)] autorelease]];
 	}
 	return self;
@@ -135,7 +133,7 @@
 			[[UIApplication sharedApplication] setStatusBarHidden:shouldHide withAnimation:UIStatusBarAnimationFade];
 			[weakSelf.navigationController setNavigationBarHidden:shouldHide animated:NO];
 		}
-completion:nil];
+		completion:nil];
 }
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)view

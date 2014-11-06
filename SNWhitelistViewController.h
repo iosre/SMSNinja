@@ -4,7 +4,6 @@
 
 @interface SNWhitelistViewController : UITableViewController <UIActionSheetDelegate, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate, ABPeoplePickerNavigationControllerDelegate>
 {
-@public
 	NSMutableArray *keywordArray;
 	NSMutableArray *typeArray;
 	NSMutableArray *nameArray;

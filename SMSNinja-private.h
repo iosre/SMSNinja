@@ -1,4 +1,3 @@
-// #define SMSNinjaDebug
 #import <UIKit/UIKit.h>
 
 #ifndef kCFCoreFoundationVersionNumber_iOS_8_0

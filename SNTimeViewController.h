@@ -2,15 +2,13 @@
 
 @interface SNTimeViewController : UIViewController <UIPickerViewDelegate, UIPickerViewDataSource, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, UIGestureRecognizerDelegate>
 {
-    UITextField *nameField;
-    UISwitch *replySwitch;
-    UITextField *messageField;
-    UISwitch *soundSwitch;
-@public
+	UITextField *nameField;
+	UISwitch *replySwitch;
+	UITextField *messageField;
+	UISwitch *soundSwitch;
 	UITableView *settingsTableView;
-@private
-    UIPickerView *timePickerView;
-    UITapGestureRecognizer *tapRecognizer;
+	UIPickerView *timePickerView;
+	UITapGestureRecognizer *tapRecognizer;
 }
 @property (nonatomic, retain) NSString *keywordString;
 @property (nonatomic, retain) NSString *nameString;

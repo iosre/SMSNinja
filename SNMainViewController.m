@@ -69,14 +69,11 @@ static void (^CreateDatabase)(void) = ^(void)
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	BOOL isDir;
 
-	if (!([fileManager fileExistsAtPath:DOCUMENT isDirectory:&isDir] && isDir))
-		[fileManager createDirectoryAtPath:DOCUMENT withIntermediateDirectories:YES attributes:nil error:nil];
+	if (!([fileManager fileExistsAtPath:DOCUMENT isDirectory:&isDir] && isDir)) [fileManager createDirectoryAtPath:DOCUMENT withIntermediateDirectories:YES attributes:nil error:nil];
 
-	if (!([fileManager fileExistsAtPath:PICTURES isDirectory:&isDir] && isDir))
-		[fileManager createDirectoryAtPath:PICTURES withIntermediateDirectories:YES attributes:nil error:nil];
+	if (!([fileManager fileExistsAtPath:PICTURES isDirectory:&isDir] && isDir)) [fileManager createDirectoryAtPath:PICTURES withIntermediateDirectories:YES attributes:nil error:nil];
 
-	if (!([fileManager fileExistsAtPath:PRIVATEPICTURES isDirectory:&isDir] && isDir))
-		[fileManager createDirectoryAtPath:PRIVATEPICTURES withIntermediateDirectories:YES attributes:nil error:nil];
+	if (!([fileManager fileExistsAtPath:PRIVATEPICTURES isDirectory:&isDir] && isDir)) [fileManager createDirectoryAtPath:PRIVATEPICTURES withIntermediateDirectories:YES attributes:nil error:nil];
 
 	if (![fileManager fileExistsAtPath:SETTINGS])
 #ifndef SMSNinjaDebug
@@ -92,13 +89,11 @@ static void (^CreateDatabase)(void) = ^(void)
 #endif
 	NSString *filePath = [DOCUMENT stringByAppendingString:@"/blocked.caf"];
 #ifndef SMSNinjaDebug
-	if (![fileManager fileExistsAtPath:filePath])
-		[fileManager copyItemAtPath:@"/System/Library/Audio/UISounds/sms-received5.caf" toPath:filePath error:nil];
+	if (![fileManager fileExistsAtPath:filePath]) [fileManager copyItemAtPath:@"/System/Library/Audio/UISounds/sms-received5.caf" toPath:filePath error:nil];
 #endif
 	filePath = [DOCUMENT stringByAppendingString:@"/private.caf"];
 #ifndef SMSNinjaDebug
-	if (![fileManager fileExistsAtPath:filePath])
-		[fileManager copyItemAtPath:@"/System/Library/Audio/UISounds/sms-received3.caf" toPath:filePath error:nil];
+	if (![fileManager fileExistsAtPath:filePath]) [fileManager copyItemAtPath:@"/System/Library/Audio/UISounds/sms-received3.caf" toPath:filePath error:nil];
 #endif
 };
 
@@ -106,7 +101,7 @@ static void (^CreateDatabase)(void) = ^(void)
 {
 	if ([[NSFileManager defaultManager] fileExistsAtPath:SETTINGS] && [[NSDictionary dictionaryWithContentsOfFile:SETTINGS] count] != 16)
 	{
-		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Notice", @"Notice") message:NSLocalizedString(@"It seems that you have installed SMSNinja before. To activate version 1.5, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in \"/var/mobile/Library/SMSNinja\", it's highly recommended that you make a backup of the files first. Are you sure to convert now?", @"It seems that you have installed SMSNinja before. To activate version 1.5, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in \"/var/mobile/Library/SMSNinja\", it's highly recommended that you make a backup of the files first. Are you sure to convert now?") delegate:self cancelButtonTitle:NSLocalizedString(@"Yes", @"Yes") otherButtonTitles:NSLocalizedString(@"One second!", @"One second!"), nil];
+		UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Notice", @"Notice") message:NSLocalizedString(@"It seems that you have installed SMSNinja before. To activate version 1.6, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in \"/var/mobile/Library/SMSNinja\", it's highly recommended that you make a backup of the files first. Are you sure to convert now?", @"It seems that you have installed SMSNinja before. To activate version 1.6, SMSNinja have to convert settings files to the latest suitable format. Settings files are stored in \"/var/mobile/Library/SMSNinja\", it's highly recommended that you make a backup of the files first. Are you sure to convert now?") delegate:self cancelButtonTitle:NSLocalizedString(@"Yes", @"Yes") otherButtonTitles:NSLocalizedString(@"One second!", @"One second!"), nil];
 		[alertView show];
 		[alertView release];
 	}
@@ -152,8 +147,7 @@ static void (^CreateDatabase)(void) = ^(void)
 {
 	UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews])
-		[subview removeFromSuperview];
+	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
@@ -177,11 +171,15 @@ static void (^CreateDatabase)(void) = ^(void)
 				switch (indexPath.row)
 				{
 					case 0:
-						cell.textLabel.text = NSLocalizedString(@"Blocked Info", @"Blocked Info");
-						break;
+						{
+							cell.textLabel.text = NSLocalizedString(@"Blocked Info", @"Blocked Info");
+							break;
+						}
 					case 1:
-						cell.textLabel.text = NSLocalizedString(@"Black & Whitelist", @"Black & Whitelist");
-						break;
+						{
+							cell.textLabel.text = NSLocalizedString(@"Black & Whitelist", @"Black & Whitelist");
+							break;
+						}
 				}
 				break;
 			}
@@ -247,10 +245,8 @@ static void (^CreateDatabase)(void) = ^(void)
 {
 	NSMutableArray *labelArray = [NSMutableArray arrayWithCapacity:5];
 	for (UIView *view in alertView.subviews)
-	{
 		if ([view isKindOfClass:[UILabel class]])
 			[labelArray addObject:view];
-	}
 
 	for (UILabel *label in labelArray)
 		if ([[label text] length] > 20)

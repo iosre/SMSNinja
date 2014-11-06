@@ -3,17 +3,16 @@
 
 @interface SNPrivatelistViewController : UITableViewController <UIActionSheetDelegate, UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate, ABPeoplePickerNavigationControllerDelegate>
 {
-@public
-    NSMutableArray *keywordArray;
-    NSMutableArray *typeArray;
-    NSMutableArray *nameArray;
-    NSMutableArray *phoneArray;
-    NSMutableArray *smsArray;
-    NSMutableArray *replyArray;
-    NSMutableArray *messageArray;
-    NSMutableArray *forwardArray;
-    NSMutableArray *numberArray;
-    NSMutableArray *soundArray;
+	NSMutableArray *keywordArray;
+	NSMutableArray *typeArray;
+	NSMutableArray *nameArray;
+	NSMutableArray *phoneArray;
+	NSMutableArray *smsArray;
+	NSMutableArray *replyArray;
+	NSMutableArray *messageArray;
+	NSMutableArray *forwardArray;
+	NSMutableArray *numberArray;
+	NSMutableArray *soundArray;
 }
 @property (nonatomic, retain) NSString *chosenName;
 @property (nonatomic, retain) NSString *chosenKeyword;
