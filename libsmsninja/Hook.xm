@@ -1019,7 +1019,7 @@ static NSString *chosenKeyword;
 			NSArray *ctCalls = [call underlyingCTCalls];
 			for (NSUInteger i = 0; i < [ctCalls count]; i++)
 			{
-				CTCallRef ctCall = [ctCalls objectAtIndex:i];
+				CTCallRef ctCall = (CTCallRef)[ctCalls objectAtIndex:i];
 				NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, ctCall);
 				if (![[tempString componentsSeparatedByString:@"  "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@"  "];
 				[address release];
@@ -1134,7 +1134,7 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 				NSArray *callArray = (NSArray *)_CTCallCopyAllCalls();
 				if ([callArray count] != 0)
 				{
-					CTCallRef historyCall = [callArray objectAtIndex:0];
+					CTCallRef historyCall = (CTCallRef)[callArray objectAtIndex:0];
 					NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
 					NSString *tempAddress = [address length] == 0 ? @"" : [address normalizedPhoneNumber];
 					NSString *historyAddress = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, historyCall);
@@ -1253,7 +1253,7 @@ void new_CTTelephonyCenterAddObserver(CFNotificationCenterRef center, const void
 			NSArray *ctCalls = [call underlyingCTCalls];
 			for (NSUInteger i = 0; i < [ctCalls count]; i++)
 			{
-				CTCallRef ctCall = [ctCalls objectAtIndex:i];
+				CTCallRef ctCall = (CTCallRef)[ctCalls objectAtIndex:i];
 				NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, ctCall);
 				if (![[tempString componentsSeparatedByString:@"  "] containsObject:[address normalizedPhoneNumber]]) tempString = [[tempString stringByAppendingString:[address normalizedPhoneNumber]] stringByAppendingString:@"  "];
 				[address release];

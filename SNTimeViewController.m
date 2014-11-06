@@ -82,7 +82,7 @@
 	[super dealloc];
 }
 
-- (instance)init
+- (instancetype)init
 {
 	if ((self = [super init]))
 	{

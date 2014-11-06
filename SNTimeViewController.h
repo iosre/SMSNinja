@@ -6,9 +6,10 @@
 	UISwitch *replySwitch;
 	UITextField *messageField;
 	UISwitch *soundSwitch;
-	UITableView *settingsTableView;
 	UIPickerView *timePickerView;
 	UITapGestureRecognizer *tapRecognizer;
+@public
+	UITableView *settingsTableView;
 }
 @property (nonatomic, retain) NSString *keywordString;
 @property (nonatomic, retain) NSString *nameString;
