@@ -614,7 +614,6 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 			if ((index = [address indexInPrivateListWithType:0]) != NSNotFound)
 			{
 				if (!isFromMe && [[privateReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[privateMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[privateForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[privateNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[privateSoundArray objectAtIndex:index] intValue] == 1) PlayFilterSound();
 				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0)
 				{
@@ -633,7 +632,6 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 			else if ((index = [address indexInBlackListWithType:0]) != NSNotFound)
 			{
 				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
 				if (!isFromMe && [[blackPhoneArray objectAtIndex:index] intValue] != 0) PersistentSave("blocked", "call", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
 				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return [[blackPhoneArray objectAtIndex:index] intValue];
@@ -641,7 +639,6 @@ NSUInteger ActionOfAudioFunctionWithInfo(NSArray *addressArray, BOOL isFromMe) /
 			else if ((index = [time indexInBlackListWithType:2]) != NSNotFound)
 			{
 				if (!isFromMe && [[blackReplyArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] reply:address with:[blackMessageArray objectAtIndex:index]];
-				if (!isFromMe && [[blackForwardArray objectAtIndex:index] intValue] == 1) [[SNTelephonyManager sharedManager] forward:text to:[blackNumberArray objectAtIndex:index]];
 				if (!isFromMe && [[blackSoundArray objectAtIndex:index] intValue] == 1) PlayBlockSound();
 				if (!isFromMe && [[blackPhoneArray objectAtIndex:index] intValue] != 0) PersistentSave("blocked", "call", text, blackNameArray[index], addressArray, isFromMe, pictureArray);
 				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return [[blackPhoneArray objectAtIndex:index] intValue];

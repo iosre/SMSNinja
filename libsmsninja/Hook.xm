@@ -99,9 +99,16 @@ static NSString *chosenKeyword;
 			[chat leave];
 			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
 			CKConversation *conversation = nil;
-			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
-			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [conversationList _conversationForChat:chat];
-			if (conversation) [conversationList deleteConversation:conversation];
+			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
+			{
+				conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
+				if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
+			}
+			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+			{
+				conversation = [conversationList _conversationForChat:chat];
+				if (conversation) [conversationList deleteConversation:conversation];
+			}
 		}
 	}
 	return nil;
@@ -288,9 +295,16 @@ static NSString *chosenKeyword;
 			[chat leave];
 			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
 			CKConversation *conversation = nil;
-			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
-			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [conversationList _conversationForChat:chat];
-			if (conversation) [conversationList deleteConversation:conversation];
+			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
+			{
+				conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
+				if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
+			}
+			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+			{
+				conversation = [conversationList _conversationForChat:chat];
+				if (conversation) [conversationList deleteConversation:conversation];
+			}
 		}
 	}
 	else if ([name isEqualToString:@"RemoveIconFromSwitcher"])
@@ -421,13 +435,16 @@ static NSString *chosenKeyword;
 			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0))
 			{
 				[chat leave];
-				if (chat)
+				CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
+				CKConversation *conversation = nil;
+				if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 				{
-					[chat leave];
-					CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-					CKConversation *conversation = nil;
-					if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
-					if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [conversationList _conversationForChat:chat];
+					conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
+					if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
+				}
+				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+				{
+					conversation = [conversationList _conversationForChat:chat];
 					if (conversation) [conversationList deleteConversation:conversation];
 				}
 				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
@@ -496,13 +513,16 @@ static NSString *chosenKeyword;
 			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0))
 			{
 				[chat leave];
-				if (chat)
+				CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
+				CKConversation *conversation = nil;
+				if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
 				{
-					[chat leave];
-					CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
-					CKConversation *conversation = nil;
-					if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
-					if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0) conversation = [conversationList _conversationForChat:chat];
+					conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
+					if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
+				}
+				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+				{
+					conversation = [conversationList _conversationForChat:chat];
 					if (conversation) [conversationList deleteConversation:conversation];
 				}
 				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
@@ -517,7 +537,7 @@ static NSString *chosenKeyword;
 - (void)_chatStateChanged:(NSConcreteNotification *)arg1 // outgoing FaceTime, iOS 5: state 3 for outgoing/waiting, 6 for ended, 2 for incoming/invited; 6_7_8: 2 for outgoing/waiting, 5 for ended, 1 for incoming/invited
 {
 	%orig;
-	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0)
+	if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
 	{
 		IMAVChat *avChat = [arg1 object];
 		if ((kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 3) || (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && [avChat state] == 2))
@@ -804,24 +824,31 @@ static NSString *chosenKeyword;
 
 			NSLog(@"SMSNinja: MPBBDataProvider | _handleRecentCallNotification:userInfo: | address = \"%@\"", tempAddress);
 
+			BOOL shouldClearSpam = NO;
 			NSUInteger index = NSNotFound;
 			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
 			{
-				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) return;
+				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES;
 			}
-			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) != NSNotFound)
 			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
-			}
-			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
+				shouldClearSpam = NO;
 			}
 			else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
-				// let it go
+				shouldClearSpam = NO;
 			}
-			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
+			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			{
+				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue];
+			}
+			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+			{
+				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue];
+			}
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue];
+
+			if (shouldClearSpam) return;
 		}
 	}
 	%orig;
@@ -846,24 +873,31 @@ static NSString *chosenKeyword;
 
 			NSLog(@"SMSNinja: MPBBDataProvider | _handleRecentCallNotification:userInfo: | address = \"%@\"", tempAddress);
 
+			BOOL shouldClearSpam = NO;
 			NSUInteger index = NSNotFound;
 			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
 			{
-				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) return;
+				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES;
 			}
-			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) != NSNotFound)
 			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
-			}
-			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) return;
+				shouldClearSpam = NO;
 			}
 			else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
-				// let it go
+				shouldClearSpam = NO;
 			}
-			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) return;
+			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			{
+				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue];
+			}
+			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+			{
+				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue];
+			}
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue];
+			
+			if (shouldClearSpam) return;
 		}
 	}
 	%orig;
@@ -935,12 +969,10 @@ static NSString *chosenKeyword;
 
 		if (ActionOfTextFunctionWithInfo(addressArray, text, pictureArray, YES) == 1)
 		{
-			[self beginBulkDeleteMode];
-			CKSubConversation *conversation = [[%c(CKConversationList) sharedConversationList] conversationForMessage:message create:NO service:self];
+			CKSubConversation *conversation = [[%c(CKConversationList) sharedConversationList] existingConversationForAddresses:addressArray];			
 			if (!conversation) conversation = [[%c(CKConversationList) sharedConversationList] conversationForMessage:message create:YES service:self];
 			[self deleteMessage:message fromConversation:conversation];
 			if ([conversation isEmpty]) [conversation deleteAllMessagesAndRemoveGroup];
-			[self endBulkDeleteMode];
 			ReloadConversation();
 		}
 	}
@@ -986,14 +1018,13 @@ static NSString *chosenKeyword;
 
 		if (ActionOfTextFunctionWithInfo(addressArray, text, pictureArray, YES) == 1)
 		{
-			[self beginBulkDeleteMode];
+			if (!conversation) conversation = [[%c(CKConversationList) sharedConversationList] conversationForMessage:message create:YES service:self];
 			[self deleteMessage:message fromConversation:conversation];
 			if ([conversation isEmpty]) [conversation deleteAllMessagesAndRemoveGroup];
-			[self endBulkDeleteMode];
 			ReloadConversation();
 		}
 	}
-	[message release];	
+	[message release];
 }
 %end
 
@@ -1122,6 +1153,14 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 		{
 			if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES;
 		}
+		else if ((index = [tempAddress indexInWhiteListWithType:0]) != NSNotFound)
+		{
+			shouldClearSpam = NO;
+		}
+		else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+		{
+			shouldClearSpam = NO;
+		}
 		else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
 		{
 			if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
@@ -1129,10 +1168,6 @@ static void newCallBack(CFNotificationCenterRef center, void *observer, CFString
 		else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
 		{
 			if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
-		}
-		else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
-		{
-			// let it go
 		}
 		else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
 
@@ -1602,29 +1637,51 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 
 	NSLog(@"SMSNinja: PHAudioInterruptionController | _callStatusChanged: | addressArray = \"%@\"", addressArray);
 
-	switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
+	BOOL shouldRing = YES;
+	for (NSString *tempAddress in addressArray)
 	{
-		case 0:
+		NSUInteger index = NSNotFound;
+		if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+		{
+			int privatePhoneAction = [[privatePhoneArray objectAtIndex:index] intValue];
+			if (privatePhoneAction == 0 || privatePhoneAction == 3) shouldRing = YES;
+			else
 			{
-				%orig;
+				shouldRing = NO;
 				break;
 			}
-		case 1:
+		}
+		else if ((index = [tempAddress indexInWhiteListWithType:0]) != NSNotFound)
+		{
+			shouldRing = YES;
+		}
+		else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+		{
+			shouldRing = YES;
+		}
+		else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+		{
+			if ([[blackPhoneArray objectAtIndex:index] intValue] != 0)
 			{
-				// disconnect
+				shouldRing = NO;
 				break;
 			}
-		case 2:
+		}
+		else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+		{
+			if ([[blackPhoneArray objectAtIndex:index] intValue] != 0)
 			{
-				// ignore
+				shouldRing = NO;
 				break;
 			}
-		case 3:
-			{
-				%orig;
-				break;
-			}
+		}
+		else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue]))
+		{
+			shouldRing = NO;
+			break;
+		}
 	}
+	if (shouldRing) %orig;
 }
 
 - (void)_videoCallStatusChanged:(NSConcreteNotification *)arg1 // stop ringtone and vibration, TUCallCenterVideoCallStatusChangedNotification comes from CTTelephonyCenterAddObserver(kCTCallStatusChangeNotification) in TelephonyUtilities
@@ -1671,29 +1728,51 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 
 	NSLog(@"SMSNinja: PHAudioInterruptionController | _videoCallStatusChanged: | addressArray = \"%@\"", addressArray);
 
-	switch (ActionOfAudioFunctionWithInfo(addressArray, NO))
+	BOOL shouldRing = YES;
+	for (NSString *tempAddress in addressArray)
 	{
-		case 0:
+		NSUInteger index = NSNotFound;
+		if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
+		{
+			int privatePhoneAction = [[privatePhoneArray objectAtIndex:index] intValue];
+			if (privatePhoneAction == 0 || privatePhoneAction == 3) shouldRing = YES;
+			else
 			{
-				%orig;
+				shouldRing = NO;
 				break;
 			}
-		case 1:
+		}
+		else if ((index = [tempAddress indexInWhiteListWithType:0]) != NSNotFound)
+		{
+			shouldRing = YES;
+		}
+		else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
+		{
+			shouldRing = YES;
+		}
+		else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+		{
+			if ([[blackPhoneArray objectAtIndex:index] intValue] != 0)
 			{
-				// disconnect
+				shouldRing = NO;
 				break;
 			}
-		case 2:
+		}
+		else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+		{
+			if ([[blackPhoneArray objectAtIndex:index] intValue] != 0)
 			{
-				// ignore
+				shouldRing = NO;
 				break;
 			}
-		case 3:
-			{
-				%orig;
-				break;
-			}
+		}
+		else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue]))
+		{
+			shouldRing = NO;
+			break;
+		}
 	}
+	if (shouldRing) %orig;
 }
 %end
 
@@ -1739,21 +1818,41 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 			NSUInteger index = NSNotFound;
 			if ((index = [tempAddress indexInPrivateListWithType:0]) != NSNotFound)
 			{
-				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES;
+				if ([[privatePhoneArray objectAtIndex:index] intValue] != 0)
+				{
+					shouldClearSpam = YES;
+					break;
+				}
 			}
-			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) != NSNotFound)
 			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
-			}
-			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
-			{
-				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+				shouldClearSpam = NO;
 			}
 			else if ([tempAddress isInAddressBook] && [[settings objectForKey:@"shouldIncludeContactsInWhitelist"] boolValue])
 			{
-				// let it go
+				shouldClearSpam = NO;
 			}
-			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue])) shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+			else if ((index = [tempAddress indexInBlackListWithType:0]) != NSNotFound)
+			{
+				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0)
+				{
+					shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+					if (shouldClearSpam) break;
+				}
+			}
+			else if ((index = [CurrentTime() indexInBlackListWithType:2]) != NSNotFound)
+			{
+				if ([[blackPhoneArray objectAtIndex:index] intValue] != 0)
+				{
+					shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+					if (shouldClearSpam) break;
+				}
+			}
+			else if ((index = [tempAddress indexInWhiteListWithType:0]) == NSNotFound && ([[settings objectForKey:@"whitelistCallsOnlyWithBeep"] boolValue] || [[settings objectForKey:@"whitelistCallsOnlyWithoutBeep"] boolValue]))
+			{
+				shouldClearSpam = YES & [[settings objectForKey:@"shouldClearSpam"] boolValue] & !isOutgoing;
+				if (shouldClearSpam) break;
+			}
 		}
 		if (shouldClearSpam) %orig((NSConcreteNotification *)[NSNotification notificationWithName:notification.name object:nil userInfo:notification.userInfo]);
 		else %orig;

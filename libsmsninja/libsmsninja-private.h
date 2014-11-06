@@ -427,6 +427,7 @@ typedef struct __CTCall* CTCallRef;
 @interface IMAVChatProxy : NSObject // 7_8
 - (IMHandle *)otherIMHandle;
 - (void)declineInvitation;
+@property(readonly, retain, nonatomic) IMHandle *initiatorIMHandle;
 @property (readonly, retain, nonatomic) NSArray *remoteParticipants;
 @property (readonly, nonatomic) unsigned int state;
 @end
