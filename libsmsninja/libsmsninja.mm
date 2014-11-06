@@ -340,13 +340,19 @@ static NSString *CurrentCountryCode(void)
 	return countryCode;
 }
 
+static void FinishedPlaying(SystemSoundID systemSoundID, void *clientData)
+{
+	AudioServicesRemoveSystemSoundCompletion(systemSoundID);    
+	AudioServicesDisposeSystemSoundID(systemSoundID);
+}
+
 static void PlaySound(const char *type)
 {
 	CFURLRef url = (CFURLRef)[NSURL fileURLWithPath:[NSString stringWithFormat:@"/var/mobile/Library/SMSNinja/%s.caf", type]];
-	SystemSoundID sound;
-	AudioServicesCreateSystemSoundID(url, &sound);
-	AudioServicesPlayAlertSound(sound);
-	AudioServicesDisposeSystemSoundID(sound);
+	SystemSoundID soundID;
+	AudioServicesCreateSystemSoundID(url, &soundID);
+	AudioServicesAddSystemSoundCompletion(soundID, NULL, NULL, FinishedPlaying, NULL);
+	AudioServicesPlayAlertSound(soundID);
 }
 
 void PlayFilterSound(void)

@@ -343,7 +343,7 @@ static NSString *chosenKeyword;
 	%orig;
 	if ([(NSNumber *)[arg3 objectForKey:@"kCTCallStatus"] intValue] == 3 && ((kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"]) || (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])))
 	{
-		if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0 && [[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // the same call makes this method get called twice on iOS 7, with different call id, so we do some dirty work :(
+		if ([[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // is this a bug?
 
 		CTCallRef call = (CTCallRef)[arg3 objectForKey:@"kCTCall"];
 		NSString *address = (NSString *)CTCallCopyAddress(kCFAllocatorDefault, call);
