@@ -391,19 +391,19 @@ static int amount;
 
 	__block SNWhitelistViewController *weakSelf = self;
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			sqlite3 *database;
-			int openResult = sqlite3_open([DATABASE UTF8String], &database);
-			if (openResult == SQLITE_OK)
-			{
+		sqlite3 *database;
+		int openResult = sqlite3_open([DATABASE UTF8String], &database);
+		if (openResult == SQLITE_OK)
+		{
 			NSString *sql = [NSString stringWithFormat:@"insert or replace into whitelist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '0')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 			sqlite3_close(database);
 
 			notify_post("com.naken.smsninja.whitelistchanged");
-			}
-			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
-			});
+		}
+		else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+	});
 
 	[keywordArray addObject:self.chosenKeyword];
 	[typeArray addObject:@"0"];
@@ -477,19 +477,19 @@ static int amount;
 
 	__block SNWhitelistViewController *weakSelf = self;
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			sqlite3 *database;
-			int openResult = sqlite3_open([DATABASE UTF8String], &database);
-			if (openResult == SQLITE_OK)
-			{
+		sqlite3 *database;
+		int openResult = sqlite3_open([DATABASE UTF8String], &database);
+		if (openResult == SQLITE_OK)
+		{
 			NSString *sql = [NSString stringWithFormat:@"insert or replace into whitelist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '0')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 			sqlite3_close(database);
 
 			notify_post("com.naken.smsninja.whitelistchanged");
-			}
-			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
-			});
+		}
+		else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+	});
 
 	[keywordArray addObject:self.chosenKeyword];
 	[typeArray addObject:@"0"];
@@ -540,19 +540,19 @@ static int amount;
 
 		__block SNWhitelistViewController *weakSelf = self;
 		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				sqlite3 *database;
-				int openResult = sqlite3_open([DATABASE UTF8String], &database);
-				if (openResult == SQLITE_OK)
-				{
+			sqlite3 *database;
+			int openResult = sqlite3_open([DATABASE UTF8String], &database);
+			if (openResult == SQLITE_OK)
+			{
 				NSString *sql = [NSString stringWithFormat:@"insert or replace into whitelist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '0')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
 				int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 				if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 				sqlite3_close(database);
 
 				notify_post("com.naken.smsninja.whitelistchanged");
-				}
-				else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
-				});
+			}
+			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+		});
 
 		[keywordArray addObject:self.chosenKeyword];
 		[typeArray addObject:@"0"];
@@ -598,19 +598,19 @@ static int amount;
 
 		__block SNWhitelistViewController *weakSelf = self;
 		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				sqlite3 *database;
-				int openResult = sqlite3_open([DATABASE UTF8String], &database);
-				if (openResult == SQLITE_OK)
-				{
+			sqlite3 *database;
+			int openResult = sqlite3_open([DATABASE UTF8String], &database);
+			if (openResult == SQLITE_OK)
+			{
 				NSString *sql = [NSString stringWithFormat:@"insert or replace into whitelist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '0')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
 				int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 				if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 				sqlite3_close(database);
 
 				notify_post("com.naken.smsninja.whitelistchanged");
-				}
-				else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
-				});
+			}
+			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+		});
 
 		[keywordArray addObject:self.chosenKeyword];
 		[typeArray addObject:@"0"];
