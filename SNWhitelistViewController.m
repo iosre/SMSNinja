@@ -4,7 +4,7 @@
 /*
 #import "SNSystemMessageHistoryViewController.h"
 #import "SNSystemCallHistoryViewController.h"
-*/
+ */
 #import "SNMainViewController.h"
 #import <objc/runtime.h>
 #import <notify.h>
@@ -339,6 +339,81 @@ static int amount;
 	[super setEditing:editing animated:animated];
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+- (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person
+{
+	CFIndex emailCounts = 0;
+	ABPropertyID property = kABPersonEmailProperty;
+	ABMultiValueRef emails = ABRecordCopyValue(person, property);
+	if (emails)
+	{
+		emailCounts = ABMultiValueGetCount(emails);
+		CFRelease(emails);
+	}
+
+	if (emailCounts == 1) property = kABPersonEmailProperty;
+	else property = kABPersonPhoneProperty;
+
+	CFMutableStringRef firstName = (CFMutableStringRef)ABRecordCopyValue(person, kABPersonFirstNameProperty);
+	CFMutableStringRef lastName =  (CFMutableStringRef)ABRecordCopyValue(person, kABPersonLastNameProperty);
+	self.chosenName = nil;
+	self.chosenName = [[firstName ? (NSString *)firstName : @"" stringByAppendingString:@" "] stringByAppendingString:lastName ? (NSString *)lastName : @""];
+	if (firstName) CFRelease(firstName);
+	if (lastName) CFRelease(lastName);
+
+	ABMultiValueRef values = ABRecordCopyValue(person, property);
+	if (!values) return;
+	CFArrayRef valueArray = ABMultiValueCopyArrayOfAllValues(values);
+	if (!valueArray)
+	{
+		CFRelease(values);
+		return;
+	}
+	CFStringRef value = (CFStringRef)CFArrayGetValueAtIndex(valueArray, 0);
+	if (!value)
+	{
+		CFRelease(values);
+		CFRelease(valueArray);
+		return;
+	}
+
+	NSString *tempString = (NSString *)value;
+	tempString = [tempString stringByReplacingOccurrencesOfString:@" " withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@"-" withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@"(" withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@")" withString:@""];
+
+	self.chosenKeyword = nil;
+	self.chosenKeyword = tempString;
+
+	CFRelease(values);
+	CFRelease(valueArray);
+
+	__block SNWhitelistViewController *weakSelf = self;
+	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+			sqlite3 *database;
+			int openResult = sqlite3_open([DATABASE UTF8String], &database);
+			if (openResult == SQLITE_OK)
+			{
+			NSString *sql = [NSString stringWithFormat:@"insert or replace into whitelist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '0')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
+			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
+			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
+			sqlite3_close(database);
+
+			notify_post("com.naken.smsninja.whitelistchanged");
+			}
+			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+			});
+
+	[keywordArray addObject:self.chosenKeyword];
+	[typeArray addObject:@"0"];
+	[nameArray addObject:self.chosenName];
+
+	[self.tableView beginUpdates];
+	[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
+	[self.tableView endUpdates];
+}
+#else
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
 {
 	CFIndex emailCounts = 0, phoneCounts = 0;
@@ -402,19 +477,19 @@ static int amount;
 
 	__block SNWhitelistViewController *weakSelf = self;
 	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-		sqlite3 *database;
-		int openResult = sqlite3_open([DATABASE UTF8String], &database);
-		if (openResult == SQLITE_OK)
-		{
+			sqlite3 *database;
+			int openResult = sqlite3_open([DATABASE UTF8String], &database);
+			if (openResult == SQLITE_OK)
+			{
 			NSString *sql = [NSString stringWithFormat:@"insert or replace into whitelist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '0')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
 			int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 			if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 			sqlite3_close(database);
 
 			notify_post("com.naken.smsninja.whitelistchanged");
-		}
-		else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
-	});
+			}
+			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+			});
 
 	[keywordArray addObject:self.chosenKeyword];
 	[typeArray addObject:@"0"];
@@ -428,7 +503,67 @@ static int amount;
 
 	return NO;
 }
+#endif
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+- (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
+{
+	if (property == kABPersonEmailProperty || property == kABPersonPhoneProperty)
+	{
+		CFMutableStringRef firstName = (CFMutableStringRef)ABRecordCopyValue(person, kABPersonFirstNameProperty);
+		CFMutableStringRef lastName =  (CFMutableStringRef)ABRecordCopyValue(person, kABPersonLastNameProperty);
+		self.chosenName = nil;
+		self.chosenName = [[firstName ? (NSString *)firstName : @"" stringByAppendingString:@" "] stringByAppendingString:lastName ? (NSString *)lastName : @""];
+		if (firstName) CFRelease(firstName);
+		if (lastName) CFRelease(lastName);
+
+		ABMultiValueRef keywords = ABRecordCopyValue(person, property);
+		if (!keywords) return;
+		CFStringRef keyword = (CFStringRef)ABMultiValueCopyValueAtIndex(keywords, ABMultiValueGetIndexForIdentifier(keywords, identifier));
+		if (!keyword)
+		{
+			CFRelease(keywords);
+			return;
+		}
+
+		NSString *tempString = (NSString *)keyword;
+		tempString = [tempString stringByReplacingOccurrencesOfString:@" " withString:@""];
+		tempString = [tempString stringByReplacingOccurrencesOfString:@"-" withString:@""];
+		tempString = [tempString stringByReplacingOccurrencesOfString:@"(" withString:@""];
+		tempString = [tempString stringByReplacingOccurrencesOfString:@")" withString:@""];
+
+		self.chosenKeyword = nil;
+		self.chosenKeyword = tempString;
+
+		CFRelease(keyword);
+		CFRelease(keywords);
+
+		__block SNWhitelistViewController *weakSelf = self;
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+				sqlite3 *database;
+				int openResult = sqlite3_open([DATABASE UTF8String], &database);
+				if (openResult == SQLITE_OK)
+				{
+				NSString *sql = [NSString stringWithFormat:@"insert or replace into whitelist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '0')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
+				int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
+				if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
+				sqlite3_close(database);
+
+				notify_post("com.naken.smsninja.whitelistchanged");
+				}
+				else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+				});
+
+		[keywordArray addObject:self.chosenKeyword];
+		[typeArray addObject:@"0"];
+		[nameArray addObject:self.chosenName];
+
+		[self.tableView beginUpdates];
+		[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
+		[self.tableView endUpdates];
+	}
+}
+#else
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
 	if (property == kABPersonEmailProperty || property == kABPersonPhoneProperty)
@@ -463,19 +598,19 @@ static int amount;
 
 		__block SNWhitelistViewController *weakSelf = self;
 		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			sqlite3 *database;
-			int openResult = sqlite3_open([DATABASE UTF8String], &database);
-			if (openResult == SQLITE_OK)
-			{
+				sqlite3 *database;
+				int openResult = sqlite3_open([DATABASE UTF8String], &database);
+				if (openResult == SQLITE_OK)
+				{
 				NSString *sql = [NSString stringWithFormat:@"insert or replace into whitelist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '0')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"]];
 				int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 				if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 				sqlite3_close(database);
 
-            			notify_post("com.naken.smsninja.whitelistchanged");
-			}
-			else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
-		});
+				notify_post("com.naken.smsninja.whitelistchanged");
+				}
+				else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+				});
 
 		[keywordArray addObject:self.chosenKeyword];
 		[typeArray addObject:@"0"];
@@ -489,6 +624,7 @@ static int amount;
 	}
 	return NO;
 }
+#endif
 
 - (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
 {
@@ -499,6 +635,7 @@ static int amount;
 {
 	ABPeoplePickerNavigationController *picker = [[ABPeoplePickerNavigationController alloc] init];
 	picker.peoplePickerDelegate = self;
+	if ([picker respondsToSelector:@selector(setPredicateForSelectionOfPerson:)]) picker.predicateForSelectionOfPerson = [NSPredicate predicateWithFormat:@"%K.@count + %K.@count == 1", ABPersonEmailAddressesProperty, ABPersonPhoneNumbersProperty];
 	[self presentModalViewController:picker animated:YES];
 	[picker release];
 }

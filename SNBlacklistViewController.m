@@ -6,7 +6,7 @@
 /*
 #import "SNSystemMessageHistoryViewController.h"
 #import "SNSystemCallHistoryViewController.h"
-*/
+ */
 #import "SNMainViewController.h"
 #import <objc/runtime.h>
 #import <notify.h>
@@ -339,33 +339,33 @@ static int amount;
 		{
 			case 0:
 				{
-				[self gotoNumberView];
-				break;
+					[self gotoNumberView];
+					break;
 				}
 			case 1:
 				{
-				[self gotoContentView];
-				break;
+					[self gotoContentView];
+					break;
 				}
 			case 2:
 				{
-				[self gotoTimeView];
-				break;
+					[self gotoTimeView];
+					break;
 				}
 			case 3:
 				{
-				[self gotoAddressbook];
-				break;
+					[self gotoAddressbook];
+					break;
 				}
 			case 4:
 				{
-				[self gotoSystemCallHistoryView];
-				break;
+					[self gotoSystemCallHistoryView];
+					break;
 				}
 			case 5:
 				{
-				[self gotoSystemMessageHistoryView];
-				break;
+					[self gotoSystemMessageHistoryView];
+					break;
 				}
 		}
 	else if (actionSheet.tag == 2)
@@ -375,19 +375,19 @@ static int amount;
 			__block SNBlacklistViewController *weakSelf = self;
 			__block NSInteger weakButtonIndex = buttonIndex;
 			dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-				sqlite3 *database;
-				int openResult = sqlite3_open([DATABASE UTF8String], &database);
-				if (openResult == SQLITE_OK)
-				{
+					sqlite3 *database;
+					int openResult = sqlite3_open([DATABASE UTF8String], &database);
+					if (openResult == SQLITE_OK)
+					{
 					NSString *sql = [NSString stringWithFormat:@"insert or replace into blacklist (keyword, type, name, phone, sms, reply, message, forward, number, sound) values ('%@', '0', '%@', '1', '1', '0', '', '0', '', '%ld')", weakSelf.chosenKeyword, [weakSelf.chosenName stringByReplacingOccurrencesOfString:@"'" withString:@"''"], (unsigned long)weakButtonIndex];
 					int execResult = sqlite3_exec(database, [sql UTF8String], NULL, NULL, NULL);
 					if (execResult != SQLITE_OK) NSLog(@"SMSNinja: Failed to exec %@, error %d", sql, execResult);
 					sqlite3_close(database);
 
 					notify_post("com.naken.smsninja.blacklistchanged");
-				}
-				else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
-			});
+					}
+					else NSLog(@"SMSNinja: Failed to open %@, error %d", DATABASE, openResult);
+					});
 
 			[keywordArray addObject:self.chosenKeyword];
 			[typeArray addObject:@"0"];
@@ -476,6 +476,62 @@ static int amount;
 	}
 }
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+- (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person
+{
+	CFIndex emailCounts = 0;
+	ABPropertyID property = kABPersonEmailProperty;
+	ABMultiValueRef emails = ABRecordCopyValue(person, property);
+	if (emails)
+	{
+		emailCounts = ABMultiValueGetCount(emails);
+		CFRelease(emails);
+	}
+
+	if (emailCounts == 1) property = kABPersonEmailProperty;
+	else property = kABPersonPhoneProperty;
+
+	CFMutableStringRef firstName = (CFMutableStringRef)ABRecordCopyValue(person, kABPersonFirstNameProperty);
+	CFMutableStringRef lastName =  (CFMutableStringRef)ABRecordCopyValue(person, kABPersonLastNameProperty);
+	self.chosenName = nil;
+	self.chosenName = [[firstName ? (NSString *)firstName : @"" stringByAppendingString:@" "] stringByAppendingString:lastName ? (NSString *)lastName : @""];
+	if (firstName) CFRelease(firstName);
+	if (lastName) CFRelease(lastName);
+
+	ABMultiValueRef values = ABRecordCopyValue(person, property);
+	if (!values) return;
+	CFArrayRef valueArray = ABMultiValueCopyArrayOfAllValues(values);
+	if (!valueArray)
+	{
+		CFRelease(values);
+		return;
+	}
+	CFStringRef value = (CFStringRef)CFArrayGetValueAtIndex(valueArray, 0);
+	if (!value)
+	{
+		CFRelease(values);
+		CFRelease(valueArray);
+		return;
+	}
+
+	NSString *tempString = (NSString *)value;
+	tempString = [tempString stringByReplacingOccurrencesOfString:@" " withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@"-" withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@"(" withString:@""];
+	tempString = [tempString stringByReplacingOccurrencesOfString:@")" withString:@""];
+
+	self.chosenKeyword = nil;
+	self.chosenKeyword = tempString;
+
+	CFRelease(values);
+	CFRelease(valueArray);
+
+	UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"Cancel") destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Turn off the beep", @"Turn off the beep"), NSLocalizedString(@"Turn on the beep", @"Turn on the beep"), nil];
+	actionSheet.tag = 2;
+	[actionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
+	[actionSheet release];
+}
+#else
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
 {
 	CFIndex emailCounts = 0, phoneCounts = 0;
@@ -544,7 +600,48 @@ static int amount;
 
 	return NO;
 }
+#endif
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+- (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
+{
+	if (property == kABPersonEmailProperty || property == kABPersonPhoneProperty)
+	{
+		CFMutableStringRef firstName = (CFMutableStringRef)ABRecordCopyValue(person, kABPersonFirstNameProperty);
+		CFMutableStringRef lastName =  (CFMutableStringRef)ABRecordCopyValue(person, kABPersonLastNameProperty);
+		self.chosenName = nil;
+		self.chosenName = [[firstName ? (NSString *)firstName : @"" stringByAppendingString:@" "] stringByAppendingString:lastName ? (NSString *)lastName : @""];
+		if (firstName) CFRelease(firstName);
+		if (lastName) CFRelease(lastName);
+
+		ABMultiValueRef keywords = ABRecordCopyValue(person, property);
+		if (!keywords) return;
+		CFStringRef keyword = (CFStringRef)ABMultiValueCopyValueAtIndex(keywords, ABMultiValueGetIndexForIdentifier(keywords, identifier));
+		if (!keyword)
+		{
+			CFRelease(keywords);
+			return;
+		}
+
+		NSString *tempString = (NSString *)keyword;
+		tempString = [tempString stringByReplacingOccurrencesOfString:@" " withString:@""];
+		tempString = [tempString stringByReplacingOccurrencesOfString:@"-" withString:@""];
+		tempString = [tempString stringByReplacingOccurrencesOfString:@"(" withString:@""];
+		tempString = [tempString stringByReplacingOccurrencesOfString:@")" withString:@""];
+
+		self.chosenKeyword = nil;
+		self.chosenKeyword = tempString;
+
+		CFRelease(keyword);
+		CFRelease(keywords);
+
+		UIActionSheet *actionSheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:NSLocalizedString(@"Cancel", @"Cancel") destructiveButtonTitle:nil otherButtonTitles:NSLocalizedString(@"Turn off the beep", @"Turn off the beep"), NSLocalizedString(@"Turn on the beep", @"Turn on the beep"), nil];
+		actionSheet.tag = 2;
+		[actionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
+		[actionSheet release];
+	}
+}
+#else
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
 	if (property == kABPersonEmailProperty || property == kABPersonPhoneProperty)
@@ -584,6 +681,7 @@ static int amount;
 	}
 	return NO;
 }
+#endif
 
 - (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
 {
@@ -594,6 +692,7 @@ static int amount;
 {
 	ABPeoplePickerNavigationController *picker = [[ABPeoplePickerNavigationController alloc] init];
 	picker.peoplePickerDelegate = self;
+	if ([picker respondsToSelector:@selector(setPredicateForSelectionOfPerson:)]) picker.predicateForSelectionOfPerson = [NSPredicate predicateWithFormat:@"%K.@count + %K.@count == 1", ABPersonEmailAddressesProperty, ABPersonPhoneNumbersProperty];
 	[self presentModalViewController:picker animated:YES];
 	[picker release];
 }
