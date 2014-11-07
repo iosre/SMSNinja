@@ -339,7 +339,6 @@ static int amount;
 	[super setEditing:editing animated:animated];
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 - (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person
 {
 	CFIndex emailCounts = 0;
@@ -413,7 +412,7 @@ static int amount;
 	[self.tableView insertRowsAtIndexPaths:[NSArray arrayWithObject:[NSIndexPath indexPathForRow:([keywordArray count] - 1) inSection:0]] withRowAnimation:YES];
 	[self.tableView endUpdates];
 }
-#else
+
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
 {
 	CFIndex emailCounts = 0, phoneCounts = 0;
@@ -503,9 +502,7 @@ static int amount;
 
 	return NO;
 }
-#endif
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 - (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
 	if (property == kABPersonEmailProperty || property == kABPersonPhoneProperty)
@@ -563,7 +560,7 @@ static int amount;
 		[self.tableView endUpdates];
 	}
 }
-#else
+
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
 	if (property == kABPersonEmailProperty || property == kABPersonPhoneProperty)
@@ -624,7 +621,6 @@ static int amount;
 	}
 	return NO;
 }
-#endif
 
 - (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
 {

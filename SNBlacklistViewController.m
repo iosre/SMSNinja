@@ -476,7 +476,6 @@ static int amount;
 	}
 }
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 - (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person
 {
 	CFIndex emailCounts = 0;
@@ -531,7 +530,7 @@ static int amount;
 	[actionSheet showInView:[[UIApplication sharedApplication] keyWindow]];
 	[actionSheet release];
 }
-#else
+
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person
 {
 	CFIndex emailCounts = 0, phoneCounts = 0;
@@ -600,9 +599,7 @@ static int amount;
 
 	return NO;
 }
-#endif
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
 - (void)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker didSelectPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
 	if (property == kABPersonEmailProperty || property == kABPersonPhoneProperty)
@@ -641,7 +638,7 @@ static int amount;
 		[actionSheet release];
 	}
 }
-#else
+
 - (BOOL)peoplePickerNavigationController:(ABPeoplePickerNavigationController *)peoplePicker shouldContinueAfterSelectingPerson:(ABRecordRef)person property:(ABPropertyID)property identifier:(ABMultiValueIdentifier)identifier
 {
 	if (property == kABPersonEmailProperty || property == kABPersonPhoneProperty)
@@ -681,7 +678,6 @@ static int amount;
 	}
 	return NO;
 }
-#endif
 
 - (void)peoplePickerNavigationControllerDidCancel:(ABPeoplePickerNavigationController *)peoplePicker
 {
