@@ -359,7 +359,7 @@ static NSString *chosenKeyword;
 - (void)handleNotificationFromConnection:(void *)arg1 ofType:(id)arg2 withInfo:(NSDictionary *)arg3 // outgoing call, 3 for outgoing, 4 for incoming, 5 for disconnect
 {
 	%orig;
-	if ([(NSNumber *)[arg3 objectForKey:@"kCTCallStatus"] intValue] == 3 && ((kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"]) || (kCFCoreFoundationVersionNumber > kCFCoreFoundationVersionNumber_iOS_7_1 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"SpringBoard"])))
+	if ([(NSNumber *)[arg3 objectForKey:@"kCTCallStatus"] intValue] == 3 && [[[NSProcessInfo processInfo] processName] isEqualToString:@"MobilePhone"])
 	{
 		if ([[arg3 description] rangeOfString:@"status = 196608"].location != NSNotFound) return; // is this a bug?
 
