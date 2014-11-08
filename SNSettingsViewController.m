@@ -102,7 +102,6 @@
 {
 	SNTextTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[SNTextTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
@@ -125,7 +124,7 @@
 						passwordField.placeholder = NSLocalizedString(@"Input here", @"Input here");
 						passwordField.text = [dictionary objectForKey:@"startPassword"];
 						passwordField.clearButtonMode = UITextFieldViewModeWhileEditing;
-						[cell.contentView addSubview:passwordField];
+						if ([cell.contentView.subviews indexOfObject:passwordField] == NSNotFound)  [cell.contentView addSubview:passwordField];
 						break;
 					}
 					case 1:
@@ -137,7 +136,7 @@
 						launchCodeField.placeholder = NSLocalizedString(@"Numbers only", @"Numbers only");
 						launchCodeField.text = [dictionary objectForKey:@"launchCode"];
 						launchCodeField.clearButtonMode = UITextFieldViewModeWhileEditing;
-						[cell.contentView addSubview:launchCodeField];
+						if ([cell.contentView.subviews indexOfObject:launchCodeField] == NSNotFound) [cell.contentView addSubview:launchCodeField];
 						break;
 					}
 					case 2:

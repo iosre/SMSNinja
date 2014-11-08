@@ -130,7 +130,6 @@
 	SNTextTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[SNTextTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
 	cell.selectionStyle = UITableViewCellSelectionStyleNone;
-	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
@@ -146,7 +145,7 @@
 					nameField.placeholder = NSLocalizedString(@"Input here", @"Input here");
 					nameField.text = self.nameString;
 					nameField.clearButtonMode = UITextFieldViewModeWhileEditing;
-					[cell.contentView addSubview:nameField];
+					if ([cell.contentView.subviews indexOfObject:nameField] == NSNotFound) [cell.contentView addSubview:nameField];
 				}
 				else if (indexPath.row == 1)
 				{
@@ -155,7 +154,7 @@
 					keywordField.placeholder = NSLocalizedString(@"Input here", @"Input here");
 					keywordField.text = self.keywordString;
 					keywordField.clearButtonMode = UITextFieldViewModeWhileEditing;
-					[cell.contentView addSubview:keywordField];
+					if ([cell.contentView.subviews indexOfObject:keywordField] == NSNotFound) [cell.contentView addSubview:keywordField];
 				}
 				break;
 			}
@@ -175,7 +174,7 @@
 					numberField.text = self.numberString;
 					numberField.clearButtonMode = UITextFieldViewModeWhileEditing;
 					numberField.placeholder = NSLocalizedString(@"Number here", @"Number here");
-					[cell.contentView addSubview:numberField];
+					if ([cell.contentView.subviews indexOfObject:numberField] == NSNotFound) [cell.contentView addSubview:numberField];
 				}
 				break;
 			}
@@ -195,7 +194,7 @@
 					messageField.text = self.messageString;
 					messageField.clearButtonMode = UITextFieldViewModeWhileEditing;
 					messageField.placeholder = NSLocalizedString(@"Message here", @"Message here");
-					[cell.contentView addSubview:messageField];
+					if ([cell.contentView.subviews indexOfObject:messageField] == NSNotFound) [cell.contentView addSubview:messageField];
 				}
 				break;
 			}

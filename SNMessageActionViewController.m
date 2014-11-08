@@ -61,7 +61,6 @@
 {
 	SNTextTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[SNTextTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
@@ -92,7 +91,7 @@
 				numberField.text = self.numberString;
 				numberField.clearButtonMode = UITextFieldViewModeWhileEditing;
 				numberField.placeholder = NSLocalizedString(@"Number here", @"Number here");
-				[cell.contentView addSubview:numberField];
+				if ([cell.contentView.subviews indexOfObject:numberField] == NSNotFound)  [cell.contentView addSubview:numberField];
 				break;
 			}
 	}

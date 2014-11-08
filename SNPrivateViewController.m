@@ -73,7 +73,6 @@
 {
 	SNTextTableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"any-cell"];
 	if (cell == nil) cell = [[[SNTextTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"any-cell"] autorelease];
-	for (UIView *subview in [cell.contentView subviews]) [subview removeFromSuperview];
 	cell.textLabel.text = nil;
 	cell.accessoryView = nil;
 	cell.accessoryType = UITableViewCellAccessoryNone;
@@ -100,16 +99,18 @@
 
 			break;
 		case 1:
-			cell.selectionStyle = UITableViewCellSelectionStyleNone;
-			cell.textLabel.text = NSLocalizedString(@"FakePW", @"FakePW");
-			fakePasswordField.delegate = self;
-			fakePasswordField.secureTextEntry = YES;
-			fakePasswordField.placeholder = NSLocalizedString(@"Input fake password", @"Input fake password");
-			fakePasswordField.text = [dictionary objectForKey:@"fakePassword"];
-			fakePasswordField.clearButtonMode = UITextFieldViewModeWhileEditing;
-			[cell.contentView addSubview:fakePasswordField];
+			{
+				cell.selectionStyle = UITableViewCellSelectionStyleNone;
+				cell.textLabel.text = NSLocalizedString(@"FakePW", @"FakePW");
+				fakePasswordField.delegate = self;
+				fakePasswordField.secureTextEntry = YES;
+				fakePasswordField.placeholder = NSLocalizedString(@"Input fake password", @"Input fake password");
+				fakePasswordField.text = [dictionary objectForKey:@"fakePassword"];
+				fakePasswordField.clearButtonMode = UITextFieldViewModeWhileEditing;
+				if ([cell.contentView.subviews indexOfObject:fakePasswordField] == NSNotFound) [cell.contentView addSubview:fakePasswordField];
 
-			break;
+				break;
+			}
 		case 2:
 			switch (indexPath.row)
 			{
