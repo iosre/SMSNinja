@@ -129,6 +129,7 @@ typedef struct __CTCall* CTCallRef;
 @property (retain, nonatomic) NSDate *timeDelivered; // 7
 @property (retain, nonatomic) NSDate *timeRead; // 7
 @property (retain, nonatomic) NSString *sender;
+@property (retain, nonatomic) NSString *handle; // recipient
 @property (retain, nonatomic) NSData *bodyData;
 @property (retain, nonatomic) NSString *subject;
 @property (nonatomic, retain) NSString * countryCode;
@@ -136,6 +137,7 @@ typedef struct __CTCall* CTCallRef;
 
 @interface IMItem : NSObject // 8
 @property (retain, nonatomic) NSString *sender;
+@property (retain, nonatomic) NSString *handle; // recipient
 @property (readonly, nonatomic) BOOL isFromMe;
 @property(retain, nonatomic) NSString *countryCode;
 @end

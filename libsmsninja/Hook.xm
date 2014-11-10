@@ -90,13 +90,11 @@ static NSString *chosenKeyword;
 %new
 - (NSDictionary *)snHandleMessageNamed:(NSString *)name withUserInfo:(NSDictionary *)userInfo
 {
-	if ([name isEqualToString:@"RefreshConversation"]) [[%c(CKConversationList) sharedConversationList] reloadConversations];
-	else if ([name isEqualToString:@"ClearDeletedChat"])
+	if ([name isEqualToString:@"ClearDeletedChat"])
 	{
 		IMChat *chat = [[%c(IMChatRegistry) sharedInstance] existingChatWithChatIdentifier:(NSString *)[userInfo objectForKey:@"chatID"]];
 		if (chat)
 		{
-			[chat leave];
 			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
 			CKConversation *conversation = nil;
 			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
@@ -104,7 +102,12 @@ static NSString *chosenKeyword;
 				conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
 				if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
 			}
-			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+			else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
+			{
+				conversation = [conversationList _conversationForChat:chat];
+				if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
+			}
+			else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
 			{
 				conversation = [conversationList _conversationForChat:chat];
 				if (conversation) [conversationList deleteConversation:conversation];
@@ -126,7 +129,6 @@ static NSString *chosenKeyword;
 	BOOL result = %orig;
 	CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
 	[messagingCenter runServerOnCurrentThread];
-	[messagingCenter registerForMessageName:@"RefreshConversation" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	[messagingCenter registerForMessageName:@"ClearDeletedChat" target:self selector:@selector(snHandleMessageNamed:withUserInfo:)];
 	return result;
 }
@@ -292,7 +294,6 @@ static NSString *chosenKeyword;
 		IMChat *chat = [[%c(IMChatRegistry) sharedInstance] existingChatWithChatIdentifier:(NSString *)[userInfo objectForKey:@"chatID"]];
 		if (chat)
 		{
-			[chat leave];
 			CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
 			CKConversation *conversation = nil;
 			if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
@@ -300,7 +301,12 @@ static NSString *chosenKeyword;
 				conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
 				if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
 			}
-			if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+			else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
+			{
+				conversation = [conversationList _conversationForChat:chat];
+				if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
+			}
+			else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
 			{
 				conversation = [conversationList _conversationForChat:chat];
 				if (conversation) [conversationList deleteConversation:conversation];
@@ -408,7 +414,7 @@ static NSString *chosenKeyword;
 				[addressArray addObject:address];
 			}
 		}
-		else [addressArray addObject:[message sender]];
+		else [addressArray addObject:[message handle]];
 
 		NSString *text = [[message body] string];
 		text = [text length] == 0 ? @" " : text;
@@ -434,7 +440,6 @@ static NSString *chosenKeyword;
 
 			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0))
 			{
-				[chat leave];
 				CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
 				CKConversation *conversation = nil;
 				if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
@@ -442,7 +447,12 @@ static NSString *chosenKeyword;
 					conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
 					if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
 				}
-				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
+				{
+					conversation = [conversationList _conversationForChat:chat];
+					if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
+				}
+				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
 				{
 					conversation = [conversationList _conversationForChat:chat];
 					if (conversation) [conversationList deleteConversation:conversation];
@@ -468,7 +478,7 @@ static NSString *chosenKeyword;
 				[addressArray addObject:address];
 			}
 		}
-		else [addressArray addObject:[message sender]];
+		else [addressArray addObject:[message handle]];
 
 		NSString *text = [[message body] string];
 		text = [text length] == 0 ? @" " : text;
@@ -512,7 +522,6 @@ static NSString *chosenKeyword;
 
 			if (![chat lastMessage] || (!success && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_8_0))
 			{
-				[chat leave];
 				CKConversationList *conversationList = [%c(CKConversationList) sharedConversationList];
 				CKConversation *conversation = nil;
 				if (kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_6_0)
@@ -520,7 +529,12 @@ static NSString *chosenKeyword;
 					conversation = [[%c(CKMadridService) sharedMadridService] _conversationForChat:chat];
 					if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
 				}
-				if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0)
+				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_6_0 && kCFCoreFoundationVersionNumber < kCFCoreFoundationVersionNumber_iOS_7_0)
+				{
+					conversation = [conversationList _conversationForChat:chat];
+					if (conversation) [conversation deleteAllMessagesAndRemoveGroup];
+				}
+				else if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_7_0)
 				{
 					conversation = [conversationList _conversationForChat:chat];
 					if (conversation) [conversationList deleteConversation:conversation];
@@ -780,13 +794,13 @@ static NSString *chosenKeyword;
 					void *libHandle = dlopen("/System/Library/PrivateFrameworks/IMDPersistence.framework/IMDPersistence", RTLD_LAZY);
 					IMDPersistenceDatabaseThread = (NSThread *(*)(void))dlsym(libHandle, "IMDPersistenceDatabaseThread");
 					if ([store respondsToSelector:@selector(deleteChat:)]) [store performSelector:@selector(deleteChat:) onThread:IMDPersistenceDatabaseThread() withObject:chat waitUntilDone:YES];
-					else if ([store respondsToSelector:@selector(deleteChatWithGUID:)]) [store performSelector:@selector(deleteChatWithGUID:) onThread:IMDPersistenceDatabaseThread() withObject:[chat guid] waitUntilDone:YES];
+					else if ([store respondsToSelector:@selector(deleteChatWithGUID:)]) [store performSelector:@selector(deleteChatWithGUID:) onThread:IMDPersistenceDatabaseThread() withObject:arg2 waitUntilDone:YES];
 					dlclose(libHandle);
 				}
 				else
 				{
 					if ([store respondsToSelector:@selector(deleteChat:)]) [store deleteChat:chat];
-					else if ([store respondsToSelector:@selector(deleteChatWithGUID:)]) [store deleteChatWithGUID:[chat guid]];
+					else if ([store respondsToSelector:@selector(deleteChatWithGUID:)]) [store deleteChatWithGUID:arg2];
 				}
 				CPDistributedMessagingCenter *messagingCenter = [%c(CPDistributedMessagingCenter) centerNamed:@"com.naken.smsninja.mobilesms"];
 				[messagingCenter sendMessageName:@"ClearDeletedChat" userInfo:@{@"chatID" : arg2}];
