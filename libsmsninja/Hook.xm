@@ -358,6 +358,13 @@ static NSString *chosenKeyword;
 	NSFileManager *fileManager = [NSFileManager defaultManager];
 	UpdateBadge();
 	if ([fileManager fileExistsAtPath:@"/var/mobile/Library/SMSNinja/UnreadPrivateInfo"] && [[settings objectForKey:@"appIsOn"] boolValue] && [[settings objectForKey:@"shouldShowPurpleSquare"] boolValue]) ShowPurpleSquare();
+
+	if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iOS_8_0)
+	{
+		UIAlertView *validateAlertView = [[UIAlertView alloc] initWithTitle:NSLocalizedStringFromTableInBundle(@"Notice", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil) message:NSLocalizedStringFromTableInBundle(@"Due to the security enhancement in iOS 8, SMSNinja can't read your settings right after reboot or respring if your iPhone is protected with Touch ID or passcode, hence blocks and filters fail to work. To temporarily fix this issue, you need to toggle the SMSNinja switch off and on inside SMSNinja after each reboot or respring, to enable SMSNinja again.", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil) delegate:nil cancelButtonTitle:NSLocalizedStringFromTableInBundle(@"OK", @"Localizable", [NSBundle bundleWithPath:@"/Applications/SMSNinja.app"], nil) otherButtonTitles:nil];
+		[validateAlertView show];
+		[validateAlertView release];
+	}
 }
 %end
 
@@ -1903,7 +1910,6 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 				}
 			}
 
-			LoadAllLists(nil, nil, nil, nil, nil);
 			LoadSettings(nil, nil, nil, nil, nil);
 			CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadBlacklist, CFSTR("com.naken.smsninja.blacklistchanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);
 			CFNotificationCenterAddObserver(CFNotificationCenterGetDarwinNotifyCenter(), NULL, LoadWhitelist, CFSTR("com.naken.smsninja.whitelistchanged"), NULL, CFNotificationSuspensionBehaviorCoalesce);

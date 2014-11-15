@@ -313,6 +313,8 @@ void LoadSettings(CFNotificationCenterRef center, void *observer, CFStringRef na
 	[settings release];
 	settings = nil;
 	settings = [[NSDictionary alloc] initWithContentsOfFile:SETTINGS];
+
+	LoadAllLists(nil, nil, nil, nil, nil);	
 }
 
 void ReloadConversation(void)
