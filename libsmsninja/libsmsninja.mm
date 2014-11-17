@@ -820,7 +820,7 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 	else if (error) NSLog(@"SMSNinja: Failed to generate regex from pattern \"%@\", error \"%@\"", pattern, [error localizedDescription]);
 
 	NSString *longestCommonSubstring = LongestCommonSubstring(self, stringInList);
-	if ([longestCommonSubstring length] >= 6 && [self hasSuffix:longestCommonSubstring] && [stringInList hasSuffix:longestCommonSubstring])
+	if ([longestCommonSubstring length] >= 8 && [self hasSuffix:longestCommonSubstring] && [stringInList hasSuffix:longestCommonSubstring])
 	{
 		NSLog(@"SMSNinja: \"%@\" and \"%@\" shares the same suffix \"%@\".", self, stringInList, longestCommonSubstring);
 		return YES;
