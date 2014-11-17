@@ -342,6 +342,54 @@ static NSString *CurrentCountryCode(void)
 	return countryCode;
 }
 
+static NSString *LongestCommonSubstring(NSString *string1, NSString *string2)
+{
+	if (string1 == nil || string1.length == 0 || string2 == nil || string2.length == 0) return nil;
+	NSMutableDictionary *map = [NSMutableDictionary dictionary];
+	int maxlen = 0;
+	int lastSubsBegin = 0;
+	NSMutableString *sequenceBuilder = [NSMutableString string];
+
+	for (int i = 0; i < string1.length; i++)
+	{
+		for (int j = 0; j < string2.length; j++)
+		{
+			unichar substringC = [[string1 lowercaseString] characterAtIndex:i];
+			unichar stringC = [[string2 lowercaseString] characterAtIndex:j];
+
+			if (substringC != stringC) {
+				[map setObject:[NSNumber numberWithInt:0] forKey:[NSString stringWithFormat:@"%i%i",i,j]];
+			}
+			else {
+				if ((i == 0) || (j == 0)) {
+					[map setObject:[NSNumber numberWithInt:1] forKey:[NSString stringWithFormat:@"%i%i",i,j]];
+				}
+				else {
+					int prevVal = [[map objectForKey:[NSString stringWithFormat:@"%i%i",i-1,j-1]] intValue];
+					[map setObject:[NSNumber numberWithInt:1+prevVal] forKey:[NSString stringWithFormat:@"%i%i",i,j]];
+				}
+				int currVal = [[map objectForKey:[NSString stringWithFormat:@"%i%i",i,j]] intValue];
+				if (currVal > maxlen) {
+					maxlen = currVal;
+					int thisSubsBegin = i - currVal + 1;
+					if (lastSubsBegin == thisSubsBegin)
+					{ // if the current LCS is the same as the last time this block ran
+						NSString *append = [NSString stringWithFormat:@"%C",substringC];
+						[sequenceBuilder appendString:append];
+					}
+					else // this block resets the string builder if a different LCS is found
+					{
+						lastSubsBegin = thisSubsBegin;
+						NSString *resetStr = [string1 substringWithRange:NSMakeRange(lastSubsBegin, (i + 1) - lastSubsBegin)];
+						sequenceBuilder = [NSMutableString stringWithFormat:@"%@",resetStr];
+					}
+				}
+			}
+		}
+	}
+	return sequenceBuilder;
+}	
+
 static void FinishedPlaying(SystemSoundID systemSoundID, void *clientData)
 {
 	AudioServicesRemoveSystemSoundCompletion(systemSoundID);    
@@ -765,12 +813,19 @@ NSUInteger ActionOfTextFunctionWithInfo(NSArray *addressArray, NSString *text, N
 		NSUInteger numberOfMatches = [regex numberOfMatchesInString:self options:0 range:NSMakeRange(0, [self length])];
 		if (numberOfMatches > 0)
 		{
-			NSLog(@"SMSNinja: \"%@\" matches regex \"%@\" (\"%@\")", self, pattern, stringInList);
+			NSLog(@"SMSNinja: \"%@\" matches regex \"%@\" (\"%@\").", self, pattern, stringInList);
 			return YES;
 		}
-		else return NO;
 	}
 	else if (error) NSLog(@"SMSNinja: Failed to generate regex from pattern \"%@\", error \"%@\"", pattern, [error localizedDescription]);
+
+	NSString *longestCommonSubstring = LongestCommonSubstring(self, stringInList);
+	if ([longestCommonSubstring length] >= 6 && [self hasSuffix:longestCommonSubstring] && [stringInList hasSuffix:longestCommonSubstring])
+	{
+		NSLog(@"SMSNinja: \"%@\" and \"%@\" shares the same suffix \"%@\".", self, stringInList, longestCommonSubstring);
+		return YES;
+	}
+
 	return NO;
 }
 
