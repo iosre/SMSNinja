@@ -1702,7 +1702,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 			break;
 		}
 	}
-	if (shouldRing) %orig;
+	if (shouldRing || ![[settings objectForKey:@"appIsOn"] boolValue]) %orig;
 }
 
 - (void)_videoCallStatusChanged:(NSConcreteNotification *)arg1 // stop ringtone and vibration, TUCallCenterVideoCallStatusChangedNotification comes from CTTelephonyCenterAddObserver(kCTCallStatusChangeNotification) in TelephonyUtilities
@@ -1793,7 +1793,7 @@ BOOL new_CMFBlockListIsItemBlocked(CommunicationFilterItem *item)  // disable st
 			break;
 		}
 	}
-	if (shouldRing) %orig;
+	if (shouldRing || ![[settings objectForKey:@"appIsOn"] boolValue]) %orig;
 }
 %end
 
