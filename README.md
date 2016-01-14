@@ -1,13 +1,13 @@
 # SMSNinja
 SMSNinja is a lightweight but highly efficient firewall for blocking and hiding SMS, MMS, iMessages, phone calls and FaceTime on stock Phone and Message Apps. It's so powerful that I, as a startup member, no longer have time maintaining it :|
 
-Pros:
+###Pros:
 The source code covers most of the SMS, MMS, iMessages, phone calls and FaceTime operations on iOS 5 ~ 8, so if you're doing anything related, SMSNinja will be a very good reference.
 
-Cons:
+###Cons:
 The source code is ugly modulized and poorly designed. I hate my inelegance and that's why I refused to open source SMSNinja for a long time :(
 
-TODO:
+###TODO:
 1. Redesign SMSNinja according to MVC;
 2. Rewrite the UI part with Xcode;
 3. Remodulizing SMSNinja;
